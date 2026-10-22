@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0-draft",
+  "edition": "2026/27",
+  "scenario_count": 100,
+  "question_count": 200,
+  "evidence_count": 83,
+  "author": "Coding assistant in this conversation",
+  "generation_method": "Source-grounded assistant authorship; no paid provider API calls",
+  "review_status": "agent_source_checked_not_expert_reviewed",
+  "source_snapshot": {
+    "local_path": "data/processed/reference-pages.json",
+    "sha256": "765f846140b1b5653d32394a9704375395ccff2921d4609c356ce567123cf2d1",
+    "normalization": "Each pypdf-extracted page: Python str split() then join with one ASCII space; no Unicode normalization",
+    "extractor": "pypdf==6.21.2, fonttools==4.67.0",
+    "offsets": "Python Unicode code-point offsets in normalized page, zero-based, end-exclusive; PDF page one-based",
+    "reextraction_verified": true,
+    "serialization": "UTF-8 without BOM, JSON indent=2 ensure_ascii=False, LF line endings and final LF"
+  },
+  "artifact_sha256": {
+    "data/evaluation/scenarios.jsonl": "12588edf4c1149a06e4d8adf11cd087758536d9d7df92ab07ac36fcb181fce04",
+    "data/evaluation/evidence.jsonl": "7ebb4f4031895d7a36a992aec3c75c9eec6b759fce273522db4034f0b72c7b71",
+    "docs/source-manifest.json": "c3f1db5d6a80e3805535834fc68ce7b85f00cb0f4e4b41c42aa57740d7e7859e"
+  },
+  "split_counts": {
+    "dev": 75,
+    "test": 25
+  },
+  "split_method": "Manual scenario-group holdout before RAG tuning; original 45/15 allocation unchanged; 40 new situations assigned 30/10 with related groups kept together."
+}

@@ -1,0 +1,2 @@
+/data/evaluation/*.json* text eol=lf
+/docs/source-manifest.json text eol=lf

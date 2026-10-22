@@ -1,0 +1,28 @@
+[
+  {
+    "id": "ifab-2026-27-en",
+    "edition": "2026/27",
+    "language": "en",
+    "publisher": "IFAB",
+    "source_url": "https://www.theifab.com/downloads/laws-of-the-game-202627-single-pages?l=en",
+    "local_path": "data/raw/ifab-laws-2026-27-en.pdf",
+    "downloaded_at_utc": "2026-10-22T14:48:49.491805+00:00",
+    "bytes": 23437157,
+    "sha256": "89398520b353c6d995a1bb2557c97dc3c5aa1712c1d3009589f580a5a23c6a7d",
+    "pdf_pages": 260,
+    "edition_verified_on_pdf_page": 1
+  },
+  {
+    "id": "ifab-2026-27-ru",
+    "edition": "2026/27",
+    "language": "ru",
+    "publisher": "Russian Football Union",
+    "source_url": "https://www.rfs.ru/subject/1/documents/preview?documentId=2079",
+    "local_path": "data/raw/rfs-laws-2026-27-ru.pdf",
+    "downloaded_at_utc": "2026-10-22T14:48:54.196379+00:00",
+    "bytes": 21158429,
+    "sha256": "a0df2582513fad7e9b4802e2528c3706883a26d046ec07d047387eb086c2e131",
+    "pdf_pages": 254,
+    "edition_verified_on_pdf_page": 1
+  }
+]
