@@ -28,13 +28,30 @@ def main() -> None:
         "--output", type=Path, default=Path("data/processed/cleaned-pages.jsonl")
     )
 
+    chunking = commands.add_parser(
+        "chunk", help="Split cleaned pages with source provenance"
+    )
+    chunking.add_argument(
+        "--input", type=Path, default=Path("data/processed/cleaned-pages.jsonl")
+    )
+    chunking.add_argument(
+        "--output", type=Path, default=Path("data/processed/chunks.jsonl")
+    )
+    chunking.add_argument("--chunk-size", type=int, default=1000)
+    chunking.add_argument("--chunk-overlap", type=int, default=150)
+
     args = parser.parse_args()
 
     if args.command == "ingest":
         report = ingest(args.manifest, args.output, Path.cwd())
-    else:
+    elif args.command == "clean":
         from football_rules.cleaning import clean_corpus
 
         report = clean_corpus(args.input, args.output)
+    else:
+        from football_rules.chunking import ChunkConfig, chunk_corpus
+
+        config = ChunkConfig(args.chunk_size, args.chunk_overlap)
+        report = chunk_corpus(args.input, args.output, config)
 
     print(json.dumps(report, ensure_ascii=False, indent=2))
