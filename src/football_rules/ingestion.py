@@ -2,18 +2,18 @@
 
 import hashlib
 import json
-import os
 import re
 from collections import Counter
 from dataclasses import dataclass
 from importlib.metadata import version
 from io import BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from typing import TypedDict
 
 from pypdf import PageObject, PdfReader, mult
 from pypdf.generic import DictionaryObject
+
+from football_rules.jsonl import write_jsonl
 
 
 @dataclass(frozen=True)
@@ -223,23 +223,7 @@ def ingest(manifest_path: Path, output_path: Path, root: Path) -> dict[str, obje
     for source in sources:
         records.extend(extract_document(source, root))
 
-    content = "".join(
-        json.dumps(page, ensure_ascii=False) + "\n" for page in records
-    ).encode("utf-8")
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    temporary_path = None
-
-    try:
-        with NamedTemporaryFile(
-            dir=output_path.parent, suffix=".tmp", delete=False
-        ) as temporary:
-            temporary_path = Path(temporary.name)
-            temporary.write(content)
-        os.replace(temporary_path, output_path)
-    finally:
-        if temporary_path is not None:
-            temporary_path.unlink(missing_ok=True)
+    output_hash = write_jsonl(output_path, records)
 
     documents = []
 
@@ -260,6 +244,6 @@ def ingest(manifest_path: Path, output_path: Path, root: Path) -> dict[str, obje
 
     return {
         "output": str(output_path),
-        "sha256": hashlib.sha256(content).hexdigest(),
+        "sha256": output_hash,
         "documents": documents,
     }
