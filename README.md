@@ -60,6 +60,8 @@ uv run python scripts/evaluate_retrieval.py --collection football_a71631f65a6ba8
 
 [Загрузка модели, устройство индекса, правило релевантности, MLflow и ограничения](docs/retrieval.md).
 
+[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Это план следующего цикла; новые конфигурации пока не запускались.
+
 ## Проверка
 
 ```powershell
