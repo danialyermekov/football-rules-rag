@@ -40,6 +40,23 @@ def main() -> None:
     chunking.add_argument("--chunk-size", type=int, default=1000)
     chunking.add_argument("--chunk-overlap", type=int, default=150)
 
+    indexing = commands.add_parser(
+        "index", help="Embed chunks and build a local Qdrant collection"
+    )
+    indexing.add_argument(
+        "--input", type=Path, default=Path("data/processed/chunks.jsonl")
+    )
+    indexing.add_argument("--database", type=Path, default=Path("data/qdrant"))
+
+    searching = commands.add_parser(
+        "search", help="Retrieve chunks using local BGE-M3 and Qdrant"
+    )
+    searching.add_argument("query")
+    searching.add_argument("--language", choices=["ru", "en"], required=True)
+    searching.add_argument("--collection", required=True)
+    searching.add_argument("--database", type=Path, default=Path("data/qdrant"))
+    searching.add_argument("--k", type=int, default=5)
+
     args = parser.parse_args()
 
     if args.command == "ingest":
@@ -48,10 +65,27 @@ def main() -> None:
         from football_rules.cleaning import clean_corpus
 
         report = clean_corpus(args.input, args.output)
-    else:
+    elif args.command == "chunk":
         from football_rules.chunking import ChunkConfig, chunk_corpus
 
         config = ChunkConfig(args.chunk_size, args.chunk_overlap)
         report = chunk_corpus(args.input, args.output, config)
+    elif args.command == "index":
+        from football_rules.embeddings import BGEEmbedder
+        from football_rules.retrieval import index_chunks
+
+        report = index_chunks(args.input, args.database, BGEEmbedder())
+    else:
+        from football_rules.embeddings import BGEEmbedder
+        from football_rules.retrieval import DenseRetriever
+        from football_rules.tracking import configure_tracking
+
+        configure_tracking()
+        retriever = DenseRetriever(args.database, args.collection, BGEEmbedder())
+
+        try:
+            report = {"documents": retriever.search(args.query, args.language, args.k)}
+        finally:
+            retriever.close()
 
     print(json.dumps(report, ensure_ascii=False, indent=2))

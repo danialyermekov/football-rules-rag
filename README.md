@@ -1,6 +1,6 @@
 # Football Rules RAG
 
-Учебный проект ассистента по футбольным правилам IFAB. Сейчас реализованы постраничное извлечение, консервативная очистка текста PDF и baseline-чанкинг, подготовлен датасет оценки. Embeddings, векторная база, поиск и генерация ответов ещё не подключены.
+Учебный проект ассистента по футбольным правилам IFAB. Реализованы извлечение и очистка текста PDF, baseline-чанкинг, локальные embeddings BGE-M3 и dense retrieval через Qdrant Local. Подготовлен датасет оценки и скрипт retrieval evaluation в MLflow. Генерация ответов пока не подключена.
 
 ## Запуск ingestion
 
@@ -43,7 +43,22 @@ uv run football-rules chunk
 uv run football-rules chunk --chunk-size 600 --chunk-overlap 100 --output data/processed/chunks-600-100.jsonl
 ```
 
-[Как работает разбиение, примеры RU/EN, результаты и ограничения](docs/chunking.md). Изменение параметров пока не считается измеренным улучшением: оценка retrieval и запись экспериментов в MLflow появятся после подключения поиска.
+[Как работает разбиение, примеры RU/EN, результаты и ограничения](docs/chunking.md). Изменение параметров само по себе не считается улучшением: сравниваем метрики retrieval на dev-наборе.
+
+## Embeddings, поиск и оценка
+
+После загрузки закреплённой версии BGE-M3:
+
+```powershell
+uv run football-rules index
+uv run football-rules search "Можно ли оказаться вне игры после вбрасывания?" --language ru --collection football_a71631f65a6ba8bd0978b14e --k 5
+uv run python scripts/evaluate_retrieval.py --collection football_a71631f65a6ba8bd0978b14e --limit 3 --verify-trace
+uv run python scripts/evaluate_retrieval.py --collection football_a71631f65a6ba8bd0978b14e
+```
+
+Имя коллекции в примере относится к текущему корпусу и модели; при другой конфигурации используйте имя, выведенное `index`. Qdrant работает локально на диске, без отдельного Docker-сервера. MLflow использует локальный SQLite, если не задано другое tracking destination. Retrieval оценивается отдельно для RU/EN, без Gemini и платных LLM judges.
+
+[Загрузка модели, устройство индекса, правило релевантности, MLflow и ограничения](docs/retrieval.md).
 
 ## Проверка
 

@@ -8,10 +8,17 @@ wheels/
 
 # Virtual environments
 .venv
+.env
+.env.*
+!.env.example
 
 # Local source documents and extracted content
 /data/raw/
 /data/processed/
+/data/models/
+/data/qdrant/
+/data/mlflow/
+/mlruns/
 /tmp/
 
 # Local test and analysis output
