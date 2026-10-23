@@ -21,6 +21,7 @@ class FixtureEmbedder:
 
     def __init__(self):
         self.calls = 0
+        self.query_calls = 0
 
     def parameters(self):
         return {"model": "test-fixture", "dimension": self.dimension}
@@ -31,6 +32,10 @@ class FixtureEmbedder:
             [1.0, 0.0] if "ball" in text or "мяч" in text else [0.0, 1.0]
             for text in texts
         ]
+
+    def encode_queries(self, texts):
+        self.query_calls += 1
+        return self.encode(texts)
 
 
 class RetrievalTests(unittest.TestCase):
@@ -59,6 +64,7 @@ class RetrievalTests(unittest.TestCase):
         repeated = index_chunks(self.chunks, self.database, self.embedder)
         self.assertTrue(repeated["reused"])
         self.assertEqual(self.embedder.calls, 1)
+        self.assertEqual(self.embedder.query_calls, 0)
         retriever = DenseRetriever(self.database, report["collection"], self.embedder)
 
         try:
@@ -69,6 +75,7 @@ class RetrievalTests(unittest.TestCase):
             self.assertEqual(
                 [hit["chunk_id"] for hit in retriever.search("мяч", "ru")], ["b"]
             )
+            self.assertEqual(self.embedder.query_calls, 2)
 
             for query, language, k in [
                 ("", "en", 1),

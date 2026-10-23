@@ -148,7 +148,7 @@ class DenseRetriever:
 
         with mlflow.start_span(name="query_embedding", span_type="EMBEDDING") as span:
             span.set_inputs({"texts": [query]})
-            vectors = self.embedder.encode([query])
+            vectors = self.embedder.encode_queries([query])
             validate_vectors(vectors, 1, self.embedder.dimension)
             vector = vectors[0]
             span.set_outputs({"vector": vector})

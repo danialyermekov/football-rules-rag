@@ -81,6 +81,7 @@ class HybridTests(unittest.TestCase):
         embedder.encode.side_effect = lambda texts: [
             [0.0, 1.0] if "referee" in text else [1.0, 0.0] for text in texts
         ]
+        embedder.encode_queries.side_effect = embedder.encode.side_effect
         manifest = index_chunks(path, root / "qdrant", embedder)
         dense = DenseRetriever(root / "qdrant", manifest["collection"], embedder)
         hybrid = HybridRetriever(dense, BM25Retriever(path))

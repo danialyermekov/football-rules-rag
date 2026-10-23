@@ -14,7 +14,7 @@ from mlflow.genai.datasets import create_dataset, get_dataset
 from mlflow.genai.scorers import scorer
 
 from football_rules.bm25 import BM25Retriever
-from football_rules.embeddings import MODEL_ID, MODEL_REVISION, BGEEmbedder
+from football_rules.embeddings import MODEL_ID, MODEL_REVISION, load_embedder
 from football_rules.evidence_evaluation import evidence_metrics, pack_context
 from football_rules.hybrid import HybridRetriever
 from football_rules.retrieval import DenseRetriever, read_chunks
@@ -103,6 +103,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--collection")
     parser.add_argument(
+        "--embedding", choices=["bge-m3", "qwen3-0.6b"], default="bge-m3"
+    )
+    parser.add_argument(
         "--strategy", choices=["dense", "bm25", "hybrid"], default="dense"
     )
     parser.add_argument("--database", type=Path, default=Path("data/qdrant"))
@@ -170,27 +173,27 @@ def main():
         dataset.merge_records(records)
 
     if args.strategy in {"dense", "hybrid"}:
-        embedder = BGEEmbedder()
+        embedder = load_embedder(args.embedding)
         retriever = DenseRetriever(args.database, args.collection, embedder)
-        tokenizer = embedder.model.tokenizer
         if args.strategy == "hybrid":
             retriever = HybridRetriever(retriever, BM25Retriever(args.chunks))
     else:
-        from transformers import AutoTokenizer
-
         retriever = BM25Retriever(args.chunks)
-        tokenizer_metadata = Path(
-            "data/models/bge-m3/.cache/huggingface/download/tokenizer.json.metadata"
-        )
 
-        if tokenizer_metadata.read_text(encoding="utf-8").splitlines()[:1] != [
-            MODEL_REVISION
-        ]:
-            raise ValueError("Budget tokenizer differs from the pinned BGE revision")
+    from transformers import AutoTokenizer
 
-        tokenizer = AutoTokenizer.from_pretrained(
-            "data/models/bge-m3", local_files_only=True
-        )
+    tokenizer_metadata = Path(
+        "data/models/bge-m3/.cache/huggingface/download/tokenizer.json.metadata"
+    )
+
+    if tokenizer_metadata.read_text(encoding="utf-8").splitlines()[:1] != [
+        MODEL_REVISION
+    ]:
+        raise ValueError("Budget tokenizer differs from the pinned BGE revision")
+
+    tokenizer = AutoTokenizer.from_pretrained(
+        "data/models/bge-m3", local_files_only=True
+    )
 
     if (
         retriever.manifest["chunks_sha256"]
@@ -274,6 +277,7 @@ def main():
             )
             + ("-dry-run" if args.limit else "")
         ) as run:
+            mlflow.set_tag("run_kind", "smoke" if args.limit else "full")
             mlflow.log_dict(retriever.manifest, "index-manifest.json")
             mlflow.log_params(
                 {

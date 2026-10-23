@@ -118,6 +118,18 @@ uv run python scripts/evaluate_retrieval.py --strategy hybrid --collection footb
 
 ## Реранкер и CUDA
 
+Для E9 сравнивается Dense-поиск с `Qwen/Qwen3-Embedding-0.6B`. Чанки 1000/150 и бюджет 2048 по токенизатору BGE-M3 остаются прежними. Qwen кодирует вопросы с опубликованной английской инструкцией, документы — без неё. FP32, CUDA, batch 2; требуется доступный GPU:
+
+```powershell
+uv run --extra cuda hf download Qwen/Qwen3-Embedding-0.6B config.json model.safetensors tokenizer.json tokenizer_config.json config_sentence_transformers.json modules.json 1_Pooling/config.json --revision 97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3 --local-dir data/models/qwen3-embedding-0.6b
+uv run --extra cuda football-rules index --embedding qwen3-0.6b
+uv run --extra cuda python scripts/evaluate_retrieval.py --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --run-name E9-dense-qwen3-0.6b-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --run-name E9-dense-qwen3-0.6b-v2
+uv run --extra cuda football-rules search "Можно ли оказаться вне игры после вбрасывания?" --embedding qwen3-0.6b --language ru --collection football_44d75390ffa00dde1b74f0e6 --k 5
+```
+
+Имя коллекции зависит от закреплённых версий; проверьте вывод `index`. Параметр `--embedding` доступен для `index`, `search` и оценки; по умолчанию используется прежняя BGE-M3. Векторы моделей не смешиваются. Новые evaluation runs помечаются `run_kind=smoke/full`; проверочный запуск на 3 вопросах не сравнивают с полными 142. Задержка Qwen на GPU не является сравнением скорости моделей с историческим CPU-run E0.
+
 E3 использует multilingual cross-encoder `BAAI/bge-reranker-v2-m3`, закреплённая ревизия `953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e`. [Карточка модели BAAI](https://huggingface.co/BAAI/bge-reranker-v2-m3/tree/953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e). Ввод — полный вопрос и текст чанка, выход — raw logit релевантности. Это не вероятность корректности ответа.
 
 На Windows опция `cuda` устанавливает PyTorch `2.14.1+cu130` из официального индекса. Обычный `uv run` выбирает исходную сборку `2.14.1` из PyPI; `cpu` и `cuda` взаимоисключающие. CUDA проверена на RTX 3060 Laptop 6 ГиБ. Настройка следует [руководству uv по PyTorch](https://docs.astral.sh/uv/guides/integration/pytorch/).

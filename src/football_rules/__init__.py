@@ -47,15 +47,21 @@ def main() -> None:
         "--input", type=Path, default=Path("data/processed/chunks.jsonl")
     )
     indexing.add_argument("--database", type=Path, default=Path("data/qdrant"))
+    indexing.add_argument(
+        "--embedding", choices=["bge-m3", "qwen3-0.6b"], default="bge-m3"
+    )
 
     searching = commands.add_parser(
-        "search", help="Retrieve chunks using local BGE-M3 and Qdrant"
+        "search", help="Retrieve chunks using local embeddings and Qdrant"
     )
     searching.add_argument("query")
     searching.add_argument("--language", choices=["ru", "en"], required=True)
     searching.add_argument("--collection", required=True)
     searching.add_argument("--database", type=Path, default=Path("data/qdrant"))
     searching.add_argument("--k", type=int, default=5)
+    searching.add_argument(
+        "--embedding", choices=["bge-m3", "qwen3-0.6b"], default="bge-m3"
+    )
 
     args = parser.parse_args()
 
@@ -71,17 +77,19 @@ def main() -> None:
         config = ChunkConfig(args.chunk_size, args.chunk_overlap)
         report = chunk_corpus(args.input, args.output, config)
     elif args.command == "index":
-        from football_rules.embeddings import BGEEmbedder
+        from football_rules.embeddings import load_embedder
         from football_rules.retrieval import index_chunks
 
-        report = index_chunks(args.input, args.database, BGEEmbedder())
+        report = index_chunks(args.input, args.database, load_embedder(args.embedding))
     else:
-        from football_rules.embeddings import BGEEmbedder
+        from football_rules.embeddings import load_embedder
         from football_rules.retrieval import DenseRetriever
         from football_rules.tracking import configure_tracking
 
         configure_tracking()
-        retriever = DenseRetriever(args.database, args.collection, BGEEmbedder())
+        retriever = DenseRetriever(
+            args.database, args.collection, load_embedder(args.embedding)
+        )
 
         try:
             report = {"documents": retriever.search(args.query, args.language, args.k)}
