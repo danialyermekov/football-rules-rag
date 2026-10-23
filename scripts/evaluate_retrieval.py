@@ -16,6 +16,7 @@ from mlflow.genai.scorers import scorer
 from football_rules.bm25 import BM25Retriever
 from football_rules.embeddings import MODEL_ID, MODEL_REVISION, BGEEmbedder
 from football_rules.evidence_evaluation import evidence_metrics, pack_context
+from football_rules.hybrid import HybridRetriever
 from football_rules.retrieval import DenseRetriever, read_chunks
 from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
 from football_rules.tracking import configure_tracking
@@ -101,7 +102,9 @@ def make_evidence_scorer(metric, pages):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--collection")
-    parser.add_argument("--strategy", choices=["dense", "bm25"], default="dense")
+    parser.add_argument(
+        "--strategy", choices=["dense", "bm25", "hybrid"], default="dense"
+    )
     parser.add_argument("--database", type=Path, default=Path("data/qdrant"))
     parser.add_argument(
         "--chunks", type=Path, default=Path("data/processed/chunks.jsonl")
@@ -112,11 +115,11 @@ def main():
     parser.add_argument("--context-budget", type=int, default=2048)
     args = parser.parse_args()
 
-    if args.strategy == "dense" and not args.collection:
-        parser.error("--collection is required for dense retrieval")
+    if args.strategy in {"dense", "hybrid"} and not args.collection:
+        parser.error("--collection is required for dense/hybrid retrieval")
 
-    if args.strategy == "bm25" and args.protocol != "v2":
-        parser.error("BM25 experiments require protocol v2")
+    if args.strategy != "dense" and args.protocol != "v2":
+        parser.error("BM25/hybrid experiments require protocol v2")
 
     if args.limit is not None and args.limit <= 0:
         parser.error("--limit must be positive")
@@ -163,10 +166,12 @@ def main():
         )
         dataset.merge_records(records)
 
-    if args.strategy == "dense":
+    if args.strategy in {"dense", "hybrid"}:
         embedder = BGEEmbedder()
         retriever = DenseRetriever(args.database, args.collection, embedder)
         tokenizer = embedder.model.tokenizer
+        if args.strategy == "hybrid":
+            retriever = HybridRetriever(retriever, BM25Retriever(args.chunks))
     else:
         from transformers import AutoTokenizer
 
@@ -188,7 +193,7 @@ def main():
         retriever.manifest["chunks_sha256"]
         != hashlib.sha256(args.chunks.read_bytes()).hexdigest()
     ):
-        if isinstance(retriever, DenseRetriever):
+        if isinstance(retriever, (DenseRetriever, HybridRetriever)):
             retriever.close()
         raise ValueError("Evaluation chunks differ from the indexed corpus")
 
@@ -217,6 +222,11 @@ def main():
         )
         retrieval_seconds = perf_counter() - started
         output = {"documents": documents, "retrieval_seconds": retrieval_seconds}
+
+        if args.strategy == "hybrid":
+            output["fusion_candidates"] = documents
+            documents = documents[:50]
+            output["documents"] = documents
 
         if args.protocol == "v2":
             packing_started = perf_counter()
@@ -248,7 +258,11 @@ def main():
     try:
         with mlflow.start_run(
             run_name=(
-                ("E0-dense-baseline-v2" if args.strategy == "dense" else "E1-bm25-v2")
+                {
+                    "dense": "E0-dense-baseline-v2",
+                    "bm25": "E1-bm25-v2",
+                    "hybrid": "E2-hybrid-rrf-v2",
+                }[args.strategy]
                 if args.protocol == "v2"
                 else "dense-baseline-v1"
             )
@@ -278,17 +292,30 @@ def main():
                     "control_run_id": "7c739293e3284f39833421cc9b8f400a",
                 }
             )
-            if args.strategy == "dense":
+            if args.strategy in {"dense", "hybrid"}:
                 mlflow.log_params(
                     {
                         f"embedding_{key}": value
                         for key, value in retriever.manifest["embedding"].items()
                     }
                 )
-            else:
-                mlflow.log_params(
-                    {f"bm25_{key}": value for key, value in retriever.manifest.items()}
+            if args.strategy in {"bm25", "hybrid"}:
+                bm25_parameters = (
+                    retriever.manifest["bm25"]
+                    if args.strategy == "hybrid"
+                    else retriever.manifest
                 )
+                mlflow.log_params(
+                    {f"bm25_{key}": value for key, value in bm25_parameters.items()}
+                )
+            if args.strategy == "hybrid":
+                mlflow.log_params(
+                    {
+                        f"fusion_{key}": value
+                        for key, value in retriever.manifest["fusion"].items()
+                    }
+                )
+                mlflow.log_param("branch_depth", 50)
             chunking = read_chunks(args.chunks)[0]["chunking"]
             mlflow.log_params(
                 {f"chunking_{key}": value for key, value in chunking.items()}
@@ -344,6 +371,7 @@ def main():
             for name in (
                 "embeddings",
                 "bm25",
+                "hybrid",
                 "retrieval",
                 "retrieval_metrics",
                 "evidence_evaluation",
@@ -380,6 +408,18 @@ def main():
                         )
                     )
                     values["context_tokens"] = output["context"]["token_count"]
+
+                    if args.strategy == "hybrid":
+                        union = output["fusion_candidates"]
+                        values["fusion_union_size"] = len(union)
+                        values.update(
+                            {
+                                f"candidate_union_{key}": value
+                                for key, value in evidence_metrics(
+                                    union, required, pages
+                                ).items()
+                            }
+                        )
 
                     for depth in (10, 20, 50):
                         candidate_values = evidence_metrics(
@@ -498,7 +538,7 @@ def main():
                 flush=True,
             )
     finally:
-        if isinstance(retriever, DenseRetriever):
+        if isinstance(retriever, (DenseRetriever, HybridRetriever)):
             retriever.close()
 
 

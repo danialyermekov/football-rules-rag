@@ -60,7 +60,7 @@ uv run python scripts/evaluate_retrieval.py --collection football_a71631f65a6ba8
 
 [Загрузка модели, устройство индекса, правило релевантности, MLflow и ограничения](docs/retrieval.md).
 
-[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Контроль E0 и BM25 E1 по протоколу v2 измерены; hybrid и reranker ещё не запускались.
+[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Контроль E0, BM25 E1 и hybrid E2 по протоколу v2 измерены; reranker ещё не запускался.
 
 BM25 использует те же чанки, но не требует embedding-модели и Qdrant. Для одинакового бюджета контекста нужен локальный токенизатор закреплённой версии BGE-M3:
 
@@ -70,6 +70,13 @@ uv run python scripts/evaluate_retrieval.py --strategy bm25
 ```
 
 Статистика BM25 считается отдельно по языкам, параметры `k1=1.2`, `b=0.75`. Нормализация NFKC/casefold и `ё→е`, разбиение на Unicode-буквы/цифры, без стемминга и стоп-слов. Повторения слов вопроса не усиливают их вес. Чанки без совпадений исключаются, одинаковые оценки разрешаются сортировкой по ID. [Формула IDF и параметры BM25 в документации Lucene](https://lucene.apache.org/core/10_3_1/core/org/apache/lucene/search/similarities/BM25Similarity.html); наша реализация использует точные длины текстов и не воспроизводит Lucene analyzer/norm quantization.
+
+Hybrid выполняет Dense50 и BM2550 последовательно и объединяет их на стороне приложения через RRF: `sum(1/(60+rank))`, ранги от 1, равные веса. Сохраняется весь уникальный пул с позициями и исходными scores каждой ветви; для основного контекста используются первые 50 результатов RRF и прежний бюджет 2048. Константа 60 — настройка проекта, не default Qdrant. [Официальное описание RRF](https://qdrant.tech/documentation/search/hybrid-queries/).
+
+```powershell
+uv run python scripts/evaluate_retrieval.py --strategy hybrid --collection football_a71631f65a6ba8bd0978b14e --limit 3 --verify-trace
+uv run python scripts/evaluate_retrieval.py --strategy hybrid --collection football_a71631f65a6ba8bd0978b14e
+```
 
 [Текущий протокол оценки v2](docs/retrieval-evaluation-v2.md) использует объединённые evidence и фиксированный бюджет контекста. [Журнал всех результатов и изменений метрик](docs/retrieval-results.md) пополняется после каждого эксперимента.
 
