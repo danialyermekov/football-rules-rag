@@ -70,6 +70,17 @@ uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_43
 uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_4380140929ffc0653c675e9c --chunks data/processed/chunks-1600-150.jsonl --run-name E6-dense-chunks-1600-150-v2
 ```
 
+E7 изолирует влияние overlap: размер остаётся 1000 символов, перекрытие уменьшается со 150 до 0. Остальные настройки совпадают с E0:
+
+```powershell
+uv run --extra cpu football-rules chunk --chunk-size 1000 --chunk-overlap 0 --output data/processed/chunks-1000-0.jsonl
+uv run --extra cpu football-rules index --input data/processed/chunks-1000-0.jsonl
+uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_2d278e0ae22ca05466186f42 --chunks data/processed/chunks-1000-0.jsonl --run-name E7-dense-chunks-1000-0-v2 --limit 3 --verify-trace
+uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_2d278e0ae22ca05466186f42 --chunks data/processed/chunks-1000-0.jsonl --run-name E7-dense-chunks-1000-0-v2
+```
+
+Коллекция указана для текущих закреплённых артефактов; при пересоздании проверьте имя из `index`. Все прежние файлы чанков и индексы сохраняются.
+
 ## Embeddings, поиск и оценка
 
 После загрузки закреплённой версии BGE-M3:
