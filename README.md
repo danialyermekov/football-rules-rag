@@ -60,7 +60,9 @@ uv run python scripts/evaluate_retrieval.py --collection football_a71631f65a6ba8
 
 [Загрузка модели, устройство индекса, правило релевантности, MLflow и ограничения](docs/retrieval.md).
 
-[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Это план следующего цикла; новые конфигурации пока не запускались.
+[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Контроль E0 по протоколу v2 измерен; BM25/hybrid и reranker ещё не запускались.
+
+[Текущий протокол оценки v2](docs/retrieval-evaluation-v2.md) использует объединённые evidence и фиксированный бюджет контекста. [Журнал всех результатов и изменений метрик](docs/retrieval-results.md) пополняется после каждого эксперимента.
 
 ## Проверка
 

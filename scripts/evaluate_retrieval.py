@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from statistics import quantiles
 from time import perf_counter
 
 import mlflow
@@ -13,6 +14,7 @@ from mlflow.genai.datasets import create_dataset, get_dataset
 from mlflow.genai.scorers import scorer
 
 from football_rules.embeddings import BGEEmbedder
+from football_rules.evidence_evaluation import evidence_metrics, pack_context
 from football_rules.retrieval import DenseRetriever, read_chunks
 from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
 from football_rules.tracking import configure_tracking
@@ -22,8 +24,8 @@ def read_jsonl(path):
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
-def evaluation_records(chunks_path):
-    chunks = read_chunks(chunks_path)
+def evaluation_records(chunks_path, protocol="v2"):
+    chunks = read_chunks(chunks_path) if protocol == "v1" else []
     pages = {
         (page["document_id"], page["pdf_page"]): page
         for page in read_jsonl(Path("data/processed/cleaned-pages.jsonl"))
@@ -43,7 +45,6 @@ def evaluation_records(chunks_path):
                 for key in row["required_evidence"]
                 for span in evidence[key]["locators"][language]
             ]
-            gold = relevant_chunks(chunks, locators, pages)
             records.append(
                 {
                     "inputs": {
@@ -52,10 +53,19 @@ def evaluation_records(chunks_path):
                     },
                     "expectations": {
                         "scenario_id": row["id"],
-                        "relevant_chunk_ids": gold,
                     },
                 }
             )
+
+            if protocol == "v2":
+                records[-1]["expectations"]["required_evidence"] = [
+                    {"id": key, "locators": evidence[key]["locators"][language]}
+                    for key in row["required_evidence"]
+                ]
+            else:
+                records[-1]["expectations"]["relevant_chunk_ids"] = relevant_chunks(
+                    chunks, locators, pages
+                )
 
     return records
 
@@ -76,6 +86,17 @@ def make_scorer(metric):
     return score
 
 
+def make_evidence_scorer(metric, pages):
+    @scorer(name=metric)
+    def score(outputs, expectations):
+        values = evidence_metrics(
+            outputs["context"]["documents"], expectations["required_evidence"], pages
+        )
+        return values[metric]
+
+    return score
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--collection", required=True)
@@ -85,22 +106,41 @@ def main():
     )
     parser.add_argument("--limit", type=int)
     parser.add_argument("--verify-trace", action="store_true")
+    parser.add_argument("--protocol", choices=["v1", "v2"], default="v2")
+    parser.add_argument("--context-budget", type=int, default=2048)
     args = parser.parse_args()
 
     if args.limit is not None and args.limit <= 0:
         parser.error("--limit must be positive")
 
+    if args.context_budget <= 0:
+        parser.error("--context-budget must be positive")
+
     os.environ["MLFLOW_GENAI_EVAL_MAX_WORKERS"] = "1"
     experiment_id = configure_tracking()
-    records = evaluation_records(args.chunks)
+    records = evaluation_records(args.chunks, args.protocol)
+    pages = {
+        (page["document_id"], page["pdf_page"]): page
+        for page in read_jsonl(Path("data/processed/cleaned-pages.jsonl"))
+    }
 
     if args.limit:
         records = records[: args.limit]
 
+    legacy_records = (
+        records if args.protocol == "v1" else evaluation_records(args.chunks, "v1")
+    )
+    gold_by_question = {
+        (record["inputs"]["query"], record["inputs"]["language"]): record[
+            "expectations"
+        ]["relevant_chunk_ids"]
+        for record in legacy_records
+    }
+
     fingerprint = hashlib.sha256(
         json.dumps(records, sort_keys=True, ensure_ascii=False).encode()
     ).hexdigest()
-    dataset_name = "football-dev-retrieval-" + fingerprint[:16]
+    dataset_name = f"football-dev-{args.protocol}-" + fingerprint[:16]
     client = mlflow.MlflowClient()
     existing = client.search_datasets(experiment_ids=[experiment_id])
     matches = [item for item in existing if item.name == dataset_name]
@@ -111,11 +151,12 @@ def main():
         dataset = create_dataset(
             name=dataset_name,
             experiment_id=[experiment_id],
-            tags={"split": "dev", "qrels": "locator_coverage_0.8_v1"},
+            tags={"split": "dev", "protocol": args.protocol},
         )
         dataset.merge_records(records)
 
-    retriever = DenseRetriever(args.database, args.collection, BGEEmbedder())
+    embedder = BGEEmbedder()
+    retriever = DenseRetriever(args.database, args.collection, embedder)
 
     if (
         retriever.manifest["chunks_sha256"]
@@ -124,15 +165,50 @@ def main():
         retriever.close()
         raise ValueError("Evaluation chunks differ from the indexed corpus")
 
-    scorers = [make_scorer(metric) for metric in ("recall", "precision", "mrr", "ndcg")]
+    metrics = (
+        "evidence_coverage",
+        "evidence_recall",
+        "complete_evidence",
+        "strict_complete_evidence",
+    )
+    scorers = (
+        [make_evidence_scorer(metric, pages) for metric in metrics]
+        if args.protocol == "v2"
+        else [make_scorer(metric) for metric in ("recall", "precision", "mrr", "ndcg")]
+    )
     observations = {}
     trace_ids = []
+
+    def count_tokens(text):
+        return len(embedder.model.tokenizer.encode(text, add_special_tokens=False))
 
     @mlflow.trace(name="dense_retrieval", span_type="CHAIN")
     def predict(query, language):
         started = perf_counter()
-        documents = retriever.search(query, language, 10)
-        output = {"documents": documents, "latency_seconds": perf_counter() - started}
+        documents = retriever.search(
+            query, language, 50 if args.protocol == "v2" else 10
+        )
+        retrieval_seconds = perf_counter() - started
+        output = {"documents": documents, "retrieval_seconds": retrieval_seconds}
+
+        if args.protocol == "v2":
+            packing_started = perf_counter()
+
+            with mlflow.start_span(name="context_packing", span_type="CHAIN") as span:
+                span.set_inputs(
+                    {
+                        "candidate_ids": [item["chunk_id"] for item in documents],
+                        "budget": args.context_budget,
+                    }
+                )
+                output["context"] = pack_context(
+                    documents, args.context_budget, count_tokens
+                )
+                span.set_outputs(output["context"])
+
+            output["packing_seconds"] = perf_counter() - packing_started
+
+        output["latency_seconds"] = retrieval_seconds + output.get("packing_seconds", 0)
         observations[query, language] = output
 
         active_span = mlflow.get_current_active_span()
@@ -144,7 +220,10 @@ def main():
 
     try:
         with mlflow.start_run(
-            run_name="dense-baseline-dry-run" if args.limit else "dense-baseline"
+            run_name=(
+                "E0-dense-baseline-v2" if args.protocol == "v2" else "dense-baseline-v1"
+            )
+            + ("-dry-run" if args.limit else "")
         ) as run:
             mlflow.log_dict(retriever.manifest, "index-manifest.json")
             mlflow.log_params(
@@ -155,6 +234,18 @@ def main():
                     "questions": len(records),
                     "qrel_coverage": 0.8,
                     "dataset_sha256": fingerprint,
+                    "evaluation_protocol": args.protocol,
+                    "candidate_pool_size": 50 if args.protocol == "v2" else 10,
+                    "context_budget": (
+                        args.context_budget
+                        if args.protocol == "v2"
+                        else "not_applicable"
+                    ),
+                    "budget_tokenizer": (
+                        "BAAI/bge-m3" if args.protocol == "v2" else "not_applicable"
+                    ),
+                    "packing_policy": "whole_chunks_skip_oversized_exact_id_dedup_v1",
+                    "historical_run_id": "bcf4cea80728477ba9ebd41093b56df5",
                 }
             )
             mlflow.log_params(
@@ -168,25 +259,59 @@ def main():
                 {f"chunking_{key}": value for key, value in chunking.items()}
             )
 
-            for name in ("scenarios", "evidence"):
-                path = Path(f"data/evaluation/{name}.jsonl")
+            for name, path in [
+                ("scenarios", Path("data/evaluation/scenarios.jsonl")),
+                ("evidence", Path("data/evaluation/evidence.jsonl")),
+                ("cleaned_pages", Path("data/processed/cleaned-pages.jsonl")),
+            ]:
                 mlflow.log_param(
                     f"{name}_sha256", hashlib.sha256(path.read_bytes()).hexdigest()
                 )
 
             mlflow.log_param("chunks_sha256", retriever.manifest["chunks_sha256"])
             mlflow.log_metric(
-                "questions_without_relevant_chunks",
+                "questions_without_relevant_chunks_v1",
                 sum(
-                    not record["expectations"]["relevant_chunk_ids"]
+                    not gold_by_question[
+                        record["inputs"]["query"], record["inputs"]["language"]
+                    ]
                     for record in records
                 ),
             )
+            if args.protocol == "v2":
+                mlflow.log_dict(
+                    {
+                        "version": "evidence_union_v2.0.0",
+                        "coverage_unit": "retained_nonwhitespace_source_characters",
+                        "required_units": "AND",
+                        "locators_per_unit": "AND",
+                        "threshold": 0.8,
+                        "strict_threshold": 1.0,
+                        "coverage_aggregation": "mean_locators_then_units_then_questions",
+                        "alternatives": "not_annotated_not_implemented",
+                        "tokenizer": embedder.parameters()["model"],
+                        "tokenizer_revision": embedder.parameters()["revision"],
+                        "add_special_tokens": False,
+                        "context_budget": args.context_budget,
+                        "packing": "rank_order_whole_chunks_skip_nonfitting",
+                        "partial_overlap": "counts_in_budget_once_in_coverage",
+                        "exact_id_duplicates": "removed",
+                    },
+                    "evaluation-protocol.json",
+                )
+                mlflow.log_artifact("docs/evidence-audit-e0.md")
+
+            mlflow.log_artifact("docs/source-manifest.json")
             mlflow.log_artifact(str(args.chunks), artifact_path="corpus")
             mlflow.log_artifact("uv.lock")
             mlflow.log_artifact(__file__, artifact_path="code")
 
-            for name in ("embeddings", "retrieval", "retrieval_metrics"):
+            for name in (
+                "embeddings",
+                "retrieval",
+                "retrieval_metrics",
+                "evidence_evaluation",
+            ):
                 mlflow.log_artifact(
                     f"src/football_rules/{name}.py", artifact_path="code"
                 )
@@ -200,14 +325,62 @@ def main():
                 inputs = record["inputs"]
                 output = observations[inputs["query"], inputs["language"]]
                 retrieved = [item["chunk_id"] for item in output["documents"]]
-                metrics = {
+                values = {
                     f"{metric}_at_{k}": value
                     for k in (1, 3, 5, 10)
                     for metric, value in ranking_metrics(
-                        retrieved, record["expectations"]["relevant_chunk_ids"], k
+                        retrieved,
+                        gold_by_question[inputs["query"], inputs["language"]],
+                        k,
                     ).items()
                 }
-                rows.append({**record, "outputs": output, "metrics": metrics})
+
+                if args.protocol == "v2":
+                    required = record["expectations"]["required_evidence"]
+                    values = {f"chunk_v1_{key}": value for key, value in values.items()}
+                    values.update(
+                        evidence_metrics(
+                            output["context"]["documents"], required, pages
+                        )
+                    )
+                    values["context_tokens"] = output["context"]["token_count"]
+
+                    for depth in (10, 20, 50):
+                        candidate_values = evidence_metrics(
+                            output["documents"][:depth], required, pages
+                        )
+                        values.update(
+                            {
+                                f"candidate_{depth}_{key}": value
+                                for key, value in candidate_values.items()
+                            }
+                        )
+
+                    for budget in sorted({1024, 2048, 4096, args.context_budget}):
+                        packed = (
+                            output["context"]
+                            if budget == args.context_budget
+                            else pack_context(output["documents"], budget, count_tokens)
+                        )
+                        packed_values = evidence_metrics(
+                            packed["documents"], required, pages
+                        )
+                        values.update(
+                            {
+                                f"budget_{budget}_{key}": value
+                                for key, value in packed_values.items()
+                            }
+                        )
+
+                        output.setdefault("budget_selections", {})[str(budget)] = {
+                            "chunk_ids": [
+                                item["chunk_id"] for item in packed["documents"]
+                            ],
+                            "token_count": packed["token_count"],
+                            "skipped": packed["skipped"],
+                        }
+
+                rows.append({**record, "outputs": output, "metrics": values})
 
             summary = {}
 
@@ -227,6 +400,27 @@ def main():
                 values[f"{language}_latency_seconds_mean"] = sum(
                     row["outputs"]["latency_seconds"] for row in selected
                 ) / len(selected)
+
+                for stage in (
+                    "retrieval_seconds",
+                    "packing_seconds",
+                    "latency_seconds",
+                ):
+                    durations = [
+                        row["outputs"][stage]
+                        for row in selected
+                        if stage in row["outputs"]
+                    ]
+
+                    if durations:
+                        percentiles = (
+                            quantiles(durations, n=100, method="inclusive")
+                            if len(durations) > 1
+                            else durations * 99
+                        )
+                        values[f"{language}_{stage}_p50"] = percentiles[49]
+                        values[f"{language}_{stage}_p95"] = percentiles[94]
+
                 summary.update(values)
 
             mlflow.log_metrics(summary)
@@ -240,7 +434,13 @@ def main():
                         "run_id": run.info.run_id,
                         "questions": len(records),
                         "trace_id": trace_id,
-                        "metrics": summary,
+                        "metrics": {
+                            key: value
+                            for key, value in summary.items()
+                            if "chunk_v1" not in key
+                            and "budget_" not in key
+                            and "source_redundancy" not in key
+                        },
                     },
                     ensure_ascii=False,
                     indent=2,

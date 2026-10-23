@@ -48,7 +48,9 @@ uv run football-rules search "Can a player be offside directly from a throw-in?"
 
 Модель, база и MLflow-хранилище локальны и исключены из Git. Runtime-зависимости закреплены в `uv.lock`.
 
-## Оценка retrieval и MLflow
+## Оценка retrieval и MLflow — исторический протокол v1
+
+С 23 октября основной протокол — [v2: объединённые evidence и бюджет контекста](retrieval-evaluation-v2.md), результаты ведутся в [общем журнале](retrieval-results.md). Ниже сохранено описание первого baseline; его метрики нельзя напрямую вычитать из v2.
 
 Используются native `mlflow.genai.datasets.create_dataset`, `@scorer` и `mlflow.genai.evaluate`; платных LLM judges нет. Четыре детерминированных scorer считают Recall, Precision, MRR и NDCG для K = 1, 3, 5, 10.
 
@@ -75,10 +77,10 @@ Gold chunk IDs выводятся из evidence-координат, незави
 
 ```powershell
 # Сначала smoke/dry run:
-uv run python scripts/evaluate_retrieval.py --collection <имя_коллекции> --limit 3 --verify-trace
+uv run python scripts/evaluate_retrieval.py --collection <имя_коллекции> --protocol v1 --limit 3 --verify-trace
 
 # Затем полный dev baseline:
-uv run python scripts/evaluate_retrieval.py --collection <имя_коллекции>
+uv run python scripts/evaluate_retrieval.py --collection <имя_коллекции> --protocol v1
 ```
 
 Один запуск — один MLflow run; RU/EN-метрики логируются отдельно внутри него. Dry run — отдельный run с явным названием. Перед созданием evaluation dataset выполняется поиск существующих datasets; имя зависит от содержимого записей и gold ID. Для CPU evaluation используется один worker.
