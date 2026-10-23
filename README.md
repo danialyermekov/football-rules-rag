@@ -56,6 +56,20 @@ uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_bc
 
 Имя коллекции относится к текущим закреплённым версиям и артефактам; при другой конфигурации используйте значение из вывода `index`. Основные метрики оценивают покрытие фиксированных исходных evidence, поэтому gold не меняется при другом количестве чанков; исторические `chunk_v1_*` не используются для выбора размера.
 
+E6 проверяет размер 1600 при том же overlap 150 и Dense-конфигурации E0. Чанки и векторная коллекция также сохраняются отдельно:
+
+```powershell
+uv run --extra cpu football-rules chunk --chunk-size 1600 --chunk-overlap 150 --output data/processed/chunks-1600-150.jsonl
+uv run --extra cpu football-rules index --input data/processed/chunks-1600-150.jsonl
+```
+
+После `index` передайте выведенное имя коллекции в оценку:
+
+```powershell
+uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_4380140929ffc0653c675e9c --chunks data/processed/chunks-1600-150.jsonl --run-name E6-dense-chunks-1600-150-v2 --limit 3 --verify-trace
+uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_4380140929ffc0653c675e9c --chunks data/processed/chunks-1600-150.jsonl --run-name E6-dense-chunks-1600-150-v2
+```
+
 ## Embeddings, поиск и оценка
 
 После загрузки закреплённой версии BGE-M3:
