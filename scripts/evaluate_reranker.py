@@ -1,4 +1,4 @@
-"""E3/E4: rerank a fixed Dense20 or RRF20 replay against its original order."""
+"""Rerank fixed Dense20 or RRF20/50 candidates against their original order."""
 
 import argparse
 import hashlib
@@ -22,7 +22,11 @@ from football_rules.tracking import configure_tracking
 SOURCE_RUN = "7c739293e3284f39833421cc9b8f400a"
 
 
-def replay_configuration(parameters: dict[str, str]) -> tuple[str, str]:
+def replay_configuration(
+    parameters: dict[str, str], candidate_pool: int = 20
+) -> tuple[str, str]:
+    if candidate_pool not in {20, 50}:
+        raise ValueError("Candidate pool must be 20 or 50")
     if (
         parameters.get("strategy") not in {"dense", "hybrid"}
         or parameters.get("evaluation_protocol") != "v2"
@@ -42,8 +46,11 @@ def replay_configuration(parameters: dict[str, str]) -> tuple[str, str]:
         }
         if any(parameters.get(key) != value for key, value in expected.items()):
             raise ValueError("RRF source must match the E2 fusion configuration")
-        return "E4-rrf20-reranker-v2", "rrf"
+        experiment = "E4b" if candidate_pool == 50 else "E4"
+        return f"{experiment}-rrf{candidate_pool}-reranker-v2", "rrf"
 
+    if candidate_pool != 20:
+        raise ValueError("Dense replay currently supports the E3 pool of 20")
     return "E3-dense20-reranker-v2", "dense"
 
 
@@ -51,6 +58,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--source-run", default=SOURCE_RUN)
+    parser.add_argument("--candidate-pool", type=int, choices=[20, 50], default=20)
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cuda")
     parser.add_argument("--verify-trace", action="store_true")
     args = parser.parse_args()
@@ -63,7 +71,9 @@ def main():
     source_run = client.get_run(args.source_run)
     if source_run.info.status != "FINISHED":
         raise ValueError("Source run is incomplete")
-    run_name, source_strategy = replay_configuration(source_run.data.params)
+    run_name, source_strategy = replay_configuration(
+        source_run.data.params, args.candidate_pool
+    )
 
     destination = Path(f"tmp/{source_strategy}-reranker-source")
     destination.mkdir(parents=True, exist_ok=True)
@@ -97,9 +107,14 @@ def main():
         row = source[record["inputs"]["query"], record["inputs"]["language"]]
         if row["expectations"] != record["expectations"]:
             raise ValueError("Source gold differs from the current dataset")
-        candidates = row["outputs"]["documents"][:20]
-        if len(candidates) != 20 or len({hit["chunk_id"] for hit in candidates}) != 20:
-            raise ValueError("Replay must supply 20 unique candidates")
+        candidates = row["outputs"]["documents"][: args.candidate_pool]
+        if (
+            len(candidates) != args.candidate_pool
+            or len({hit["chunk_id"] for hit in candidates}) != args.candidate_pool
+        ):
+            raise ValueError(
+                f"Replay must supply {args.candidate_pool} unique candidates"
+            )
         for hit in candidates:
             if any(hit[key] != value for key, value in chunks[hit["chunk_id"]].items()):
                 raise ValueError("Source candidate differs from the current corpus")
@@ -150,9 +165,14 @@ def main():
     def count_tokens(text):
         return len(tokenizer.encode(text, add_special_tokens=False))
 
-    @mlflow.trace(name=f"{source_strategy}20_reranker_replay", span_type="CHAIN")
+    @mlflow.trace(
+        name=f"{source_strategy}{args.candidate_pool}_reranker_replay",
+        span_type="CHAIN",
+    )
     def predict(query, language):
-        candidates = source[query, language]["outputs"]["documents"][:20]
+        candidates = source[query, language]["outputs"]["documents"][
+            : args.candidate_pool
+        ]
         control_context = pack_context(candidates, 2048, count_tokens)
         started = perf_counter()
         documents = reranker.rerank(query, candidates)
@@ -190,7 +210,7 @@ def main():
             {
                 "strategy": f"{source_strategy}_replay_reranker",
                 "source_run_id": args.source_run,
-                "candidate_pool_size": 20,
+                "candidate_pool_size": args.candidate_pool,
                 "context_budget": 2048,
                 "split": "dev",
                 "questions": len(records),
@@ -258,7 +278,7 @@ def main():
             )
             values.update(
                 {
-                    f"candidate_20_{key}": value
+                    f"candidate_{args.candidate_pool}_{key}": value
                     for key, value in evidence_metrics(
                         output["source_candidates"], required, pages
                     ).items()

@@ -60,7 +60,7 @@ uv run python scripts/evaluate_retrieval.py --collection football_a71631f65a6ba8
 
 [Загрузка модели, устройство индекса, правило релевантности, MLflow и ограничения](docs/retrieval.md).
 
-[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Измерены E0 Dense, E1 BM25, E2 hybrid, E3 Dense20 → cross-encoder и E4 RRF20 → cross-encoder.
+[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Измерены E0 Dense, E1 BM25, E2 hybrid, E3 Dense20 → cross-encoder, E4 RRF20 → cross-encoder и E4b с расширением до RRF50.
 
 BM25 использует те же чанки, но не требует embedding-модели и Qdrant. Для одинакового бюджета контекста нужен локальный токенизатор закреплённой версии BGE-M3:
 
@@ -99,6 +99,13 @@ E3 повторно использует первые 20 сохранённых 
 ```powershell
 uv run --extra cuda python scripts/evaluate_reranker.py --source-run 723f6e95d56a4397ab9166fd2291076e --limit 6 --verify-trace
 uv run --extra cuda python scripts/evaluate_reranker.py --source-run 723f6e95d56a4397ab9166fd2291076e
+```
+
+E4b проверяет расширение этого пула до 50, сохраняя ту же модель и бюджет контекста. Контроль пересчитывается из RRF50 без реранкинга; это 7100 оценочных пар вместо 2840. E3/E4 по умолчанию сохраняют пул 20:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run 723f6e95d56a4397ab9166fd2291076e --candidate-pool 50 --limit 6 --verify-trace
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run 723f6e95d56a4397ab9166fd2291076e --candidate-pool 50
 ```
 
 FP32, batch size 2, лимит пары 1024 токена; превышение вызывает ошибку вместо обрезания. Для CPU: `uv run --extra cpu python scripts/evaluate_reranker.py --device cpu`. Измеряется только reranking + упаковка, без query embedding/search; это не end-to-end latency. Сам реранкер доступен отдельно в `src/football_rules/reranking.py`, онлайн-цепочка поиска с ним пока не подключена.

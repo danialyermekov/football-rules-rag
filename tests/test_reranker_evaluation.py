@@ -25,6 +25,9 @@ class ReplayConfigurationTests(unittest.TestCase):
         self.assertEqual(
             self.configuration(parameters), ("E3-dense20-reranker-v2", "dense")
         )
+        for size in (0, 30, 50):
+            with self.subTest(size=size), self.assertRaises(ValueError):
+                self.configuration(parameters, size)
 
     def test_rrf_configuration_requires_matching_fusion(self):
         parameters = {
@@ -39,6 +42,9 @@ class ReplayConfigurationTests(unittest.TestCase):
         }
         self.assertEqual(
             self.configuration(parameters), ("E4-rrf20-reranker-v2", "rrf")
+        )
+        self.assertEqual(
+            self.configuration(parameters, 50), ("E4b-rrf50-reranker-v2", "rrf")
         )
         for key in (
             "fusion_method",
