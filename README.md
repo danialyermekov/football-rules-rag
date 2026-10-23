@@ -60,7 +60,7 @@ uv run python scripts/evaluate_retrieval.py --collection football_a71631f65a6ba8
 
 [Загрузка модели, устройство индекса, правило релевантности, MLflow и ограничения](docs/retrieval.md).
 
-[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Измерены E0 Dense, E1 BM25, E2 hybrid и E3 Dense20 → cross-encoder.
+[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Измерены E0 Dense, E1 BM25, E2 hybrid, E3 Dense20 → cross-encoder и E4 RRF20 → cross-encoder.
 
 BM25 использует те же чанки, но не требует embedding-модели и Qdrant. Для одинакового бюджета контекста нужен локальный токенизатор закреплённой версии BGE-M3:
 
@@ -93,6 +93,13 @@ uv run --extra cuda python scripts/evaluate_reranker.py
 ```
 
 E3 повторно использует первые 20 сохранённых кандидатов E0; новый поиск не выполняется. В каждом вопросе сравнивается упаковка этого пула до и после reranking, бюджет 2048 неизменен. Требуется локальный завершённый E0 run; при повторении baseline в другом MLflow хранилище передайте его ID через `--source-run`. Проверяются хеши корпуса/разметки и соответствие текстов кандидатов текущим чанкам.
+
+Для E4 тот же скрипт получает сохранённый E2 run и использует первые 20 кандидатов RRF. Режим определяется по параметрам источника; настройки RRF должны совпадать с E2. Контроль без реранкера собирается из тех же RRF20, а не из полного RRF50:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run 723f6e95d56a4397ab9166fd2291076e --limit 6 --verify-trace
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run 723f6e95d56a4397ab9166fd2291076e
+```
 
 FP32, batch size 2, лимит пары 1024 токена; превышение вызывает ошибку вместо обрезания. Для CPU: `uv run --extra cpu python scripts/evaluate_reranker.py --device cpu`. Измеряется только reranking + упаковка, без query embedding/search; это не end-to-end latency. Сам реранкер доступен отдельно в `src/football_rules/reranking.py`, онлайн-цепочка поиска с ним пока не подключена.
 

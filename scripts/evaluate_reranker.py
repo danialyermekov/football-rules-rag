@@ -1,4 +1,4 @@
-"""E3: rerank a fixed Dense20 replay; compare with the same pool before reranking."""
+"""E3/E4: rerank a fixed Dense20 or RRF20 replay against its original order."""
 
 import argparse
 import hashlib
@@ -22,6 +22,31 @@ from football_rules.tracking import configure_tracking
 SOURCE_RUN = "7c739293e3284f39833421cc9b8f400a"
 
 
+def replay_configuration(parameters: dict[str, str]) -> tuple[str, str]:
+    if (
+        parameters.get("strategy") not in {"dense", "hybrid"}
+        or parameters.get("evaluation_protocol") != "v2"
+        or parameters.get("context_budget") != "2048"
+    ):
+        raise ValueError(
+            "Source must be a Dense or RRF v2 run with context budget 2048"
+        )
+
+    if parameters["strategy"] == "hybrid":
+        expected = {
+            "fusion_method": "RRF",
+            "fusion_rank_constant": "60",
+            "fusion_rank_origin": "1",
+            "fusion_weights": "equal",
+            "branch_depth": "50",
+        }
+        if any(parameters.get(key) != value for key, value in expected.items()):
+            raise ValueError("RRF source must match the E2 fusion configuration")
+        return "E4-rrf20-reranker-v2", "rrf"
+
+    return "E3-dense20-reranker-v2", "dense"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int)
@@ -37,15 +62,10 @@ def main():
     client = mlflow.MlflowClient()
     source_run = client.get_run(args.source_run)
     if source_run.info.status != "FINISHED":
-        raise ValueError("Dense source run is incomplete")
-    if (
-        source_run.data.params.get("strategy") != "dense"
-        or source_run.data.params.get("evaluation_protocol") != "v2"
-        or source_run.data.params.get("context_budget") != "2048"
-    ):
-        raise ValueError("Source must be a Dense v2 run with context budget 2048")
+        raise ValueError("Source run is incomplete")
+    run_name, source_strategy = replay_configuration(source_run.data.params)
 
-    destination = Path("tmp/e3-source")
+    destination = Path(f"tmp/{source_strategy}-reranker-source")
     destination.mkdir(parents=True, exist_ok=True)
     source_path = client.download_artifacts(
         args.source_run, "per-question-results.json", str(destination)
@@ -79,7 +99,7 @@ def main():
             raise ValueError("Source gold differs from the current dataset")
         candidates = row["outputs"]["documents"][:20]
         if len(candidates) != 20 or len({hit["chunk_id"] for hit in candidates}) != 20:
-            raise ValueError("Dense replay must supply 20 unique candidates")
+            raise ValueError("Replay must supply 20 unique candidates")
         for hit in candidates:
             if any(hit[key] != value for key, value in chunks[hit["chunk_id"]].items()):
                 raise ValueError("Source candidate differs from the current corpus")
@@ -130,7 +150,7 @@ def main():
     def count_tokens(text):
         return len(tokenizer.encode(text, add_special_tokens=False))
 
-    @mlflow.trace(name="dense20_reranker_replay", span_type="CHAIN")
+    @mlflow.trace(name=f"{source_strategy}20_reranker_replay", span_type="CHAIN")
     def predict(query, language):
         candidates = source[query, language]["outputs"]["documents"][:20]
         control_context = pack_context(candidates, 2048, count_tokens)
@@ -164,11 +184,11 @@ def main():
         return output
 
     with mlflow.start_run(
-        run_name="E3-dense20-reranker-v2" + ("-dry-run" if args.limit else "")
+        run_name=run_name + ("-dry-run" if args.limit else "")
     ) as run:
         mlflow.log_params(
             {
-                "strategy": "dense_replay_reranker",
+                "strategy": f"{source_strategy}_replay_reranker",
                 "source_run_id": args.source_run,
                 "candidate_pool_size": 20,
                 "context_budget": 2048,
@@ -182,6 +202,14 @@ def main():
         mlflow.log_params(
             {f"reranker_{key}": value for key, value in reranker.parameters().items()}
         )
+        if source_strategy == "rrf":
+            mlflow.log_params(
+                {
+                    key: value
+                    for key, value in source_run.data.params.items()
+                    if key.startswith("fusion_") or key == "branch_depth"
+                }
+            )
         for key in (
             "chunks_sha256",
             "scenarios_sha256",
