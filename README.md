@@ -60,7 +60,7 @@ uv run python scripts/evaluate_retrieval.py --collection football_a71631f65a6ba8
 
 [Загрузка модели, устройство индекса, правило релевантности, MLflow и ограничения](docs/retrieval.md).
 
-[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Контроль E0, BM25 E1 и hybrid E2 по протоколу v2 измерены; reranker ещё не запускался.
+[Исследование методов улучшения retrieval и план контролируемых экспериментов](docs/retrieval-experiments.md): evidence-based оценка, candidate depth, BM25/hybrid, reranking и chunking. Измерены E0 Dense, E1 BM25, E2 hybrid и E3 Dense20 → cross-encoder.
 
 BM25 использует те же чанки, но не требует embedding-модели и Qdrant. Для одинакового бюджета контекста нужен локальный токенизатор закреплённой версии BGE-M3:
 
@@ -79,6 +79,22 @@ uv run python scripts/evaluate_retrieval.py --strategy hybrid --collection footb
 ```
 
 [Текущий протокол оценки v2](docs/retrieval-evaluation-v2.md) использует объединённые evidence и фиксированный бюджет контекста. [Журнал всех результатов и изменений метрик](docs/retrieval-results.md) пополняется после каждого эксперимента.
+
+## Реранкер и CUDA
+
+E3 использует multilingual cross-encoder `BAAI/bge-reranker-v2-m3`, закреплённая ревизия `953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e`. [Карточка модели BAAI](https://huggingface.co/BAAI/bge-reranker-v2-m3/tree/953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e). Ввод — полный вопрос и текст чанка, выход — raw logit релевантности. Это не вероятность корректности ответа.
+
+На Windows опция `cuda` устанавливает PyTorch `2.14.1+cu130` из официального индекса. Обычный `uv run` выбирает исходную сборку `2.14.1` из PyPI; `cpu` и `cuda` взаимоисключающие. CUDA проверена на RTX 3060 Laptop 6 ГиБ. Настройка следует [руководству uv по PyTorch](https://docs.astral.sh/uv/guides/integration/pytorch/).
+
+```powershell
+uv run --extra cuda hf download BAAI/bge-reranker-v2-m3 config.json model.safetensors tokenizer.json tokenizer_config.json special_tokens_map.json sentencepiece.bpe.model --revision 953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e --local-dir data/models/bge-reranker-v2-m3
+uv run --extra cuda python scripts/evaluate_reranker.py --limit 6 --verify-trace
+uv run --extra cuda python scripts/evaluate_reranker.py
+```
+
+E3 повторно использует первые 20 сохранённых кандидатов E0; новый поиск не выполняется. В каждом вопросе сравнивается упаковка этого пула до и после reranking, бюджет 2048 неизменен. Требуется локальный завершённый E0 run; при повторении baseline в другом MLflow хранилище передайте его ID через `--source-run`. Проверяются хеши корпуса/разметки и соответствие текстов кандидатов текущим чанкам.
+
+FP32, batch size 2, лимит пары 1024 токена; превышение вызывает ошибку вместо обрезания. Для CPU: `uv run --extra cpu python scripts/evaluate_reranker.py --device cpu`. Измеряется только reranking + упаковка, без query embedding/search; это не end-to-end latency. Сам реранкер доступен отдельно в `src/football_rules/reranking.py`, онлайн-цепочка поиска с ним пока не подключена.
 
 ## Проверка
 
