@@ -165,6 +165,15 @@ uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --emb
 uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --run-name E10-qwen-hybrid-rrf-v2
 ```
 
+E11 применяет прежний BGE-reranker к сохранённым top50 E10. Поиск повторно не выполняется, контрольный контекст собирается из той же выдачи без reranking:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39d4145ae2f7e08fd49416e --candidate-pool 50 --run-name E11-qwen-rrf50-reranker-v2 --limit 6 --verify-trace
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39d4145ae2f7e08fd49416e --candidate-pool 50 --run-name E11-qwen-rrf50-reranker-v2
+```
+
+В другом MLflow-хранилище используйте ID своего полного E10 run. `--run-name` меняет подпись, а проверки source/gold/corpus/fusion сохраняются. Run также записывает `source_embedding_*` для однозначного определения модели первого этапа. Измеряется reranking + упаковка, без поиска; одновременная загрузка Qwen и reranker этим replay не проверяется.
+
 ## Проверка
 
 ```powershell

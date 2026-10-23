@@ -58,6 +58,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--source-run", default=SOURCE_RUN)
+    parser.add_argument("--run-name", help="MLflow label for a controlled replay")
     parser.add_argument("--candidate-pool", type=int, choices=[20, 50], default=20)
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cuda")
     parser.add_argument("--verify-trace", action="store_true")
@@ -75,7 +76,7 @@ def main():
         source_run.data.params, args.candidate_pool
     )
 
-    destination = Path(f"tmp/{source_strategy}-reranker-source")
+    destination = Path(f"tmp/{source_strategy}-reranker-source/{args.source_run}")
     destination.mkdir(parents=True, exist_ok=True)
     source_path = client.download_artifacts(
         args.source_run, "per-question-results.json", str(destination)
@@ -204,8 +205,9 @@ def main():
         return output
 
     with mlflow.start_run(
-        run_name=run_name + ("-dry-run" if args.limit else "")
+        run_name=(args.run_name or run_name) + ("-dry-run" if args.limit else "")
     ) as run:
+        mlflow.set_tag("run_kind", "smoke" if args.limit else "full")
         mlflow.log_params(
             {
                 "strategy": f"{source_strategy}_replay_reranker",
@@ -221,6 +223,13 @@ def main():
         )
         mlflow.log_params(
             {f"reranker_{key}": value for key, value in reranker.parameters().items()}
+        )
+        mlflow.log_params(
+            {
+                f"source_{key}": value
+                for key, value in source_run.data.params.items()
+                if key.startswith("embedding_")
+            }
         )
         if source_strategy == "rrf":
             mlflow.log_params(
