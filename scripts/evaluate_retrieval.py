@@ -110,6 +110,9 @@ def main():
         "--chunks", type=Path, default=Path("data/processed/chunks.jsonl")
     )
     parser.add_argument("--limit", type=int)
+    parser.add_argument(
+        "--run-name", help="MLflow run label for a controlled experiment"
+    )
     parser.add_argument("--verify-trace", action="store_true")
     parser.add_argument("--protocol", choices=["v1", "v2"], default="v2")
     parser.add_argument("--context-budget", type=int, default=2048)
@@ -258,13 +261,16 @@ def main():
     try:
         with mlflow.start_run(
             run_name=(
-                {
-                    "dense": "E0-dense-baseline-v2",
-                    "bm25": "E1-bm25-v2",
-                    "hybrid": "E2-hybrid-rrf-v2",
-                }[args.strategy]
-                if args.protocol == "v2"
-                else "dense-baseline-v1"
+                args.run_name
+                or (
+                    {
+                        "dense": "E0-dense-baseline-v2",
+                        "bm25": "E1-bm25-v2",
+                        "hybrid": "E2-hybrid-rrf-v2",
+                    }[args.strategy]
+                    if args.protocol == "v2"
+                    else "dense-baseline-v1"
+                )
             )
             + ("-dry-run" if args.limit else "")
         ) as run:
@@ -366,10 +372,13 @@ def main():
             mlflow.log_artifact("docs/source-manifest.json")
             mlflow.log_artifact(str(args.chunks), artifact_path="corpus")
             mlflow.log_artifact("uv.lock")
+            mlflow.log_artifact("pyproject.toml")
             mlflow.log_artifact(__file__, artifact_path="code")
 
             for name in (
                 "embeddings",
+                "chunking",
+                "cleaning",
                 "bm25",
                 "hybrid",
                 "retrieval",

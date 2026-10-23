@@ -45,6 +45,17 @@ uv run football-rules chunk --chunk-size 600 --chunk-overlap 100 --output data/p
 
 [Как работает разбиение, примеры RU/EN, результаты и ограничения](docs/chunking.md). Изменение параметров само по себе не считается улучшением: сравниваем метрики retrieval на dev-наборе.
 
+E5 проверяет размер 600 при прежнем overlap 150. Новый файл и коллекция сохраняются отдельно от baseline; модель, CPU FP32, пул 50 и бюджет контекста 2048 фиксированы:
+
+```powershell
+uv run --extra cpu football-rules chunk --chunk-size 600 --chunk-overlap 150 --output data/processed/chunks-600-150.jsonl
+uv run --extra cpu football-rules index --input data/processed/chunks-600-150.jsonl
+uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_bc5fcb15e54aaeef28b171c6 --chunks data/processed/chunks-600-150.jsonl --run-name E5-dense-chunks-600-150-v2 --limit 3 --verify-trace
+uv run --extra cpu python scripts/evaluate_retrieval.py --collection football_bc5fcb15e54aaeef28b171c6 --chunks data/processed/chunks-600-150.jsonl --run-name E5-dense-chunks-600-150-v2
+```
+
+Имя коллекции относится к текущим закреплённым версиям и артефактам; при другой конфигурации используйте значение из вывода `index`. Основные метрики оценивают покрытие фиксированных исходных evidence, поэтому gold не меняется при другом количестве чанков; исторические `chunk_v1_*` не используются для выбора размера.
+
 ## Embeddings, поиск и оценка
 
 После загрузки закреплённой версии BGE-M3:
