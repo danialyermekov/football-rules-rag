@@ -13,7 +13,8 @@ from mlflow.entities import Feedback
 from mlflow.genai.datasets import create_dataset, get_dataset
 from mlflow.genai.scorers import scorer
 
-from football_rules.embeddings import BGEEmbedder
+from football_rules.bm25 import BM25Retriever
+from football_rules.embeddings import MODEL_ID, MODEL_REVISION, BGEEmbedder
 from football_rules.evidence_evaluation import evidence_metrics, pack_context
 from football_rules.retrieval import DenseRetriever, read_chunks
 from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
@@ -99,7 +100,8 @@ def make_evidence_scorer(metric, pages):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--collection", required=True)
+    parser.add_argument("--collection")
+    parser.add_argument("--strategy", choices=["dense", "bm25"], default="dense")
     parser.add_argument("--database", type=Path, default=Path("data/qdrant"))
     parser.add_argument(
         "--chunks", type=Path, default=Path("data/processed/chunks.jsonl")
@@ -109,6 +111,12 @@ def main():
     parser.add_argument("--protocol", choices=["v1", "v2"], default="v2")
     parser.add_argument("--context-budget", type=int, default=2048)
     args = parser.parse_args()
+
+    if args.strategy == "dense" and not args.collection:
+        parser.error("--collection is required for dense retrieval")
+
+    if args.strategy == "bm25" and args.protocol != "v2":
+        parser.error("BM25 experiments require protocol v2")
 
     if args.limit is not None and args.limit <= 0:
         parser.error("--limit must be positive")
@@ -155,14 +163,33 @@ def main():
         )
         dataset.merge_records(records)
 
-    embedder = BGEEmbedder()
-    retriever = DenseRetriever(args.database, args.collection, embedder)
+    if args.strategy == "dense":
+        embedder = BGEEmbedder()
+        retriever = DenseRetriever(args.database, args.collection, embedder)
+        tokenizer = embedder.model.tokenizer
+    else:
+        from transformers import AutoTokenizer
+
+        retriever = BM25Retriever(args.chunks)
+        tokenizer_metadata = Path(
+            "data/models/bge-m3/.cache/huggingface/download/tokenizer.json.metadata"
+        )
+
+        if tokenizer_metadata.read_text(encoding="utf-8").splitlines()[:1] != [
+            MODEL_REVISION
+        ]:
+            raise ValueError("Budget tokenizer differs from the pinned BGE revision")
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            "data/models/bge-m3", local_files_only=True
+        )
 
     if (
         retriever.manifest["chunks_sha256"]
         != hashlib.sha256(args.chunks.read_bytes()).hexdigest()
     ):
-        retriever.close()
+        if isinstance(retriever, DenseRetriever):
+            retriever.close()
         raise ValueError("Evaluation chunks differ from the indexed corpus")
 
     metrics = (
@@ -180,9 +207,9 @@ def main():
     trace_ids = []
 
     def count_tokens(text):
-        return len(embedder.model.tokenizer.encode(text, add_special_tokens=False))
+        return len(tokenizer.encode(text, add_special_tokens=False))
 
-    @mlflow.trace(name="dense_retrieval", span_type="CHAIN")
+    @mlflow.trace(name=f"{args.strategy}_retrieval", span_type="CHAIN")
     def predict(query, language):
         started = perf_counter()
         documents = retriever.search(
@@ -221,14 +248,16 @@ def main():
     try:
         with mlflow.start_run(
             run_name=(
-                "E0-dense-baseline-v2" if args.protocol == "v2" else "dense-baseline-v1"
+                ("E0-dense-baseline-v2" if args.strategy == "dense" else "E1-bm25-v2")
+                if args.protocol == "v2"
+                else "dense-baseline-v1"
             )
             + ("-dry-run" if args.limit else "")
         ) as run:
             mlflow.log_dict(retriever.manifest, "index-manifest.json")
             mlflow.log_params(
                 {
-                    "strategy": "dense",
+                    "strategy": args.strategy,
                     "language_filter": "same_language",
                     "split": "dev",
                     "questions": len(records),
@@ -246,14 +275,20 @@ def main():
                     ),
                     "packing_policy": "whole_chunks_skip_oversized_exact_id_dedup_v1",
                     "historical_run_id": "bcf4cea80728477ba9ebd41093b56df5",
+                    "control_run_id": "7c739293e3284f39833421cc9b8f400a",
                 }
             )
-            mlflow.log_params(
-                {
-                    f"embedding_{key}": value
-                    for key, value in retriever.manifest["embedding"].items()
-                }
-            )
+            if args.strategy == "dense":
+                mlflow.log_params(
+                    {
+                        f"embedding_{key}": value
+                        for key, value in retriever.manifest["embedding"].items()
+                    }
+                )
+            else:
+                mlflow.log_params(
+                    {f"bm25_{key}": value for key, value in retriever.manifest.items()}
+                )
             chunking = read_chunks(args.chunks)[0]["chunking"]
             mlflow.log_params(
                 {f"chunking_{key}": value for key, value in chunking.items()}
@@ -289,8 +324,8 @@ def main():
                         "strict_threshold": 1.0,
                         "coverage_aggregation": "mean_locators_then_units_then_questions",
                         "alternatives": "not_annotated_not_implemented",
-                        "tokenizer": embedder.parameters()["model"],
-                        "tokenizer_revision": embedder.parameters()["revision"],
+                        "tokenizer": MODEL_ID,
+                        "tokenizer_revision": MODEL_REVISION,
                         "add_special_tokens": False,
                         "context_budget": args.context_budget,
                         "packing": "rank_order_whole_chunks_skip_nonfitting",
@@ -308,6 +343,7 @@ def main():
 
             for name in (
                 "embeddings",
+                "bm25",
                 "retrieval",
                 "retrieval_metrics",
                 "evidence_evaluation",
@@ -462,7 +498,8 @@ def main():
                 flush=True,
             )
     finally:
-        retriever.close()
+        if isinstance(retriever, DenseRetriever):
+            retriever.close()
 
 
 if __name__ == "__main__":
