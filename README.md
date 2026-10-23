@@ -158,6 +158,13 @@ uv run --extra cuda python scripts/evaluate_reranker.py --source-run 723f6e95d56
 
 FP32, batch size 2, лимит пары 1024 токена; превышение вызывает ошибку вместо обрезания. Для CPU: `uv run --extra cpu python scripts/evaluate_reranker.py --device cpu`. Измеряется только reranking + упаковка, без query embedding/search; это не end-to-end latency. Сам реранкер доступен отдельно в `src/football_rules/reranking.py`, онлайн-цепочка поиска с ним пока не подключена.
 
+E10 проверяет тот же Qwen-индекс вместе с BM25. Поиск и RRF сохраняют настройки E2, меняется embedding-модель Dense-ветви:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --run-name E10-qwen-hybrid-rrf-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --run-name E10-qwen-hybrid-rrf-v2
+```
+
 ## Проверка
 
 ```powershell
