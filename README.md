@@ -202,6 +202,19 @@ uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --emb
 uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --context-policy page_continuation --run-name E14-qwen-hybrid-page-continuation-v2
 ```
 
+## Первая оценка генерации
+
+G0 использует **точные сохранённые контексты E10**, без повторного retrieval. Вопрос и контекст передаются Gemini 2.5 Flash-Lite; эталон доступен только оценщику Ragas. Ключ `GEMINI_API_KEY` задаётся в окружении или локальном `.env` (файл исключён из Git). Команды выполняют реальные API-запросы:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_generation.py --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_generation.py
+```
+
+Вторая команда запускает диагностический пилот из 6 ситуаций RU/EN (12 ответов), а не весь dev. Сохраняются structured answer/status/citations, usage, исходный retrieval run, ответы оценщика и native MLflow metrics. Отдельные API-вызовы Ragas многократно превосходят число ответов: пилот стоил расчётно около $0.02 без smoke-run.
+
+[Журнал генерации](docs/generation-results.md) содержит конфигурацию, метрики и разбор ошибок. Оценщик пока не откалиброван: найдено ошибочное разбиение условий и штрафы за факты из вопроса. Эти метрики не используются для выбора retrieval. `--retrieval-run` позволяет указать совместимый завершённый run с той же разметкой; `--scenario-ids` ограничивает dev-ситуации. По умолчанию используется E10, модель и оценщик — `gemini-2.5-flash-lite`.
+
 ## Проверка
 
 ```powershell

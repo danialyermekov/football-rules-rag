@@ -4,6 +4,8 @@
 
 Основной MLflow experiment: `football-rules-retrieval`. Локальный backend: `data/mlflow/mlflow.db`. [План опытов](retrieval-experiments.md), [определения v2](retrieval-evaluation-v2.md).
 
+Первая проверка влияния retrieval на ответы описана отдельно: [G0 — генерация на frozen contexts E10](generation-results.md). Метрики генерации не смешиваются с CER поиска.
+
 ## Общая таблица
 
 В ячейках RU / EN. CER — Complete Evidence Rate по размеченным evidence при заданном бюджете; это не доля правильных ответов LLM. Проценты округлены, сравнение выполняется по исходным значениям run.
