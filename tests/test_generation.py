@@ -5,6 +5,7 @@ from unittest.mock import Mock
 from pydantic import ValidationError
 
 from football_rules.generation import (
+    GROUNDED_PROMPT,
     Answer,
     cited_documents,
     generate_answer,
@@ -64,6 +65,34 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(result["citations"], ["en:10"])
         self.assertEqual(result["model_version"], "pinned-response-version")
         self.assertEqual(result["usage"]["prompt_token_count"], 100)
+        generate_answer(
+            client, "Question?", "en", "context", system_prompt=GROUNDED_PROMPT
+        )
+        self.assertEqual(
+            client.models.generate_content.call_args.kwargs[
+                "config"
+            ].system_instruction,
+            GROUNDED_PROMPT,
+        )
+
+    def test_empty_context_returns_localized_abstention_without_api(self):
+        for language, prefix in [("ru", "Недостаточно"), ("en", "There are")]:
+            with self.subTest(language=language):
+                client = Mock()
+                result = generate_answer(client, "Question?", language, " \n\t")
+                client.models.generate_content.assert_not_called()
+                self.assertEqual(result["status"], "insufficient_context")
+                self.assertTrue(result["answer"].startswith(prefix))
+                self.assertEqual(result["citations"], [])
+                self.assertFalse(result["api_called"])
+                self.assertEqual(result["usage"]["prompt_token_count"], 0)
+
+    def test_legacy_experiment_can_bypass_guard_explicitly(self):
+        client = Mock()
+        client.models.generate_content.return_value = SimpleNamespace(text=None)
+        with self.assertRaisesRegex(ValueError, "no answer"):
+            generate_answer(client, "Question?", "en", "", guard_empty_context=False)
+        client.models.generate_content.assert_called_once()
 
     def test_empty_model_response_fails(self):
         client = Mock()

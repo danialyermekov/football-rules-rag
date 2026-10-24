@@ -1,4 +1,4 @@
-"""G1: hold the G0 prompt fixed and test empty, ablated and irrelevant contexts."""
+"""G1/G2: compare generation policies on frozen context interventions."""
 
 import argparse
 import hashlib
@@ -16,7 +16,12 @@ from mlflow.genai.scorers import scorer
 
 from football_rules.context_controls import citation_integrity, retain_context_pages
 from football_rules.evidence_evaluation import render_context
-from football_rules.generation import MODEL, SYSTEM_PROMPT, generate_answer
+from football_rules.generation import (
+    GROUNDED_PROMPT,
+    MODEL,
+    SYSTEM_PROMPT,
+    generate_answer,
+)
 from football_rules.tracking import configure_tracking
 
 G0 = "aaf7ea28d5bf459db7271fbbf8cdd970"
@@ -39,6 +44,7 @@ DISTRACTORS = {
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prepare-only", action="store_true")
+    parser.add_argument("--policy", choices=["original", "strict"], default="original")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--verify-trace", action="store_true")
     args = parser.parse_args()
@@ -57,7 +63,9 @@ def main():
         raise ValueError("Prompt changed since G0")
     if source.data.params["model"] != MODEL:
         raise ValueError("Model differs from G0")
-    folder = Path("tmp/g1").resolve()
+    strict = args.policy == "strict"
+    prompt = GROUNDED_PROMPT if strict else SYSTEM_PROMPT
+    folder = Path("tmp/g2" if strict else "tmp/g1").resolve()
     folder.mkdir(parents=True, exist_ok=True)
 
     def read_artifact(run_id, name):
@@ -149,6 +157,10 @@ def main():
                 }
             )
     preparation = {"records": records, "contexts": contexts, "audit": audit}
+    if strict:
+        frozen = read_artifact("13bca0d6da334de58f200846cac3fbbf", "preparation.json")
+        if preparation != frozen:
+            raise ValueError("Controlled inputs changed since G1")
     (folder / "preparation.json").write_text(
         json.dumps(preparation, ensure_ascii=False, indent=2), encoding="utf-8"
     )
@@ -185,7 +197,7 @@ def main():
         if case_id in observations:
             return observations[case_id]
         context = contexts[case_id]
-        if condition == "original":
+        if condition == "original" and not strict:
             output = {**originals[scenario_id, language], "reused_g0": True}
         else:
             with mlflow.start_span(
@@ -193,7 +205,14 @@ def main():
             ) as span:
                 span.set_inputs({"condition": condition, "case_id": case_id})
                 span.set_outputs(context["documents"])
-            output = generate_answer(client, query, language, context["text"])
+            output = generate_answer(
+                client,
+                query,
+                language,
+                context["text"],
+                system_prompt=prompt,
+                guard_empty_context=strict,
+            )
             output.update({"documents": context["documents"], "reused_g0": False})
         observations[case_id] = output
         tracker.log_dict(run.info.run_id, output, f"answers/{case_id}.json")
@@ -216,7 +235,10 @@ def main():
     with (
         client,
         mlflow.start_run(
-            run_name="G1-context-grounding" + ("-dry-run" if args.limit else "")
+            run_name=(
+                "G2-strict-context-grounding" if strict else "G1-context-grounding"
+            )
+            + ("-dry-run" if args.limit else "")
         ) as run,
     ):
         mlflow.set_tags(
@@ -230,16 +252,26 @@ def main():
             {
                 "source_generation_run_id": G0,
                 "model": MODEL,
-                "prompt_sha256": source.data.params["prompt_sha256"],
+                "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+                "policy": args.policy,
+                "empty_context_guard": strict,
+                "comparison_run_id": (
+                    "13bca0d6da334de58f200846cac3fbbf" if strict else G0
+                ),
                 "cases": len(records),
                 "temperature": 0,
                 "split": "dev",
                 "ragas_used": False,
-                "control_mode": "reuse_saved_G0_answers",
+                "control_mode": (
+                    "fresh_answers_all_conditions"
+                    if strict
+                    else "reuse_saved_G0_answers"
+                ),
                 "corpus_sha256": hashlib.sha256(corpus_path.read_bytes()).hexdigest(),
             }
         )
         mlflow.log_dict(preparation, "preparation.json")
+        mlflow.log_dict({"system_prompt": prompt}, "prompt.json")
         for path in [
             __file__,
             "src/football_rules/context_controls.py",
@@ -268,13 +300,25 @@ def main():
             )
             dataset.merge_records(records)
         if args.verify_trace:
-            predict(**records[0]["inputs"])
+            trace_record = next(
+                (
+                    record
+                    for record in records
+                    if contexts[record["inputs"]["case_id"]]["text"].strip()
+                ),
+                records[0],
+            )
+            predict(**trace_record["inputs"])
             identity = mlflow.get_last_active_trace_id()
             print("Starting trace readback", identity, flush=True)
             mlflow.flush_trace_async_logging()
             trace = mlflow.get_trace(identity)
-            if trace is None or not any(
-                span.span_type == "LLM" for span in trace.data.spans
+            expects_llm = not strict or bool(
+                contexts[trace_record["inputs"]["case_id"]]["text"].strip()
+            )
+            if trace is None or (
+                expects_llm
+                and not any(span.span_type == "LLM" for span in trace.data.spans)
             ):
                 raise ValueError("Generation trace verification failed")
             print(

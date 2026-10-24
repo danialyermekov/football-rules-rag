@@ -225,6 +225,16 @@ uv run --extra cuda python scripts/evaluate_context_controls.py
 
 48 записей G1 хранятся в том же MLflow experiment. В текущем пилоте при пустом контексте отказов `insufficient_context` не было, а 11/12 ответов содержали недопустимые ссылки. Подробности подготовки, ручного разбора и ограничения — в [журнале G1](docs/generation-results.md#g1--контроль-поведения-при-отсутствии-доказательств). Промпт и генератор G0 не изменены.
 
+G2 сравнивает строгий prompt на тех же замороженных 48 случаях и проверяет защиту пустого контекста. В обычном `generate_answer` empty-context guard включён по умолчанию: отказ без API и без токенов. Старый режим G1 `--policy original` намеренно обходит guard, чтобы воспроизводить исторический опыт.
+
+```powershell
+uv run --extra cuda python scripts/evaluate_context_controls.py --policy strict --prepare-only
+uv run --extra cuda python scripts/evaluate_context_controls.py --policy strict --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_context_controls.py --policy strict
+```
+
+G2: 12 случаев обработаны guard, 36 получили новые ответы, включая original contexts. Guard устранил ответы без источников. Строгий prompt не выбран default: на непустом контексте общего выигрыша нет, обнаружены ошибки формата ссылок и регрессия FR001 EN. Подробности и неизменённые raw metrics — в [журнале G2](docs/generation-results.md#g2--отказ-без-llm-при-пустом-контексте-и-строгий-prompt).
+
 ## Проверка
 
 ```powershell
