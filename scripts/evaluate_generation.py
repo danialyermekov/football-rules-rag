@@ -1,21 +1,19 @@
 """Evaluate a small dev pilot against frozen retrieval artifacts, using Ragas scorers."""
 
 import argparse
-import asyncio
 import hashlib
 import json
 import os
 from pathlib import Path
 
-import instructor
 import mlflow
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from mlflow.entities import Feedback
 from mlflow.genai.scorers import scorer
-from ragas.llms import InstructorLLM
 from ragas.metrics.collections import FactualCorrectness, Faithfulness
+from ragas.metrics.result import MetricResult
 
 from football_rules.generation import (
     MODEL,
@@ -25,6 +23,7 @@ from football_rules.generation import (
     metric_value,
     valid_citations,
 )
+from football_rules.ragas_evaluation import evaluate_ragas_metric
 from football_rules.tracking import configure_tracking
 
 CONTROL = "b50e71e2d39d4145ae2f7e08fd49416e"
@@ -114,37 +113,14 @@ def main():
     mlflow.gemini.autolog()
 
     def ragas_score(metric_class, **kwargs):
-        # Ragas collections require async calls; each score owns its client and loop.
-        async def calculate():
-            judge_client = genai.Client(
-                api_key=key,
-                http_options=types.HttpOptions(
-                    timeout=60000, retry_options=types.HttpRetryOptions(attempts=1)
-                ),
-            )
-            async with judge_client.aio:
-                responses = []
-                structured_client = instructor.from_genai(judge_client, use_async=True)
-                structured_client.on(
-                    "completion:response",
-                    lambda response: responses.append(
-                        response.model_dump(mode="json", exclude_none=True)
-                    ),
-                )
-                judge = InstructorLLM(
-                    client=structured_client,
-                    model=args.judge_model,
-                    provider="google",
-                    temperature=0,
-                    max_tokens=2048,
-                    max_retries=1,
-                )
-                metric = metric_class(llm=judge)
-                result = await metric.ascore(**kwargs)
-                result.traces = {"output": responses}
-                return result
-
-        return asyncio.run(calculate())
+        result = evaluate_ragas_metric(
+            metric_class, metric_class.__name__.lower(), key, args.judge_model, **kwargs
+        )
+        return MetricResult(
+            value=result["value"],
+            reason=result["reason"],
+            traces={"output": result["responses"]},
+        )
 
     observations = {}
     judged = {}

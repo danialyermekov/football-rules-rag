@@ -205,3 +205,72 @@ Native integrity по всем 48 случаям 35/48 → 36/48 маскиру�
 36 вызовов: input **45 735**, output+thinking **2 719** токенов; оценка по прежним Standard text rates [Google](https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash-lite) **$0.00566**, без smoke. Это расчёт usage, не фактическое списание. Manual annotations, сравнения, diagnostic parsing и проверки сохранены в `analysis/comparison-and-review.json`.
 
 **Решение:** оставить empty-context guard по умолчанию; новый строгий prompt сохранить измеренной экспериментальной альтернативой, не продвигать в default. Следующее изменение должно адресовать наблюдаемые проблемы: структурированные поля источников/допустимые ID вместо свободной строки цитирования, проверка поддержки существенных утверждений и калибровка оценщика. Отдельно проверять правильность применения нормы, отказ и язык; общий статус/средний score недостаточны. Test, E13/E14 generation и новый цикл настройки retrieval здесь не запускались.
+
+
+## G3 — четыре Ragas-метрики на сохранённых ответах
+
+Дата: 25.10.2026. Ветка: `experiment/ragas-four-metrics`.
+
+**Цель:** дополнить оценку Context Precision, Context Recall, Faithfulness и Answer Relevancy и проверить, какие ошибки они различают. Новых ответов футбольного ассистента, поиска и индексации нет: используются 12 снимков G0 и все 48 снимков G2, всего 60 записей для 12 уникальных вопросов с языком. Это отдельная переоценка фиксированных ответов, не новый эксперимент генерации и не расширение test.
+
+### Конфигурация и значения метрик
+
+Ragas `0.4.3`, современный collections API, judge `gemini-2.5-flash-lite`, temperature0, max output2048, Instructor async Google. Стандартные prompt-шаблоны Ragas не изменялись и не адаптировались отдельно для RU. Общий адаптер судьи выделен в `ragas_evaluation.py`; прежний G0 evaluator использует его через совместимый MetricResult. Исторические G0/G2 ответы/метрики не перезаписывались.
+
+- **Context Precision:** вариант с reference; отдельный verdict полезности каждого фрагмента и average precision по их исходному порядку. Это не доля правильных ответов и не просто процент релевантных чанков. Оцениваются упакованные документы, реально переданные генератору, не весь pool50. [Ragas Context Precision](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/).
+- **Context Recall:** доля утверждений reference, которые judge относит к контексту. Не равна нашему детерминированному Evidence Recall/CER по координатам источников. [Ragas Context Recall](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_recall/).
+- **Faithfulness:** стандартная проверка утверждений ответа по контексту, без добавления вопроса в NLI-контекст. Известное ограничение с фактами эпизода и разбиением условий сохраняется. [Ragas Faithfulness](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/).
+- **Answer Relevancy:** strictness3, три обратных вопроса из ответа и cosine similarity к исходному вопросу с обработкой noncommittal flags по установленной реализации. Это связь ответа с вопросом, не правильность решения. [Ragas Answer Relevancy](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/answer_relevance/).
+
+Для Answer Relevancy используется локальный BGE-M3, revision `5617a9f61b028005a4858fdac845db406aefb181`, 1024-d normalized, CPU FP32 / 4 threads / batch4. Переиспользован проектный BGEEmbedder с проверкой закреплённых файлов; исходный и обратные вопросы кодируются симметрично. Новых моделей/embeddings API нет. Модель embeddings и strictness влияют на шкалу Relevancy, поэтому сравнение выполняется при одинаковой конфигурации.
+
+Context Precision/Recall зависят от question/reference/контекста, а не от сгенерированного ответа. Для идентичных входов G0/G2 результат переиспользован явно. Ключ кеша включает входы, порядок фрагментов, модель/config, Ragas version, embedding manifest и hash адаптера. Raw ответы judge и computed_in_run_id сохранены. Это фиксированные суждения, не независимые повторные измерения.
+
+### Применимость и воспроизводимость
+
+Пустой список контекстов не принимается CP/CR/Faithfulness установленной версии. Для 12 empty-кейсов каждая из этих метрик — **N/A**, не искусственный ноль. Answer Relevancy вычислена для всех записей, включая отказы; её нулевое значение для корректного отказа не объявляется ошибкой. При NaN адаптер сохраняет undefined без подмены нулём; при API/схемной ошибке invocation отмечается как ошибка, полный запуск завершается неуспешно. Здесь undefined/API errors не возникли.
+
+Native MLflow dataset содержит исходные outputs, `mlflow.genai.evaluate` выполняется без predict_fn. Каждая метрика сохраняется вместе с applicability, cache_key/reused, сырыми суждениями и provenance. Разрезы source/condition/language/status, valid/N/A counts и answered-only means находятся в summary, метриках и таблице `group-results.json`.
+
+**Smoke:** `16d83d22cb344763b5d7680f78a51206`, 3 записи, 12 метрик. Трасса `tr-8b8da2803bf830d1ce3e01950f742741` проверена до evaluation: ragas_context_recall CHAIN → AsyncModels LLM spans. **Полный G3:** `9d3a95d45f4a4a3a89055b773f5fb396`, FINISHED, native evaluation **5 мин 41 с** плюс подготовка.
+
+Все **240 invocations** учтены: CP 48 numeric / 12 N/A, CR 48 / 12, Faithfulness 48 / 12, Answer Relevancy 60 numeric. 36 invocations используют кеш, включая результаты smoke и одинаковые контексты G0/G2. Всего 180 уникальных суждений метрик. Один такой расчёт может требовать нескольких API-вызовов.
+
+### Сравнение G0/G2 на исходных контекстах
+
+В каждой языковой группе 6 вопросов: 5 answered и 1 needs_clarification. Context-метрики ниже по всем 6; Faithfulness/Relevancy — **только 5 answered**, чтобы не смешивать ответы и уточнения. Все 6 также доступны в MLflow.
+
+| Метрика | G0 RU | G2 RU | Δ RU | G0 EN | G2 EN | Δ EN |
+|---|---:|---:|---:|---:|---:|---:|
+| Context Precision, n=6 | 0,6433 | 0,6433 | 0,0000 | 0,7230 | 0,7230 | 0,0000 |
+| Context Recall, n=6 | 1,0000 | 1,0000 | 0,0000 | 0,8333 | 0,8333 | 0,0000 |
+| Faithfulness, answered n=5 | 0,6400 | 0,5278 | **−0,1122** | 0,5467 | 0,7333 | **+0,1867** |
+| Answer Relevancy, answered n=5 | 0,7170 | 0,7059 | −0,0112 | 0,6796 | 0,6866 | +0,0070 |
+
+Равенство context-метрик ожидаемо: question/reference/контексты одинаковы, оценки переиспользованы. Это не повторный вывод о качестве retrieval. G2 не стал универсально лучше: judged faithfulness EN растёт, RU падает; relevancy почти та же. Сравнивать эти новые числа с отдельными историческими G0-scoring прогонами как эффект изменения промпта нельзя — здесь единый evaluation config и кеш.
+
+Для полноты, Faithfulness по всем 6: G0 RU/EN **0,6583/0,5389**, G2 **0,5231/0,6944**. Relevancy по всем 6: G0 **0,6951/0,5663**, G2 **0,5882/0,5722**. Знаменатель и включение уточнений меняют вывод о среднем.
+
+### Контрольные условия G2
+
+| Условие, по6 RU/EN | Context Precision RU/EN | Context Recall RU/EN | Faithfulness RU/EN | Answer Relevancy RU/EN |
+|---|---:|---:|---:|---:|
+| Empty | N/A / N/A | N/A / N/A | N/A / N/A | 0,0000 / 0,0000 |
+| Removed evidence | 0,1667 / 0,1667 | **0,0000 / 0,0000** | 0,5833 / 0,8056 | 0,3314 / 0,5546 |
+| Irrelevant | **0,0000 / 0,0000** | **0,0000 / 0,0000** | 0,9444 / 1,0000 | 0,3217 / 0,3612 |
+
+Панель различает некоторые причины ошибок:
+
+- После удаления evidence **CR=0 во всех 12 случаях**. На нерелевантном контексте CP/CR=0 во всех 12. На частично связанных фрагментах CP иногда положителен при CR=0: judge может счесть отдельную информацию полезной, хотя эталон целиком не покрывается. Это нужно проверять по сырым verdicts, а не принимать CP за достаточность.
+- Два unsupported answered RU после удаления evidence имеют **Faithfulness=0** и среднюю Relevancy **0,6710**. Ответ может быть связан с вопросом, но не опираться на источник.
+- Высокая Faithfulness отказов при нерелевантном контексте не означает хороший retrieval: оценивается текст отказа. Полноту источников здесь показывает CR=0. Нулевой Relevancy empty guard не означает неудачный отказ.
+- **FR001 EN original:** G0 основное решение правильное, G2 неверное. Оба имеют CP≈1, CR=1 и Faithfulness=0; Relevancy **0,7929 → 0,7262**. Оценщик Faithfulness не различил эти два решения; стандартная панель не заменяет проверку правильности применения нормы.
+- **FR009 RU original:** Context Recall=1, хотя детерминированный CER E10=0. Разная единица разметки и возможное использование judge собственных знаний требуют аудита; это не основание менять gold или считать Ragas более достоверным.
+
+### Стоимость, проверки и решение
+
+API используется только судьями, **generation_requests=0**. Полный запуск сделал 410 новых judge-запросов: input428204/output+thinking33974, расчёт **$0.05641**. Все уникальные использованные суждения вместе со smoke — **457 запросов**, input **491888**, output+thinking **38253**, расчёт **$0.06449**. Тарифы Standard Flash-Lite $0.10/$0.40 за миллион сверены 25.10.2026 по [Google pricing](https://ai.google.dev/gemini-api/docs/pricing#gemini-2.5-flash-lite). Это оценка usage без проверки списания/баланса, без стоимости локальных вычислений.
+
+113 тестов / 1112 subtests, Ruff `src scripts tests`, Black `src` и затронутых scripts/test, strict mypy 16 модулей `src`. Readback сравнил все inputs/outputs/expectations с frozen snapshots; все 240 состояний, каждый payload judge, cache hash, одинаковые CP/CR keys G0/G2, native means и usage проверены независимо. Metadata source/tags, добавляемые MLflow при merge, не считаются изменением ответа. Секрет API не включается в trace inputs или cache payload.
+
+**Решение:** использовать все четыре метрики как диагностическую панель наряду с детерминированными evidence-метриками и проверкой правильности/ссылок. Не сводить их в один общий score, не смешивать отказы с answered и не продвигать строгий G2 по росту одного EN-среднего. Для следующего сравнения retrieval E10/E13/E14 использовать фиксированный baseline-ответчик и эту же конфигурацию оценки; отдельно устранять формат ссылок и калибровать judge на известных правильных/неправильных решениях. Test, новая генерация и E13/E14 generation в G3 не запускались.

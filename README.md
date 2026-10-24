@@ -235,6 +235,15 @@ uv run --extra cuda python scripts/evaluate_context_controls.py --policy strict
 
 G2: 12 случаев обработаны guard, 36 получили новые ответы, включая original contexts. Guard устранил ответы без источников. Строгий prompt не выбран default: на непустом контексте общего выигрыша нет, обнаружены ошибки формата ссылок и регрессия FR001 EN. Подробности и неизменённые raw metrics — в [журнале G2](docs/generation-results.md#g2--отказ-без-llm-при-пустом-контексте-и-строгий-prompt).
 
+G3 оценивает сохранённые G0/G2 через **Context Precision с reference, Context Recall, Faithfulness и Answer Relevancy**. Новых ответов ассистента нет; API вызывается только судьями. Для Answer Relevancy используется закреплённый локальный BGE-M3, strictness3:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_ragas_snapshots.py --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_ragas_snapshots.py
+```
+
+Полный набор — 60 записей / 240 invocations. Пустые контексты имеют N/A для трёх context-dependent метрик; отказы и answered показаны раздельно. Идентичные judge inputs кешируются с provenance; сырые ответы судьи и usage сохраняются. Кеш может использовать результат предыдущего запуска, поэтому повторный прогон не является новым независимым измерением. Полная оценка со smoke стоила расчётно $0.06449. [Результаты и ограничения G3](docs/generation-results.md#g3--четыре-ragas-метрики-на-сохранённых-ответах).
+
 ## Проверка
 
 ```powershell
