@@ -1,4 +1,4 @@
-"""G3: score frozen G0/G2 responses with four Ragas metrics, without generation."""
+"""Score frozen response snapshots with four Ragas metrics, without generation."""
 
 import argparse
 import hashlib
@@ -45,6 +45,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--verify-trace", action="store_true")
+    parser.add_argument("--sources", nargs="+", metavar="LABEL=RUN_ID")
+    parser.add_argument(
+        "--condition", choices=["original", "empty", "removed_evidence", "irrelevant"]
+    )
+    parser.add_argument("--run-name", default="G3-ragas-four-metrics")
     args = parser.parse_args()
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be positive")
@@ -58,8 +63,11 @@ def main():
     folder = Path("tmp/g3").resolve()
     cache_folder = folder / "score-cache"
     cache_folder.mkdir(parents=True, exist_ok=True)
+    sources = (
+        dict(item.split("=", 1) for item in args.sources) if args.sources else SOURCES
+    )
     records = []
-    for label, identifier in SOURCES.items():
+    for label, identifier in sources.items():
         if tracker.get_run(identifier).info.status != "FINISHED":
             raise ValueError(f"Source run {label} is not FINISHED")
         destination = folder / identifier
@@ -71,6 +79,8 @@ def main():
         )
         for row in json.loads(path.read_text(encoding="utf-8"))["records"]:
             condition = row["inputs"].get("condition", "original")
+            if args.condition and condition != args.condition:
+                continue
             sid, language = row["inputs"]["scenario_id"], row["inputs"]["language"]
             records.append(
                 {
@@ -86,8 +96,10 @@ def main():
                     "expectations": row["expectations"],
                 }
             )
-    if len(records) != 60:
+    if not args.sources and not args.condition and len(records) != 60:
         raise ValueError("Expected 12 G0 and 48 G2 frozen responses")
+    if not records:
+        raise ValueError("No matching frozen responses")
     records = records[: args.limit]
     embedder = BGEEmbedder()
     embeddings = LocalMetricEmbeddings(embedder)
@@ -185,7 +197,7 @@ def main():
     os.environ.setdefault("MLFLOW_GENAI_EVAL_MAX_WORKERS", "1")
     mlflow.gemini.autolog()
     with mlflow.start_run(
-        run_name="G3-ragas-four-metrics" + ("-dry-run" if args.limit else "")
+        run_name=args.run_name + ("-dry-run" if args.limit else "")
     ) as run:
         mlflow.set_tags(
             {
@@ -205,7 +217,7 @@ def main():
             }
         )
         mlflow.log_dict(config, "evaluation-config.json")
-        mlflow.log_dict(SOURCES, "source-runs.json")
+        mlflow.log_dict(sources, "source-runs.json")
         mlflow.log_dict({"records": records}, "frozen-inputs.json")
         for path in [
             __file__,

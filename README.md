@@ -244,6 +244,16 @@ uv run --extra cuda python scripts/evaluate_ragas_snapshots.py
 
 Полный набор — 60 записей / 240 invocations. Пустые контексты имеют N/A для трёх context-dependent метрик; отказы и answered показаны раздельно. Идентичные judge inputs кешируются с provenance; сырые ответы судьи и usage сохраняются. Кеш может использовать результат предыдущего запуска, поэтому повторный прогон не является новым независимым измерением. Полная оценка со smoke стоила расчётно $0.06449. [Результаты и ограничения G3](docs/generation-results.md#g3--четыре-ragas-метрики-на-сохранённых-ответах).
 
+G4 проверяет выбор ссылок из ограниченного набора ID. Модель выбирает S1/S2/... в enum JSON schema, код отображает их в document_id/pdf_page, неизвестные и повторные ID отклоняются. Режим экспериментальный: исправил формат ссылок, но не выбран baseline из-за регрессии решения FR005 RU.
+
+```powershell
+uv run --extra cuda python scripts/evaluate_generation.py --citation-mode source_ids --generate-only --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_generation.py --citation-mode source_ids --generate-only
+uv run --extra cuda python scripts/evaluate_ragas_snapshots.py --sources G0=aaf7ea28d5bf459db7271fbbf8cdd970 G4=7b50ab660dc84e12af720a62b1d8e3fd --condition original --run-name G4-ragas-source-ids
+```
+
+В последней команде закреплён G4-run этого опыта; для своего нового запуска укажите его ID. `--generate-only` пропускает LLM-оценки G0, сохраняя ответы и кодовую проверку ссылок. Snapshot evaluator принимает `--sources LABEL=RUN_ID`, `--condition` и `--run-name`; без них действует прежний G3-набор. [Сравнение G0/G4 и ограничения](docs/generation-results.md#g4--выбор-ссылок-из-ограниченного-набора-source-ids).
+
 ## Проверка
 
 ```powershell

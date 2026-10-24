@@ -99,3 +99,51 @@ class GenerationTests(unittest.TestCase):
         client.models.generate_content.return_value = SimpleNamespace(text=None)
         with self.assertRaisesRegex(ValueError, "no answer"):
             generate_answer(client, "Question?", "en", "context")
+
+    def test_source_ids_map_to_pdf_pages_and_keep_same_page_chunks_together(self):
+        client = Mock()
+        usage = Mock()
+        usage.model_dump.return_value = {"prompt_token_count": 100}
+        client.models.generate_content.return_value = SimpleNamespace(
+            text='{"status":"answered","answer":"No.","citations":["S2"]}',
+            model_version="test",
+            usage_metadata=usage,
+        )
+        documents = [
+            {"document_id": "ru", "pdf_page": 151, "printed_page": 149},
+            {"document_id": "ru", "pdf_page": 151, "printed_page": 149},
+            {"document_id": "en", "pdf_page": 145, "printed_page": 145},
+        ]
+        result = generate_answer(
+            client, "Question?", "en", "context", citation_documents=documents
+        )
+        self.assertEqual(result["citations"], ["en:145"])
+        self.assertEqual(
+            result["citation_source_map"], {"S1": "ru:151", "S2": "en:145"}
+        )
+        self.assertEqual(result["citation_source_ids"], ["S2"])
+        request = client.models.generate_content.call_args.kwargs
+        self.assertEqual(
+            request["config"].response_schema["properties"]["citations"]["items"][
+                "enum"
+            ],
+            ["S1", "S2"],
+        )
+        self.assertIn("S1 = ru:151", request["contents"])
+
+    def test_source_ids_reject_unknown_and_duplicate_values(self):
+        for citations in ['["S9"]', '["S1","S1"]']:
+            client = Mock()
+            client.models.generate_content.return_value = SimpleNamespace(
+                text='{"status":"answered","answer":"No.","citations":'
+                + citations
+                + "}"
+            )
+            with self.subTest(citations=citations), self.assertRaises(ValueError):
+                generate_answer(
+                    client,
+                    "Question?",
+                    "en",
+                    "context",
+                    citation_documents=[{"document_id": "en", "pdf_page": 145}],
+                )

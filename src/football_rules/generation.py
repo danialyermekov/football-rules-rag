@@ -50,6 +50,13 @@ document ID. For insufficient_context, citations must be empty. A correct answer
 from memory still violates these instructions if the sources do not support it.
 """
 
+SOURCE_ID_PROMPT = SYSTEM_PROMPT.split("Use answered only", 1)[0] + (
+    "Use answered only for a supported answer. In citations select only the "
+    "source IDs from SOURCE_IDS whose pages support your answer. Do not write "
+    "document names, page numbers or source IDs in answer text. "
+    "SOURCE_IDS maps IDs to document_id:pdf_page; printed_page is not used."
+)
+
 
 class Answer(BaseModel):
     status: Literal["answered", "insufficient_context", "needs_clarification"]
@@ -99,6 +106,7 @@ def generate_answer(
     model: str = MODEL,
     system_prompt: str = SYSTEM_PROMPT,
     guard_empty_context: bool = True,
+    citation_documents: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Guard empty sources locally; bypass is for reproducing legacy experiments."""
     if language not in {"ru", "en"}:
@@ -117,6 +125,23 @@ def generate_answer(
             "api_called": False,
             "usage": {"prompt_token_count": 0, "candidates_token_count": 0},
         }
+    schema: Any = Answer
+    sources: dict[str, str] = {}
+    if citation_documents is not None and context.strip():
+        for document in citation_documents:
+            page = f"{document['document_id']}:{document['pdf_page']}"
+            if page not in sources.values():
+                sources[f"S{len(sources) + 1}"] = page
+        if not sources:
+            raise ValueError("Nonempty context requires citation sources")
+        schema = Answer.model_json_schema()
+        schema["properties"]["citations"]["items"]["enum"] = list(sources)
+        if system_prompt != SYSTEM_PROMPT:
+            raise ValueError("Source-ID experiment uses the baseline prompt only")
+        system_prompt = SOURCE_ID_PROMPT
+        context += "\n\nSOURCE_IDS:\n" + "\n".join(
+            f"{identity} = {page}" for identity, page in sources.items()
+        )
     started = perf_counter()
     response = client.models.generate_content(
         model=model,
@@ -126,20 +151,31 @@ def generate_answer(
             temperature=0,
             max_output_tokens=1024,
             response_mime_type="application/json",
-            response_schema=Answer,
+            response_schema=schema,
         ),
     )
     if not response.text:
         raise ValueError("Gemini returned no answer text")
     answer = Answer.model_validate_json(response.text)
+    raw_citations = answer.citations.copy()
+    if sources:
+        if any(identity not in sources for identity in raw_citations):
+            raise ValueError("Model cited an unavailable source ID")
+        if len(raw_citations) != len(set(raw_citations)):
+            raise ValueError("Model returned duplicate source IDs")
+        answer.citations = [sources[identity] for identity in raw_citations]
     usage = response.usage_metadata
     if usage is None:
         raise ValueError("Gemini response has no usage metadata")
 
-    return {
+    output = {
         **answer.model_dump(),
         "generation_seconds": perf_counter() - started,
         "model_version": response.model_version,
         "api_called": True,
         "usage": usage.model_dump(mode="json", exclude_none=True),
     }
+    if sources:
+        output["citation_source_ids"] = raw_citations
+        output["citation_source_map"] = sources
+    return output

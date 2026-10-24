@@ -17,6 +17,7 @@ from ragas.metrics.result import MetricResult
 
 from football_rules.generation import (
     MODEL,
+    SOURCE_ID_PROMPT,
     SYSTEM_PROMPT,
     cited_documents,
     generate_answer,
@@ -38,6 +39,10 @@ def main():
     parser.add_argument("--scenario-ids", nargs="+", default=PILOT)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--verify-trace", action="store_true")
+    parser.add_argument(
+        "--citation-mode", choices=["legacy", "source_ids"], default="legacy"
+    )
+    parser.add_argument("--generate-only", action="store_true")
     args = parser.parse_args()
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be positive")
@@ -47,6 +52,7 @@ def main():
     if not key:
         raise ValueError("Configure GEMINI_API_KEY in .env; never paste it into logs")
 
+    prompt = SOURCE_ID_PROMPT if args.citation_mode == "source_ids" else SYSTEM_PROMPT
     experiment_id = configure_tracking()
     tracker = mlflow.MlflowClient()
     source_run = tracker.get_run(args.retrieval_run)
@@ -134,10 +140,24 @@ def main():
         with mlflow.start_span(
             name="replay_saved_context", span_type="RETRIEVER"
         ) as span:
-            span.set_inputs({"retrieval_run_id": args.retrieval_run, "query": query})
+            span.set_inputs(
+                {
+                    "retrieval_run_id": args.retrieval_run,
+                    "citation_mode": args.citation_mode,
+                    "generate_only": args.generate_only,
+                    "query": query,
+                }
+            )
             span.set_outputs(context["documents"])
         output = generate_answer(
-            client, query, language, context["text"], model=args.model
+            client,
+            query,
+            language,
+            context["text"],
+            model=args.model,
+            citation_documents=(
+                context["documents"] if args.citation_mode == "source_ids" else None
+            ),
         )
         output["documents"] = context["documents"]
         output["context_tokens_bge"] = context["token_count"]
@@ -203,7 +223,12 @@ def main():
     with (
         client,
         mlflow.start_run(
-            run_name="G0-gemini-e10-pilot" + ("-dry-run" if args.limit else "")
+            run_name=(
+                "G4-source-ids-e10-pilot"
+                if args.citation_mode == "source_ids"
+                else "G0-gemini-e10-pilot"
+            )
+            + ("-dry-run" if args.limit else "")
         ) as run,
     ):
         mlflow.set_tags(
@@ -212,6 +237,8 @@ def main():
         mlflow.log_params(
             {
                 "retrieval_run_id": args.retrieval_run,
+                "citation_mode": args.citation_mode,
+                "generate_only": args.generate_only,
                 "retrieval_mode": "frozen_context_replay",
                 "model": args.model,
                 "judge_model": args.judge_model,
@@ -222,7 +249,7 @@ def main():
                 "retrieval_artifact_sha256": hashlib.sha256(
                     artifact.read_bytes()
                 ).hexdigest(),
-                "prompt_sha256": hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest(),
+                "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
                 "ragas_version": "0.4.3",
                 "sampling": "diagnostic_selected_not_representative",
             }
@@ -234,7 +261,7 @@ def main():
             "uv.lock",
         ]:
             mlflow.log_artifact(path, artifact_path="code")
-        mlflow.log_dict({"system_prompt": SYSTEM_PROMPT}, "prompt.json")
+        mlflow.log_dict({"system_prompt": prompt}, "prompt.json")
         mlflow.log_dict({"records": selected}, "retrieval-inputs.json")
         mlflow.log_dict({"records": records}, "evaluation-records.json")
         dataset_name = (
@@ -270,12 +297,16 @@ def main():
         result = mlflow.genai.evaluate(
             data=dataset,
             predict_fn=predict,
-            scorers=[
-                factual_correctness,
-                context_faithfulness,
-                citation_validity,
-                cited_context_faithfulness,
-            ],
+            scorers=(
+                [citation_validity]
+                if args.generate_only
+                else [
+                    factual_correctness,
+                    context_faithfulness,
+                    citation_validity,
+                    cited_context_faithfulness,
+                ]
+            ),
         )
         rows = [
             {
@@ -343,7 +374,9 @@ def main():
             )
         mlflow.log_dict(summary, "summary.json")
         print(json.dumps(summary, ensure_ascii=True, indent=2), flush=True)
-        if any(len(row["judge_scores"]) != 3 for row in rows):
+        if not args.generate_only and any(
+            len(row["judge_scores"]) != 3 for row in rows
+        ):
             raise RuntimeError(
                 "Incomplete judge scores; inspect MLflow errors before interpreting means"
             )
