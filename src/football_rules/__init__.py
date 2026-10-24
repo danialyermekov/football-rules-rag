@@ -48,7 +48,9 @@ def main() -> None:
     )
     indexing.add_argument("--database", type=Path, default=Path("data/qdrant"))
     indexing.add_argument(
-        "--embedding", choices=["bge-m3", "qwen3-0.6b"], default="bge-m3"
+        "--embedding",
+        choices=["bge-m3", "qwen3-0.6b", "multilingual-e5-large"],
+        default="bge-m3",
     )
 
     searching = commands.add_parser(
@@ -60,7 +62,9 @@ def main() -> None:
     searching.add_argument("--database", type=Path, default=Path("data/qdrant"))
     searching.add_argument("--k", type=int, default=5)
     searching.add_argument(
-        "--embedding", choices=["bge-m3", "qwen3-0.6b"], default="bge-m3"
+        "--embedding",
+        choices=["bge-m3", "qwen3-0.6b", "multilingual-e5-large"],
+        default="bge-m3",
     )
 
     args = parser.parse_args()

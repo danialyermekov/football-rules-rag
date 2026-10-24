@@ -174,6 +174,18 @@ uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39
 
 В другом MLflow-хранилище используйте ID своего полного E10 run. `--run-name` меняет подпись, а проверки source/gold/corpus/fusion сохраняются. Run также записывает `source_embedding_*` для однозначного определения модели первого этапа. Измеряется reranking + упаковка, без поиска; одновременная загрузка Qwen и reranker этим replay не проверяется.
 
+E12 сравнивает `intfloat/multilingual-e5-large` в Dense-поиске с E0/E9. Чанки 1000/150, фильтр языка и бюджет 2048 по токенизатору BGE неизменны. Перед вопросом добавляется `query: `, перед документом — `passage: `, включая RU; лимит 512 проверяется с префиксами и специальными токенами, обрезание запрещено. CUDA FP32 / batch 2:
+
+```powershell
+uv run --extra cuda hf download intfloat/multilingual-e5-large model.safetensors config.json tokenizer.json tokenizer_config.json special_tokens_map.json sentencepiece.bpe.model sentence_bert_config.json modules.json 1_Pooling/config.json --revision 3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3 --local-dir data/models/multilingual-e5-large
+uv run --extra cuda football-rules index --embedding multilingual-e5-large
+uv run --extra cuda python scripts/evaluate_retrieval.py --embedding multilingual-e5-large --collection football_a6a20a4e7fd525b1c4c7cb69 --run-name E12-dense-multilingual-e5-large-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --embedding multilingual-e5-large --collection football_a6a20a4e7fd525b1c4c7cb69 --run-name E12-dense-multilingual-e5-large-v2
+uv run --extra cuda football-rules search "Можно ли оказаться вне игры после вбрасывания?" --embedding multilingual-e5-large --language ru --collection football_a6a20a4e7fd525b1c4c7cb69 --k 3
+```
+
+Имя коллекции относится к закреплённым артефактам — проверяйте вывод `index`. Значение `multilingual-e5-large` доступно во всех трёх командах выбора embeddings; BGE остаётся default. Время E12 можно сопоставлять с Qwen E9 как замеры конфигураций на одном GPU, но не как доказательство ускорения относительно CPU E0.
+
 ## Проверка
 
 ```powershell

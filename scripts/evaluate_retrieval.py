@@ -103,7 +103,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--collection")
     parser.add_argument(
-        "--embedding", choices=["bge-m3", "qwen3-0.6b"], default="bge-m3"
+        "--embedding",
+        choices=["bge-m3", "qwen3-0.6b", "multilingual-e5-large"],
+        default="bge-m3",
     )
     parser.add_argument(
         "--strategy", choices=["dense", "bm25", "hybrid"], default="dense"
