@@ -215,6 +215,16 @@ uv run --extra cuda python scripts/evaluate_generation.py
 
 [Журнал генерации](docs/generation-results.md) содержит конфигурацию, метрики и разбор ошибок. Оценщик пока не откалиброван: найдено ошибочное разбиение условий и штрафы за факты из вопроса. Эти метрики не используются для выбора retrieval. `--retrieval-run` позволяет указать совместимый завершённый run с той же разметкой; `--scenario-ids` ограничивает dev-ситуации. По умолчанию используется E10, модель и оценщик — `gemini-2.5-flash-lite`.
 
+G1 проверяет тот же промпт с пустым контекстом, без ключевого evidence и с нерелевантным текстом. Ответы original G0 переиспользуются. Подготовка не вызывает Google API; smoke/full выполняют соответственно 3/36 новых запросов:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_context_controls.py --prepare-only
+uv run --extra cuda python scripts/evaluate_context_controls.py --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_context_controls.py
+```
+
+48 записей G1 хранятся в том же MLflow experiment. В текущем пилоте при пустом контексте отказов `insufficient_context` не было, а 11/12 ответов содержали недопустимые ссылки. Подробности подготовки, ручного разбора и ограничения — в [журнале G1](docs/generation-results.md#g1--контроль-поведения-при-отсутствии-доказательств). Промпт и генератор G0 не изменены.
+
 ## Проверка
 
 ```powershell
