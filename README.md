@@ -186,6 +186,15 @@ uv run --extra cuda football-rules search "Можно ли оказаться в
 
 Имя коллекции относится к закреплённым артефактам — проверяйте вывод `index`. Значение `multilingual-e5-large` доступно во всех трёх командах выбора embeddings; BGE остаётся default. Время E12 можно сопоставлять с Qwen E9 как замеры конфигураций на одном GPU, но не как доказательство ускорения относительно CPU E0.
 
+E13 проверяет приоритет непосредственного продолжения чанка перед упаковкой контекста Qwen Hybrid. Переставляются только уже найденные top50: пул не расширяется, тексты/источники/scores не меняются. Соседи определяются порядком чанков в документе; между страницами требуется следующая страница и начало продолжения с `•`. На один исходный anchor поднимается не более одного successor, без рекурсивного обхода. Бюджет BGE 2048 сохраняется:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --context-policy successor_first --run-name E13-qwen-hybrid-successor-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --context-policy successor_first --run-name E13-qwen-hybrid-successor-v2
+```
+
+Default `--context-policy rank_order` сохраняет прежнюю упаковку. В E13 `documents` остаётся исходной выдачей, `context_candidates` хранит порядок для сборки контекста; основной и диагностические бюджеты используют эту политику. `context-ordering.json` фиксирует карту соседей. Это эвристика продолжения, не полноценный разбор Law/section; тематически чужой сосед может вытеснить полезный чанк.
+
 ## Проверка
 
 ```powershell

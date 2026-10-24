@@ -15,7 +15,12 @@ from mlflow.genai.scorers import scorer
 
 from football_rules.bm25 import BM25Retriever
 from football_rules.embeddings import MODEL_ID, MODEL_REVISION, load_embedder
-from football_rules.evidence_evaluation import evidence_metrics, pack_context
+from football_rules.evidence_evaluation import (
+    chunk_successors,
+    evidence_metrics,
+    pack_context,
+    prioritize_successors,
+)
 from football_rules.hybrid import HybridRetriever
 from football_rules.retrieval import DenseRetriever, read_chunks
 from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
@@ -121,6 +126,11 @@ def main():
     parser.add_argument("--verify-trace", action="store_true")
     parser.add_argument("--protocol", choices=["v1", "v2"], default="v2")
     parser.add_argument("--context-budget", type=int, default=2048)
+    parser.add_argument(
+        "--context-policy",
+        choices=["rank_order", "successor_first"],
+        default="rank_order",
+    )
     args = parser.parse_args()
 
     if args.strategy in {"dense", "hybrid"} and not args.collection:
@@ -134,6 +144,9 @@ def main():
 
     if args.context_budget <= 0:
         parser.error("--context-budget must be positive")
+
+    if args.context_policy != "rank_order" and args.protocol != "v2":
+        parser.error("Context ordering experiments require protocol v2")
 
     os.environ["MLFLOW_GENAI_EVAL_MAX_WORKERS"] = "1"
     experiment_id = configure_tracking()
@@ -218,6 +231,11 @@ def main():
     )
     observations = {}
     trace_ids = []
+    successors = (
+        chunk_successors(read_chunks(args.chunks))
+        if args.context_policy == "successor_first"
+        else {}
+    )
 
     def count_tokens(text):
         return len(tokenizer.encode(text, add_special_tokens=False))
@@ -238,16 +256,26 @@ def main():
 
         if args.protocol == "v2":
             packing_started = perf_counter()
+            context_candidates = (
+                prioritize_successors(documents, successors)
+                if args.context_policy == "successor_first"
+                else documents
+            )
+            if args.context_policy == "successor_first":
+                output["context_candidates"] = context_candidates
 
             with mlflow.start_span(name="context_packing", span_type="CHAIN") as span:
                 span.set_inputs(
                     {
-                        "candidate_ids": [item["chunk_id"] for item in documents],
+                        "candidate_ids": [
+                            item["chunk_id"] for item in context_candidates
+                        ],
                         "budget": args.context_budget,
+                        "context_policy": args.context_policy,
                     }
                 )
                 output["context"] = pack_context(
-                    documents, args.context_budget, count_tokens
+                    context_candidates, args.context_budget, count_tokens
                 )
                 span.set_outputs(output["context"])
 
@@ -281,6 +309,18 @@ def main():
         ) as run:
             mlflow.set_tag("run_kind", "smoke" if args.limit else "full")
             mlflow.log_dict(retriever.manifest, "index-manifest.json")
+            if args.context_policy == "successor_first":
+                mlflow.log_dict(
+                    {
+                        "version": "successor_first_v1",
+                        "boundary": "same_page_or_consecutive_page_bullet",
+                        "candidate_expansion": False,
+                        "max_successors_per_anchor": 1,
+                        "recursive": False,
+                        "successors": successors,
+                    },
+                    "context-ordering.json",
+                )
             mlflow.log_params(
                 {
                     "strategy": args.strategy,
@@ -300,6 +340,7 @@ def main():
                         "BAAI/bge-m3" if args.protocol == "v2" else "not_applicable"
                     ),
                     "packing_policy": "whole_chunks_skip_oversized_exact_id_dedup_v1",
+                    "context_policy": args.context_policy,
                     "historical_run_id": "bcf4cea80728477ba9ebd41093b56df5",
                     "control_run_id": "7c739293e3284f39833421cc9b8f400a",
                 }
@@ -451,7 +492,11 @@ def main():
                         packed = (
                             output["context"]
                             if budget == args.context_budget
-                            else pack_context(output["documents"], budget, count_tokens)
+                            else pack_context(
+                                output.get("context_candidates", output["documents"]),
+                                budget,
+                                count_tokens,
+                            )
                         )
                         packed_values = evidence_metrics(
                             packed["documents"], required, pages

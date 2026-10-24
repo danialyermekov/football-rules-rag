@@ -1,6 +1,7 @@
 """Chunk-independent evidence coverage and deterministic context packing."""
 
 from collections.abc import Callable
+from itertools import pairwise
 from typing import Any
 
 PageKey = tuple[str, int]
@@ -96,6 +97,63 @@ def render_context(documents: list[dict[str, Any]]) -> str:
         parts.append(label + "\n" + document["text"])
 
     return "\n\n".join(parts)
+
+
+def chunk_successors(chunks: list[dict[str, Any]]) -> dict[str, str]:
+    """Link adjacent chunks; crossing a page requires a bullet-list continuation."""
+    if len({chunk["chunk_id"] for chunk in chunks}) != len(chunks):
+        raise ValueError("Successor mapping requires unique chunk IDs")
+
+    ordered = sorted(
+        chunks,
+        key=lambda chunk: (
+            chunk["document_id"],
+            chunk["pdf_page"],
+            chunk["cleaned_start"],
+            chunk["chunk_id"],
+        ),
+    )
+    successors = {}
+
+    for current, following in pairwise(ordered):
+        if any(
+            current.get(key) != following.get(key)
+            for key in ("document_id", "language", "edition")
+        ):
+            continue
+
+        same_page = current["pdf_page"] == following["pdf_page"]
+        next_page_list = following["pdf_page"] == current["pdf_page"] + 1 and following[
+            "text"
+        ].lstrip().startswith("•")
+        if same_page or next_page_list:
+            successors[current["chunk_id"]] = following["chunk_id"]
+
+    return successors
+
+
+def prioritize_successors(
+    documents: list[dict[str, Any]], successors: dict[str, str]
+) -> list[dict[str, Any]]:
+    """Promote at most one retrieved successor per anchor, without adding candidates."""
+    by_id = {document["chunk_id"]: document for document in documents}
+    if len(by_id) != len(documents):
+        raise ValueError("Successor ordering requires unique candidate IDs")
+
+    ordered = []
+    seen = set()
+    for document in documents:
+        identity = document["chunk_id"]
+        if identity in seen:
+            continue
+
+        for candidate in (identity, successors.get(identity)):
+            if candidate is None or candidate not in by_id or candidate in seen:
+                continue
+            ordered.append(by_id[candidate])
+            seen.add(candidate)
+
+    return ordered
 
 
 def pack_context(
