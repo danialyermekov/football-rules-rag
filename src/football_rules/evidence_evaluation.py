@@ -99,7 +99,9 @@ def render_context(documents: list[dict[str, Any]]) -> str:
     return "\n\n".join(parts)
 
 
-def chunk_successors(chunks: list[dict[str, Any]]) -> dict[str, str]:
+def chunk_successors(
+    chunks: list[dict[str, Any]], *, cross_page_only: bool = False
+) -> dict[str, str]:
     """Link adjacent chunks; crossing a page requires a bullet-list continuation."""
     if len({chunk["chunk_id"] for chunk in chunks}) != len(chunks):
         raise ValueError("Successor mapping requires unique chunk IDs")
@@ -126,7 +128,7 @@ def chunk_successors(chunks: list[dict[str, Any]]) -> dict[str, str]:
         next_page_list = following["pdf_page"] == current["pdf_page"] + 1 and following[
             "text"
         ].lstrip().startswith("•")
-        if same_page or next_page_list:
+        if (same_page and not cross_page_only) or next_page_list:
             successors[current["chunk_id"]] = following["chunk_id"]
 
     return successors

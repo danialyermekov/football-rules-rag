@@ -33,6 +33,11 @@ class ContextOrderingTests(unittest.TestCase):
             with self.subTest(following=following):
                 self.assertEqual(chunk_successors([chunk("a"), following]), {})
 
+    def test_cross_page_only_excludes_same_page_successors(self):
+        chunks = [chunk("a"), chunk("b", start=400), chunk("c", page=2, text="• list")]
+        self.assertEqual(chunk_successors(chunks, cross_page_only=True), {"b": "c"})
+        self.assertEqual(chunk_successors(chunks), {"a": "b", "b": "c"})
+
     def test_document_language_and_edition_boundaries_are_preserved(self):
         for metadata in [
             {"document_id": "other"},

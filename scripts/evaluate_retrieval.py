@@ -128,7 +128,7 @@ def main():
     parser.add_argument("--context-budget", type=int, default=2048)
     parser.add_argument(
         "--context-policy",
-        choices=["rank_order", "successor_first"],
+        choices=["rank_order", "successor_first", "page_continuation"],
         default="rank_order",
     )
     args = parser.parse_args()
@@ -232,8 +232,11 @@ def main():
     observations = {}
     trace_ids = []
     successors = (
-        chunk_successors(read_chunks(args.chunks))
-        if args.context_policy == "successor_first"
+        chunk_successors(
+            read_chunks(args.chunks),
+            cross_page_only=args.context_policy == "page_continuation",
+        )
+        if args.context_policy != "rank_order"
         else {}
     )
 
@@ -258,10 +261,10 @@ def main():
             packing_started = perf_counter()
             context_candidates = (
                 prioritize_successors(documents, successors)
-                if args.context_policy == "successor_first"
+                if args.context_policy != "rank_order"
                 else documents
             )
-            if args.context_policy == "successor_first":
+            if args.context_policy != "rank_order":
                 output["context_candidates"] = context_candidates
 
             with mlflow.start_span(name="context_packing", span_type="CHAIN") as span:
@@ -309,11 +312,15 @@ def main():
         ) as run:
             mlflow.set_tag("run_kind", "smoke" if args.limit else "full")
             mlflow.log_dict(retriever.manifest, "index-manifest.json")
-            if args.context_policy == "successor_first":
+            if args.context_policy != "rank_order":
                 mlflow.log_dict(
                     {
-                        "version": "successor_first_v1",
-                        "boundary": "same_page_or_consecutive_page_bullet",
+                        "version": args.context_policy + "_v1",
+                        "boundary": (
+                            "consecutive_page_bullet"
+                            if args.context_policy == "page_continuation"
+                            else "same_page_or_consecutive_page_bullet"
+                        ),
                         "candidate_expansion": False,
                         "max_successors_per_anchor": 1,
                         "recursive": False,

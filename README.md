@@ -195,6 +195,13 @@ uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --emb
 
 Default `--context-policy rank_order` сохраняет прежнюю упаковку. В E13 `documents` остаётся исходной выдачей, `context_candidates` хранит порядок для сборки контекста; основной и диагностические бюджеты используют эту политику. `context-ordering.json` фиксирует карту соседей. Это эвристика продолжения, не полноценный разбор Law/section; тематически чужой сосед может вытеснить полезный чанк.
 
+E14 ограничивает тот же приоритет только продолжением списка через границу страниц; соседи внутри страницы не переставляются. Пул, модель и бюджет остаются прежними:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --context-policy page_continuation --run-name E14-qwen-hybrid-page-continuation-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --context-policy page_continuation --run-name E14-qwen-hybrid-page-continuation-v2
+```
+
 ## Проверка
 
 ```powershell
