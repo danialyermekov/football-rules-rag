@@ -53,6 +53,18 @@ class HybridTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 reciprocal_rank_fusion(dense, lexical)
 
+    def test_sparse_branch_has_accurate_provenance_and_same_rrf_formula(self):
+        fused = reciprocal_rank_fusion(
+            [hit("a")], [hit("a", 3.0)], lexical_name="bge_m3_sparse"
+        )
+        self.assertEqual(fused[0]["branch_ranks"], {"dense": 1, "bge_m3_sparse": 1})
+        self.assertEqual(
+            fused[0]["branch_scores"], {"dense": 1.0, "bge_m3_sparse": 3.0}
+        )
+        self.assertAlmostEqual(fused[0]["score"], 2 / 61)
+        with self.assertRaises(ValueError):
+            reciprocal_rank_fusion([], [], lexical_name="dense")
+
     def test_mismatched_corpus_is_rejected_and_client_closed(self):
         dense = Mock(spec=DenseRetriever)
         dense.manifest = {"chunks_sha256": "one"}

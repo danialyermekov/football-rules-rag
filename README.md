@@ -184,6 +184,16 @@ uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39
 
 Используется встроенная поддержка causal reranker в установленной Sentence Transformers: полный chat template, опубликованная английская инструкция, score = logit(yes) − logit(no). Это оценка релевантности, не вероятность правильного ответа. FP32/batch2, лимит 1024 включает шаблон; превышение вызывает ошибку, обрезания нет. Бюджет контекста остаётся 2048 по прежнему BGE-токенизатору. Для альтернативного reranker обязателен `--run-name`, чтобы не смешивать его с историческими E3/E4. По умолчанию остаётся BGE.
 
+E16 заменяет BM25 на BGE-M3 learned sparse при том же Qwen dense, без reranker. Нужны уже загруженный BGE-M3 и его sparse head той же ревизии:
+
+```powershell
+uv run --extra cuda hf download BAAI/bge-m3 sparse_linear.pt --revision 5617a9f61b028005a4858fdac845db406aefb181 --local-dir data/models/bge-m3
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --lexical bge-m3-sparse --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --run-name E16-qwen-bge-sparse-rrf-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --lexical bge-m3-sparse --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --run-name E16-qwen-bge-sparse-rrf-v2
+```
+
+Sparse-веса вычисляются через `relu(sparse_linear(last_hidden_state))`, с максимумом для повторных token IDs и исключением CLS/EOS/PAD/UNK. Поиск — скалярное произведение весов совпадающих токенов, без нормализации или инструкции. Используются существующие Transformers/PyTorch, отдельная библиотека FlagEmbedding не устанавливается. Точный поиск по небольшому sparse-индексу выполняется в памяти, dense — через прежний Qdrant. Индекс корпуса кэшируется в `data/sparse/` с fingerprint модели/корпуса/параметров; файл и его checksum фиксируются в артефактах E16. GPU FP32/batch2, лимит 1024 с отклонением переполнения. Обе модели загружаются одновременно; время запроса включает dense + sparse + RRF + упаковку, без построения индекса. Прежние RRF60, depth50, язык и B=2048 сохраняются. В provenance ветка называется `bge_m3_sparse`; BM25 в этом запуске отсутствует. Обычный `--lexical bm25` остаётся default.
+
 E12 сравнивает `intfloat/multilingual-e5-large` в Dense-поиске с E0/E9. Чанки 1000/150, фильтр языка и бюджет 2048 по токенизатору BGE неизменны. Перед вопросом добавляется `query: `, перед документом — `passage: `, включая RU; лимит 512 проверяется с префиксами и специальными токенами, обрезание запрещено. CUDA FP32 / batch 2:
 
 ```powershell

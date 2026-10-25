@@ -24,6 +24,7 @@ from football_rules.evidence_evaluation import (
 from football_rules.hybrid import HybridRetriever
 from football_rules.retrieval import DenseRetriever, read_chunks
 from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
+from football_rules.sparse_retrieval import BGESparseRetriever
 from football_rules.tracking import configure_tracking
 
 
@@ -116,6 +117,7 @@ def main():
         "--strategy", choices=["dense", "bm25", "hybrid"], default="dense"
     )
     parser.add_argument("--database", type=Path, default=Path("data/qdrant"))
+    parser.add_argument("--lexical", choices=["bm25", "bge-m3-sparse"], default="bm25")
     parser.add_argument(
         "--chunks", type=Path, default=Path("data/processed/chunks.jsonl")
     )
@@ -132,6 +134,8 @@ def main():
         default="rank_order",
     )
     args = parser.parse_args()
+    if args.lexical != "bm25" and (args.strategy != "hybrid" or not args.run_name):
+        parser.error("Alternative lexical retrieval requires hybrid and --run-name")
 
     if args.strategy in {"dense", "hybrid"} and not args.collection:
         parser.error("--collection is required for dense/hybrid retrieval")
@@ -188,10 +192,17 @@ def main():
         dataset.merge_records(records)
 
     if args.strategy in {"dense", "hybrid"}:
+        lexical = None
+        if args.strategy == "hybrid":
+            lexical = (
+                BGESparseRetriever(args.chunks)
+                if args.lexical == "bge-m3-sparse"
+                else BM25Retriever(args.chunks)
+            )
         embedder = load_embedder(args.embedding)
         retriever = DenseRetriever(args.database, args.collection, embedder)
         if args.strategy == "hybrid":
-            retriever = HybridRetriever(retriever, BM25Retriever(args.chunks))
+            retriever = HybridRetriever(retriever, lexical)
     else:
         retriever = BM25Retriever(args.chunks)
 
@@ -360,13 +371,19 @@ def main():
                     }
                 )
             if args.strategy in {"bm25", "hybrid"}:
+                lexical_name = (
+                    retriever.lexical_name if args.strategy == "hybrid" else "bm25"
+                )
                 bm25_parameters = (
-                    retriever.manifest["bm25"]
+                    retriever.manifest[lexical_name]
                     if args.strategy == "hybrid"
                     else retriever.manifest
                 )
                 mlflow.log_params(
-                    {f"bm25_{key}": value for key, value in bm25_parameters.items()}
+                    {
+                        f"{lexical_name}_{key}": value
+                        for key, value in bm25_parameters.items()
+                    }
                 )
             if args.strategy == "hybrid":
                 mlflow.log_params(
@@ -435,6 +452,7 @@ def main():
                 "cleaning",
                 "bm25",
                 "hybrid",
+                "sparse_retrieval",
                 "retrieval",
                 "retrieval_metrics",
                 "evidence_evaluation",
@@ -442,6 +460,10 @@ def main():
                 mlflow.log_artifact(
                     f"src/football_rules/{name}.py", artifact_path="code"
                 )
+            if args.lexical == "bge-m3-sparse":
+                import torch
+
+                torch.cuda.reset_peak_memory_stats()
             result = mlflow.genai.evaluate(
                 data=dataset, predict_fn=predict, scorers=scorers
             )
@@ -566,6 +588,13 @@ def main():
 
                 summary.update(values)
 
+            if args.lexical == "bge-m3-sparse":
+                summary["gpu_peak_allocated_mib"] = (
+                    torch.cuda.max_memory_allocated() / 2**20
+                )
+                summary["gpu_peak_reserved_mib"] = (
+                    torch.cuda.max_memory_reserved() / 2**20
+                )
             mlflow.log_metrics(summary)
             mlflow.log_dict({"records": rows}, "per-question-results.json")
             mlflow.log_dict(

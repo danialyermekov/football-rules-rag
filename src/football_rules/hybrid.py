@@ -1,4 +1,4 @@
-"""Equal-weight RRF over existing dense and BM25 retrievers."""
+"""Equal-weight RRF over dense and lexical retrievers."""
 
 from typing import Any
 
@@ -6,14 +6,20 @@ import mlflow
 
 from football_rules.bm25 import BM25Retriever
 from football_rules.retrieval import DenseRetriever
+from football_rules.sparse_retrieval import BGESparseRetriever
 
 
 def reciprocal_rank_fusion(
-    dense: list[dict[str, Any]], bm25: list[dict[str, Any]]
+    dense: list[dict[str, Any]],
+    bm25: list[dict[str, Any]],
+    *,
+    lexical_name: str = "bm25",
 ) -> list[dict[str, Any]]:
+    if lexical_name not in {"bm25", "bge_m3_sparse"}:
+        raise ValueError("Unknown lexical branch")
     combined: dict[str, dict[str, Any]] = {}
 
-    for name, documents in (("dense", dense), ("bm25", bm25)):
+    for name, documents in (("dense", dense), (lexical_name, bm25)):
         seen = set()
 
         for rank, document in enumerate(documents, start=1):
@@ -43,17 +49,20 @@ def reciprocal_rank_fusion(
 class HybridRetriever:
     """Own the dense client and return the complete fused union for diagnostics."""
 
-    def __init__(self, dense: DenseRetriever, bm25: BM25Retriever) -> None:
+    def __init__(
+        self, dense: DenseRetriever, bm25: BM25Retriever | BGESparseRetriever
+    ) -> None:
         if dense.manifest["chunks_sha256"] != bm25.manifest["chunks_sha256"]:
             dense.close()
             raise ValueError("Hybrid branches must use the same chunk corpus")
 
         self.dense = dense
         self.bm25 = bm25
+        self.lexical_name = bm25.manifest["strategy"]
         self.manifest = {
             **dense.manifest,
             "strategy": "hybrid",
-            "bm25": bm25.manifest,
+            self.lexical_name: bm25.manifest,
             "fusion": {
                 "method": "RRF",
                 "rank_constant": 60,
@@ -80,11 +89,13 @@ class HybridRetriever:
             span.set_inputs(
                 {
                     "dense_ids": [hit["chunk_id"] for hit in dense_hits],
-                    "bm25_ids": [hit["chunk_id"] for hit in bm25_hits],
+                    f"{self.lexical_name}_ids": [hit["chunk_id"] for hit in bm25_hits],
                     "rank_constant": 60,
                 }
             )
-            fused = reciprocal_rank_fusion(dense_hits, bm25_hits)
+            fused = reciprocal_rank_fusion(
+                dense_hits, bm25_hits, lexical_name=self.lexical_name
+            )
             span.set_outputs(fused)
 
         return fused

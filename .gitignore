@@ -17,6 +17,7 @@ wheels/
 /data/processed/
 /data/models/
 /data/qdrant/
+/data/sparse/
 /data/mlflow/
 /mlruns/
 /tmp/
