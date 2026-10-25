@@ -21,7 +21,8 @@ from football_rules.evidence_evaluation import (
     pack_context,
     prioritize_successors,
 )
-from football_rules.hybrid import HybridRetriever
+from football_rules.hybrid import HybridRetriever, reciprocal_rank_fusion
+from football_rules.query_rewriting import REWRITE_PROMPT, rewrite_query
 from football_rules.retrieval import DenseRetriever, read_chunks
 from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
 from football_rules.sparse_retrieval import BGESparseRetriever
@@ -119,6 +120,7 @@ def main():
     parser.add_argument("--database", type=Path, default=Path("data/qdrant"))
     parser.add_argument("--lexical", choices=["bm25", "bge-m3-sparse"], default="bm25")
     parser.add_argument("--bm25-stemming", action="store_true")
+    parser.add_argument("--query-rewrite", action="store_true")
     parser.add_argument(
         "--chunks", type=Path, default=Path("data/processed/chunks.jsonl")
     )
@@ -135,6 +137,17 @@ def main():
         default="rank_order",
     )
     args = parser.parse_args()
+    if args.query_rewrite and (
+        args.strategy != "hybrid"
+        or args.protocol != "v2"
+        or args.lexical != "bm25"
+        or args.bm25_stemming
+        or args.context_policy != "rank_order"
+        or not args.run_name
+    ):
+        parser.error(
+            "Query expansion requires plain v2 Hybrid, rank_order and --run-name"
+        )
     if args.bm25_stemming and (
         args.strategy not in {"bm25", "hybrid"}
         or args.lexical != "bm25"
@@ -250,6 +263,7 @@ def main():
         else [make_scorer(metric) for metric in ("recall", "precision", "mrr", "ndcg")]
     )
     observations = {}
+    rewrites = {}
     trace_ids = []
     successors = (
         chunk_successors(
@@ -271,6 +285,26 @@ def main():
         )
         retrieval_seconds = perf_counter() - started
         output = {"documents": documents, "retrieval_seconds": retrieval_seconds}
+
+        if args.query_rewrite:
+            rewrite = rewrites[query, language]
+            alternative_started = perf_counter()
+            alternative = (
+                retriever.search(rewrite["rewritten_query"], language, 50)
+                if rewrite["rewritten_query"] != query
+                else documents
+            )
+            output["original_results"] = documents
+            output["rewritten_results"] = alternative
+            output["query_rewrite"] = rewrite
+            documents = reciprocal_rank_fusion(
+                documents[:50],
+                alternative[:50],
+                dense_name="original",
+                lexical_name="rewritten",
+            )
+            retrieval_seconds += perf_counter() - alternative_started
+            output["retrieval_seconds"] = retrieval_seconds
 
         if args.strategy == "hybrid":
             output["fusion_candidates"] = documents
@@ -331,6 +365,96 @@ def main():
             + ("-dry-run" if args.limit else "")
         ) as run:
             mlflow.set_tag("run_kind", "smoke" if args.limit else "full")
+            if args.query_rewrite:
+                from dotenv import load_dotenv
+                from google import genai
+                from google.genai import types
+
+                from football_rules.generation import MODEL
+
+                load_dotenv(".env")
+                key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+                if not key:
+                    raise ValueError("Configure GEMINI_API_KEY in .env")
+                rewriter = genai.Client(
+                    api_key=key,
+                    http_options=types.HttpOptions(
+                        timeout=60000, retry_options=types.HttpRetryOptions(attempts=1)
+                    ),
+                )
+                mlflow.log_params(
+                    {
+                        "query_expansion": "original_plus_one_same_language_rewrite",
+                        "rewrite_model": MODEL,
+                        "rewrite_temperature": 0,
+                        "rewrite_max_output_tokens": 512,
+                        "query_fusion": "RRF60_equal_top50_per_query",
+                        "latency_scope": "frozen_queries_search_fusion_packing_excludes_rewrite_api",
+                    }
+                )
+                mlflow.log_text(REWRITE_PROMPT, "query-rewrite-prompt.txt")
+                for record in records:
+                    query, language = (
+                        record["inputs"]["query"],
+                        record["inputs"]["language"],
+                    )
+                    rewrite = rewrite_query(rewriter, query, language)
+                    rewrites[query, language] = rewrite
+                    mlflow.log_dict(
+                        {"inputs": record["inputs"], "rewrite": rewrite},
+                        f"rewrites/{record['expectations']['scenario_id']}-{language}.json",
+                    )
+                mlflow.log_dict(
+                    {
+                        "records": [
+                            {"query": query, "language": language, **rewrite}
+                            for (query, language), rewrite in rewrites.items()
+                        ]
+                    },
+                    "query-rewrites.json",
+                )
+                fresh = [row for row in rewrites.values() if row["api_called"]]
+                rewriter.close()
+                rewrite_input = sum(
+                    r["usage"].get("prompt_token_count", 0) for r in fresh
+                )
+                rewrite_output = sum(
+                    r["usage"].get("candidates_token_count", 0)
+                    + r["usage"].get("thoughts_token_count", 0)
+                    for r in fresh
+                )
+                rewrite_durations = [r["generation_seconds"] for r in rewrites.values()]
+                duration_percentiles = (
+                    quantiles(rewrite_durations, n=100, method="inclusive")
+                    if len(rewrite_durations) > 1
+                    else rewrite_durations * 99
+                )
+                mlflow.log_params(
+                    {
+                        "rewrite_estimate_input_usd_per_million": 0.10,
+                        "rewrite_estimate_output_usd_per_million": 0.40,
+                    }
+                )
+                mlflow.log_metrics(
+                    {
+                        "rewrite_api_calls_new": len(fresh),
+                        "rewrite_cache_hits": len(rewrites) - len(fresh),
+                        "rewrite_new_cost_usd_estimate": (
+                            rewrite_input * 0.1 + rewrite_output * 0.4
+                        )
+                        / 1_000_000,
+                        "rewrite_original_api_seconds_p50": duration_percentiles[49],
+                        "rewrite_original_api_seconds_p95": duration_percentiles[94],
+                        "rewrite_new_input_tokens": sum(
+                            r["usage"].get("prompt_token_count", 0) for r in fresh
+                        ),
+                        "rewrite_new_output_tokens": sum(
+                            r["usage"].get("candidates_token_count", 0)
+                            + r["usage"].get("thoughts_token_count", 0)
+                            for r in fresh
+                        ),
+                    }
+                )
             mlflow.log_dict(retriever.manifest, "index-manifest.json")
             if args.context_policy != "rank_order":
                 mlflow.log_dict(
@@ -461,6 +585,7 @@ def main():
                 "cleaning",
                 "bm25",
                 "hybrid",
+                "query_rewriting",
                 "sparse_retrieval",
                 "retrieval",
                 "retrieval_metrics",

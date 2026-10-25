@@ -184,6 +184,15 @@ uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39
 
 Используется встроенная поддержка causal reranker в установленной Sentence Transformers: полный chat template, опубликованная английская инструкция, score = logit(yes) − logit(no). Это оценка релевантности, не вероятность правильного ответа. FP32/batch2, лимит 1024 включает шаблон; превышение вызывает ошибку, обрезания нет. Бюджет контекста остаётся 2048 по прежнему BGE-токенизатору. Для альтернативного reranker обязателен `--run-name`, чтобы не смешивать его с историческими E3/E4. По умолчанию остаётся BGE.
 
+E19 проверяет один same-language rewrite Gemini 2.5 Flash-Lite вместе с исходным вопросом:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --query-rewrite --run-name E19-qwen-hybrid-query-rewrite-rrf-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --query-rewrite --run-name E19-qwen-hybrid-query-rewrite-rrf-v2
+```
+
+Нужен существующий `GEMINI_API_KEY` в `.env`. Модель получает только вопрос/язык, без gold, reference или документов. Переформулировки фиксируются до native retrieval evaluation и кэшируются по вопросу/языку/модели/промпту/параметрам в `tmp/query-rewrites/`; snapshots/raw responses/usage записываются в run. Исходный и новый вопрос отдельно проходят прежний Hybrid, их top50 объединяются вторым RRF60, итоговый top50 упаковывается при B=2048. Исходные выдачи обеих веток сохранены. Время `latency_seconds` исключает rewrite API: это поиск по frozen queries + fusion + packing. API latency и новые token usage/стоимость записываются отдельно; cache hit не объявляется ускорением модели. Свободный rewrite экспериментален: ручной аудит выявил изменение условий даже при строгом промпте, поэтому опция не включена по умолчанию.
+
 E18 объединяет два сохранённых порядка одних top50 — E10 Hybrid и E15 Qwen reranker — через RRF60 с равными весами:
 
 ```powershell

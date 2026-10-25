@@ -65,6 +65,16 @@ class HybridTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             reciprocal_rank_fusion([], [], lexical_name="dense")
 
+    def test_original_and_rewritten_query_ranks_use_distinct_provenance(self):
+        fused = reciprocal_rank_fusion(
+            [hit("a"), hit("b")],
+            [hit("b"), hit("c")],
+            dense_name="original",
+            lexical_name="rewritten",
+        )
+        self.assertEqual([row["chunk_id"] for row in fused], ["b", "a", "c"])
+        self.assertEqual(fused[0]["branch_ranks"], {"original": 2, "rewritten": 1})
+
     def test_mismatched_corpus_is_rejected_and_client_closed(self):
         dense = Mock(spec=DenseRetriever)
         dense.manifest = {"chunks_sha256": "one"}

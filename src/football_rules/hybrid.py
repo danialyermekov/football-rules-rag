@@ -14,12 +14,17 @@ def reciprocal_rank_fusion(
     bm25: list[dict[str, Any]],
     *,
     lexical_name: str = "bm25",
+    dense_name: str = "dense",
 ) -> list[dict[str, Any]]:
-    if lexical_name not in {"bm25", "bge_m3_sparse"}:
+    if (dense_name, lexical_name) not in {
+        ("dense", "bm25"),
+        ("dense", "bge_m3_sparse"),
+        ("original", "rewritten"),
+    }:
         raise ValueError("Unknown lexical branch")
     combined: dict[str, dict[str, Any]] = {}
 
-    for name, documents in (("dense", dense), (lexical_name, bm25)):
+    for name, documents in ((dense_name, dense), (lexical_name, bm25)):
         seen = set()
 
         for rank, document in enumerate(documents, start=1):
