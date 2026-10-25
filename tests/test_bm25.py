@@ -67,6 +67,28 @@ class BM25Tests(unittest.TestCase):
         self.assertEqual(retriever.search("ball", "en"), [])
         self.assertEqual(retriever.search("мяч", "ru"), [])
 
+    def test_stemming_matches_inflections_on_both_sides_and_preserves_numbers(self):
+        write_jsonl(
+            self.path,
+            [
+                {"chunk_id": "ru", "text": "игроками мячом не 12", "language": "ru"},
+                {"chunk_id": "en", "text": "players handling not 12", "language": "en"},
+            ],
+        )
+        plain = BM25Retriever(self.path)
+        stemmed = BM25Retriever(self.path, stemming=True)
+        self.assertEqual(plain.search("игрок", "ru"), [])
+        self.assertEqual(plain.search("player", "en"), [])
+        self.assertEqual(stemmed.search("игрок", "ru")[0]["chunk_id"], "ru")
+        self.assertEqual(stemmed.search("player", "en")[0]["chunk_id"], "en")
+        self.assertEqual(stemmed._tokenize("не 12", "ru"), ["не", "12"])
+        self.assertEqual(stemmed._tokenize("not 12", "en"), ["not", "12"])
+        self.assertEqual(
+            stemmed.search("player player", "en"), stemmed.search("player", "en")
+        )
+        self.assertFalse(plain.manifest["stemming"])
+        self.assertEqual(stemmed.manifest["stemming"], "snowball")
+
     def test_invalid_inputs_and_duplicate_ids_are_rejected(self):
         record = {"chunk_id": "a", "text": "ball", "language": "en"}
         retriever = self.build([record])

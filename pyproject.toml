@@ -19,6 +19,7 @@ dependencies = [
     "qdrant-client==1.20.0",
     "ragas==0.4.3",
     "sentence-transformers==6.2.0",
+    "snowballstemmer==3.1.1",
 ]
 
 [project.scripts]

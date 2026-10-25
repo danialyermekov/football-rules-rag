@@ -5,6 +5,7 @@ import math
 import re
 import unicodedata
 from collections import Counter
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +20,7 @@ def tokenize(text: str) -> list[str]:
 
 
 class BM25Retriever:
-    def __init__(self, chunks_path: Path) -> None:
+    def __init__(self, chunks_path: Path, *, stemming: bool = False) -> None:
         chunks = read_chunks(chunks_path)
 
         if any(chunk["language"] not in {"ru", "en"} for chunk in chunks):
@@ -27,12 +28,22 @@ class BM25Retriever:
 
         self.k1 = 1.2
         self.b = 0.75
+        self.stemmers: dict[str, Any] = {}
+        if stemming:
+            import snowballstemmer  # type: ignore[import-untyped]
+
+            self.stemmers = {
+                "ru": snowballstemmer.stemmer("russian"),
+                "en": snowballstemmer.stemmer("english"),
+            }
         self.documents = {
             language: [chunk for chunk in chunks if chunk["language"] == language]
             for language in ("ru", "en")
         }
         self.terms = {
-            language: [Counter(tokenize(chunk["text"])) for chunk in documents]
+            language: [
+                Counter(self._tokenize(chunk["text"], language)) for chunk in documents
+            ]
             for language, documents in self.documents.items()
         }
         self.lengths = {
@@ -62,10 +73,28 @@ class BM25Retriever:
             "idf": "log(1+(N-df+0.5)/(df+0.5))",
             "language_statistics": "separate",
             "stopwords": False,
-            "stemming": False,
+            "stemming": "snowball" if stemming else False,
             "zero_score_hits": "excluded",
             "tie_break": "chunk_id_ascending",
         }
+        if stemming:
+            self.manifest.update(
+                {
+                    "stemmer_package": version("snowballstemmer"),
+                    "stemmer_algorithms": "ru=russian,en=english",
+                    "stemmer_backend": {
+                        language: type(stemmer).__module__
+                        for language, stemmer in self.stemmers.items()
+                    },
+                }
+            )
+
+    def _tokenize(self, text: str, language: str) -> list[str]:
+        tokens = tokenize(text)
+        if language in self.stemmers:
+            stemmed: list[str] = self.stemmers[language].stemWords(tokens)
+            return stemmed
+        return tokens
 
     @mlflow.trace(name="bm25_search", span_type="RETRIEVER")
     def search(self, query: str, language: str, k: int = 5) -> list[dict[str, Any]]:
@@ -80,7 +109,7 @@ class BM25Retriever:
             return []
 
         average_length = total_length / len(documents)
-        query_terms = sorted(set(tokenize(query)))
+        query_terms = sorted(set(self._tokenize(query, language)))
         scores = []
 
         for document, terms, length in zip(

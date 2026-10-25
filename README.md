@@ -184,6 +184,15 @@ uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39
 
 Используется встроенная поддержка causal reranker в установленной Sentence Transformers: полный chat template, опубликованная английская инструкция, score = logit(yes) − logit(no). Это оценка релевантности, не вероятность правильного ответа. FP32/batch2, лимит 1024 включает шаблон; превышение вызывает ошибку, обрезания нет. Бюджет контекста остаётся 2048 по прежнему BGE-токенизатору. Для альтернативного reranker обязателен `--run-name`, чтобы не смешивать его с историческими E3/E4. По умолчанию остаётся BGE.
 
+E17 проверяет Snowball stemming в BM25 при прежнем Qwen Hybrid без reranker:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --bm25-stemming --run-name E17-qwen-hybrid-bm25-snowball-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --bm25-stemming --run-name E17-qwen-hybrid-bm25-snowball-v2
+```
+
+Зависимость `snowballstemmer==3.1.1` закреплена в lock. Russian/English stemming применяется после прежней Unicode-нормализации одинаково к вопросам и корпусу. Числа/отрицания сохраняются, стоп-слова не удаляются. Без `--bm25-stemming` остаётся прежний BM25. Это экспериментальная опция; стеммеры используются последовательно, один экземпляр не предназначен для конкурентного вызова из нескольких потоков.
+
 E16 заменяет BM25 на BGE-M3 learned sparse при том же Qwen dense, без reranker. Нужны уже загруженный BGE-M3 и его sparse head той же ревизии:
 
 ```powershell

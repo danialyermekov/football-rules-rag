@@ -118,6 +118,7 @@ def main():
     )
     parser.add_argument("--database", type=Path, default=Path("data/qdrant"))
     parser.add_argument("--lexical", choices=["bm25", "bge-m3-sparse"], default="bm25")
+    parser.add_argument("--bm25-stemming", action="store_true")
     parser.add_argument(
         "--chunks", type=Path, default=Path("data/processed/chunks.jsonl")
     )
@@ -134,6 +135,14 @@ def main():
         default="rank_order",
     )
     args = parser.parse_args()
+    if args.bm25_stemming and (
+        args.strategy not in {"bm25", "hybrid"}
+        or args.lexical != "bm25"
+        or not args.run_name
+    ):
+        parser.error(
+            "BM25 stemming requires BM25/hybrid, --lexical bm25 and --run-name"
+        )
     if args.lexical != "bm25" and (args.strategy != "hybrid" or not args.run_name):
         parser.error("Alternative lexical retrieval requires hybrid and --run-name")
 
@@ -197,14 +206,14 @@ def main():
             lexical = (
                 BGESparseRetriever(args.chunks)
                 if args.lexical == "bge-m3-sparse"
-                else BM25Retriever(args.chunks)
+                else BM25Retriever(args.chunks, stemming=args.bm25_stemming)
             )
         embedder = load_embedder(args.embedding)
         retriever = DenseRetriever(args.database, args.collection, embedder)
         if args.strategy == "hybrid":
             retriever = HybridRetriever(retriever, lexical)
     else:
-        retriever = BM25Retriever(args.chunks)
+        retriever = BM25Retriever(args.chunks, stemming=args.bm25_stemming)
 
     from transformers import AutoTokenizer
 
