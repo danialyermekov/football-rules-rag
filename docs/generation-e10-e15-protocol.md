@@ -49,3 +49,14 @@ in MLflow; append results and limitations to generation-results.md. Generation
 latency excludes retrieval replay; retrieval/reranking timings come from the
 source experiments and must not be added as separate medians to claim end-to-end
 latency. The comparison cannot establish production readiness or expert accuracy.
+
+## Transport correction before accepting results
+
+The initial function-call judge run completed 398/400 assessments. Two transport
+errors persisted on retries: ordinary JSON returned instead of a function call,
+and a response without parsable content. A complete JSON Schema judge rescore
+uses the same 80 frozen answers and metric definitions for both sources. The new
+adapter hash intentionally invalidates earlier judge caches. Initial failed
+runs are retained and excluded from the accepted comparison. This changes judge
+transport, so these scores should not be treated as repetitions of earlier G3/G4.
+Reference: https://python.useinstructor.com/integrations/google/ (Mode.JSON).

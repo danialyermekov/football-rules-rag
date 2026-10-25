@@ -113,6 +113,7 @@ def main():
         "judge_model": MODEL,
         "judge_temperature": 0,
         "judge_max_output_tokens": 2048,
+        "judge_response_mode": "json_schema",
         "answer_relevancy_strictness": 3,
         "context_precision_variant": "with_reference_average_precision",
         "embeddings": embedder.parameters(),

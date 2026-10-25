@@ -67,7 +67,9 @@ def evaluate_ragas_metric(
         )
         async with client.aio:
             responses: list[dict[str, Any]] = []
-            structured = instructor.from_genai(client, use_async=True)
+            structured = instructor.from_genai(
+                client, use_async=True, mode=instructor.Mode.JSON
+            )
             structured.on(
                 "completion:response",
                 lambda response: responses.append(
