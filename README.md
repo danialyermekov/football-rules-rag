@@ -174,6 +174,16 @@ uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39
 
 В другом MLflow-хранилище используйте ID своего полного E10 run. `--run-name` меняет подпись, а проверки source/gold/corpus/fusion сохраняются. Run также записывает `source_embedding_*` для однозначного определения модели первого этапа. Измеряется reranking + упаковка, без поиска; одновременная загрузка Qwen и reranker этим replay не проверяется.
 
+E15 заменяет только reranker на `Qwen/Qwen3-Reranker-0.6B`, revision `e61197ed45024b0ed8a2d74b80b4d909f1255473`, на тех же сохранённых top50 E10:
+
+```powershell
+uv run --extra cuda hf download Qwen/Qwen3-Reranker-0.6B --revision e61197ed45024b0ed8a2d74b80b4d909f1255473 --local-dir data/models/qwen3-reranker-0.6b --exclude '*.md' --exclude '.gitattributes'
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39d4145ae2f7e08fd49416e --candidate-pool 50 --reranker qwen3-0.6b --run-name E15-qwen-rrf50-qwen-reranker-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39d4145ae2f7e08fd49416e --candidate-pool 50 --reranker qwen3-0.6b --run-name E15-qwen-rrf50-qwen-reranker-v2
+```
+
+Используется встроенная поддержка causal reranker в установленной Sentence Transformers: полный chat template, опубликованная английская инструкция, score = logit(yes) − logit(no). Это оценка релевантности, не вероятность правильного ответа. FP32/batch2, лимит 1024 включает шаблон; превышение вызывает ошибку, обрезания нет. Бюджет контекста остаётся 2048 по прежнему BGE-токенизатору. Для альтернативного reranker обязателен `--run-name`, чтобы не смешивать его с историческими E3/E4. По умолчанию остаётся BGE.
+
 E12 сравнивает `intfloat/multilingual-e5-large` в Dense-поиске с E0/E9. Чанки 1000/150, фильтр языка и бюджет 2048 по токенизатору BGE неизменны. Перед вопросом добавляется `query: `, перед документом — `passage: `, включая RU; лимит 512 проверяется с префиксами и специальными токенами, обрезание запрещено. CUDA FP32 / batch 2:
 
 ```powershell

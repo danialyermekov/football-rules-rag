@@ -9,6 +9,11 @@ import mlflow
 
 MODEL_ID = "BAAI/bge-reranker-v2-m3"
 MODEL_REVISION = "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"
+QWEN_MODEL_ID = "Qwen/Qwen3-Reranker-0.6B"
+QWEN_REVISION = "e61197ed45024b0ed8a2d74b80b4d909f1255473"
+QWEN_INSTRUCTION = (
+    "Given a web search query, retrieve relevant passages that answer the query"
+)
 
 
 def rank_documents(
@@ -30,24 +35,49 @@ class CrossEncoderReranker:
     def __init__(
         self,
         device: str = "cuda",
-        model_path: Path = Path("data/models/bge-reranker-v2-m3"),
+        model_path: Path | None = None,
+        *,
+        model_name: str = "bge",
     ) -> None:
         if device not in {"cpu", "cuda"}:
             raise ValueError("Reranker device must be cpu/cuda")
 
-        for name in (
+        if model_name not in {"bge", "qwen3-0.6b"}:
+            raise ValueError("Reranker model must be bge/qwen3-0.6b")
+        self.model_name = model_name
+        self.model_id = MODEL_ID if model_name == "bge" else QWEN_MODEL_ID
+        self.revision = MODEL_REVISION if model_name == "bge" else QWEN_REVISION
+        if model_path is None:
+            directory = (
+                "bge-reranker-v2-m3" if model_name == "bge" else "qwen3-reranker-0.6b"
+            )
+            model_path = Path("data/models") / directory
+
+        files = [
             "config.json",
             "model.safetensors",
             "tokenizer.json",
             "tokenizer_config.json",
-            "special_tokens_map.json",
-        ):
+        ]
+        if model_name == "bge":
+            files.append("special_tokens_map.json")
+        else:
+            files.extend(
+                [
+                    "config_sentence_transformers.json",
+                    "modules.json",
+                    "sentence_bert_config.json",
+                    "chat_template.jinja",
+                    "1_LogitScore/config.json",
+                ]
+            )
+        for name in files:
             metadata = model_path / ".cache/huggingface/download" / f"{name}.metadata"
             if (
                 not (model_path / name).is_file()
                 or not metadata.is_file()
                 or metadata.read_text(encoding="utf-8").splitlines()[:1]
-                != [MODEL_REVISION]
+                != [self.revision]
             ):
                 raise ValueError("Download the pinned reranker revision; see README")
 
@@ -76,14 +106,17 @@ class CrossEncoderReranker:
         import torch
 
         return {
-            "model": MODEL_ID,
-            "revision": MODEL_REVISION,
+            "model": self.model_id,
+            "revision": self.revision,
             "device": self.device,
             "dtype": "float32",
             "batch_size": self.batch_size,
             "max_pair_tokens": self.max_tokens,
             "truncation": "reject_overflow",
-            "scores": "raw_logits",
+            "scores": (
+                "raw_logits" if self.model_name == "bge" else "yes_minus_no_logits"
+            ),
+            "instruction": ("none" if self.model_name == "bge" else QWEN_INSTRUCTION),
             "torch": version("torch"),
             "cuda_runtime": str(torch.version.cuda),
             "gpu": torch.cuda.get_device_name(0) if self.device == "cuda" else "none",
@@ -104,10 +137,20 @@ class CrossEncoderReranker:
             return []
 
         pairs = [(query, document["text"]) for document in documents]
-        lengths = [
-            len(ids)
-            for ids in self.model.tokenizer(pairs, truncation=False)["input_ids"]
-        ]
+        prediction_kwargs: dict[str, Any] = {}
+        if self.model_name == "qwen3-0.6b":
+            # Count the actual chat template, including the instruction and answer suffix.
+            prediction_kwargs = {
+                "prompt": QWEN_INSTRUCTION,
+                "processing_kwargs": {"text": {"truncation": False}},
+            }
+            features = self.model.preprocess(pairs, **prediction_kwargs)
+            lengths = features["attention_mask"].sum(dim=1).tolist()
+        else:
+            lengths = [
+                len(ids)
+                for ids in self.model.tokenizer(pairs, truncation=False)["input_ids"]
+            ]
         if max(lengths) > self.max_tokens:
             raise ValueError("Query/passage pair exceeds reranker token limit")
 
@@ -116,5 +159,6 @@ class CrossEncoderReranker:
             batch_size=self.batch_size,
             show_progress_bar=False,
             convert_to_numpy=True,
+            **prediction_kwargs,
         )
         return rank_documents(documents, [float(score) for score in scores])

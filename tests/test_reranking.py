@@ -3,7 +3,11 @@ from unittest.mock import Mock
 
 import mlflow
 
-from football_rules.reranking import CrossEncoderReranker, rank_documents
+from football_rules.reranking import (
+    QWEN_INSTRUCTION,
+    CrossEncoderReranker,
+    rank_documents,
+)
 
 
 class RerankingTests(unittest.TestCase):
@@ -21,6 +25,7 @@ class RerankingTests(unittest.TestCase):
     def fixture(self):
         reranker = CrossEncoderReranker.__new__(CrossEncoderReranker)
         reranker.max_tokens = 10
+        reranker.model_name = "bge"
         reranker.batch_size = 2
         reranker.model = Mock()
         reranker.model.tokenizer.return_value = {"input_ids": [[1, 2, 3], [1, 2]]}
@@ -54,6 +59,36 @@ class RerankingTests(unittest.TestCase):
     def test_overflow_rejected_before_inference(self):
         reranker = self.fixture()
         reranker.model.tokenizer.return_value = {"input_ids": [[1] * 11, [1]]}
+        with self.assertRaises(ValueError):
+            reranker.rerank("question", self.documents)
+        reranker.model.predict.assert_not_called()
+
+    def test_qwen_checks_full_chat_and_uses_same_instruction_for_prediction(self):
+        import torch
+
+        reranker = self.fixture()
+        reranker.model_name = "qwen3-0.6b"
+        reranker.model.preprocess.return_value = {
+            "attention_mask": torch.tensor([[1, 1, 1], [0, 1, 1]])
+        }
+        self.assertEqual(
+            reranker.rerank("question", self.documents)[0]["chunk_id"], "a"
+        )
+        options = {
+            "prompt": QWEN_INSTRUCTION,
+            "processing_kwargs": {"text": {"truncation": False}},
+        }
+        reranker.model.preprocess.assert_called_once_with(
+            [("question", "ball"), ("question", "referee")], **options
+        )
+        for key, value in options.items():
+            self.assertEqual(reranker.model.predict.call_args.kwargs[key], value)
+        reranker.model.tokenizer.assert_not_called()
+
+        reranker.model.predict.reset_mock()
+        reranker.model.preprocess.return_value = {
+            "attention_mask": torch.ones((2, 11), dtype=torch.int64)
+        }
         with self.assertRaises(ValueError):
             reranker.rerank("question", self.documents)
         reranker.model.predict.assert_not_called()

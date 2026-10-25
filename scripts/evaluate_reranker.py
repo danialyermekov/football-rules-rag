@@ -61,8 +61,11 @@ def main():
     parser.add_argument("--run-name", help="MLflow label for a controlled replay")
     parser.add_argument("--candidate-pool", type=int, choices=[20, 50], default=20)
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cuda")
+    parser.add_argument("--reranker", choices=["bge", "qwen3-0.6b"], default="bge")
     parser.add_argument("--verify-trace", action="store_true")
     args = parser.parse_args()
+    if args.reranker != "bge" and not args.run_name:
+        parser.error("Provide --run-name for an alternative reranker experiment")
     if args.limit is not None and args.limit <= 0:
         parser.error("--limit must be positive")
 
@@ -149,7 +152,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(
         "data/models/bge-m3", local_files_only=True
     )
-    reranker = CrossEncoderReranker(args.device)
+    reranker = CrossEncoderReranker(args.device, model_name=args.reranker)
     pages = {
         (page["document_id"], page["pdf_page"]): page
         for page in read_jsonl(Path("data/processed/cleaned-pages.jsonl"))
@@ -258,7 +261,7 @@ def main():
         ):
             mlflow.log_artifact(path, artifact_path="code")
         pilot = Path("tmp/reranker-pilot.json")
-        if pilot.exists():
+        if pilot.exists() and args.reranker == "bge":
             mlflow.log_artifact(str(pilot))
 
         import torch
