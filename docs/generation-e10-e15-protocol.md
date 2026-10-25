@@ -60,3 +60,19 @@ adapter hash intentionally invalidates earlier judge caches. Initial failed
 runs are retained and excluded from the accepted comparison. This changes judge
 transport, so these scores should not be treated as repetitions of earlier G3/G4.
 Reference: https://python.useinstructor.com/integrations/google/ (Mode.JSON).
+
+## Local MLflow execution
+
+The first parallel JSON Schema run stalled while MLflow 3.17.2 telemetry loaded
+job-related import hooks. A py-spy stack dump records the blocked threads; that
+process was stopped and its run marked FAILED. The accepted run disables only
+vendor telemetry, retaining experiment tracking, artifacts, and Gemini traces:
+
+```powershell
+$env:MLFLOW_DISABLE_TELEMETRY = 'true'
+$env:MLFLOW_GENAI_EVAL_MAX_WORKERS = '4'
+uv run --extra cuda python scripts/evaluate_ragas_snapshots.py --sources E10=02521c443704494c95ce8128c599d8d3 E15=1cb1eb64b281419bb7e6954adee03bcd --factual-correctness --run-name G5-e10-e15-json-schema-final
+```
+
+The environment workaround is local to the launched process; no installed
+dependency code or system-wide settings were modified.
