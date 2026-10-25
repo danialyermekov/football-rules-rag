@@ -6,6 +6,7 @@ import mlflow
 from football_rules.reranking import (
     QWEN_INSTRUCTION,
     CrossEncoderReranker,
+    fuse_retrieval_reranker,
     rank_documents,
 )
 
@@ -47,6 +48,25 @@ class RerankingTests(unittest.TestCase):
         for scores in ([1], [float("nan"), 2], [1, float("inf")]):
             with self.assertRaises(ValueError):
                 rank_documents(self.documents, scores)
+
+    def test_rank_fusion_preserves_both_signals_and_rejects_invalid_pool(self):
+        reranked = rank_documents(self.documents, [-2, 5])
+        fused = fuse_retrieval_reranker(self.documents, reranked)
+        self.assertEqual([hit["chunk_id"] for hit in fused], ["a", "b"])
+        self.assertAlmostEqual(fused[0]["score"], 1 / 61 + 1 / 62)
+        self.assertEqual(fused[0]["retrieval_score"], 0.8)
+        self.assertEqual(fused[0]["reranker_score"], 5)
+        self.assertEqual(
+            (fused[0]["retrieval_rank"], fused[0]["reranker_rank"]), (2, 1)
+        )
+        for bad in [
+            reranked[:1],
+            reranked[::-1],
+            [reranked[0]] * 2,
+            [{**reranked[0], "score": float("nan")}, reranked[1]],
+        ]:
+            with self.assertRaises(ValueError):
+                fuse_retrieval_reranker(self.documents, bad)
 
     def test_full_pairs_sent_without_truncation_and_logits_rerank(self):
         reranker = self.fixture()

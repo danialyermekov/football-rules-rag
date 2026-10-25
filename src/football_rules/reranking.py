@@ -31,6 +31,38 @@ def rank_documents(
     return sorted(ranked, key=lambda hit: (-hit["score"], hit["chunk_id"]))
 
 
+def fuse_retrieval_reranker(
+    documents: list[dict[str, Any]], reranked: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Equal RRF60 over retrieval and reranker ranks of the identical candidate pool."""
+    identities = [hit["chunk_id"] for hit in documents]
+    scored = {hit["chunk_id"]: hit for hit in reranked}
+    if (
+        len(set(identities)) != len(documents)
+        or len(scored) != len(reranked)
+        or set(identities) != set(scored)
+    ):
+        raise ValueError("Rank fusion requires identical unique candidate IDs")
+    checked = rank_documents(documents, [scored[key]["score"] for key in identities])
+    if [hit["chunk_id"] for hit in checked] != [hit["chunk_id"] for hit in reranked]:
+        raise ValueError("Cached reranker order must match scores and tie-break")
+    ranks = {hit["chunk_id"]: rank for rank, hit in enumerate(reranked, 1)}
+    annotated = [
+        {
+            **hit,
+            "retrieval_rank": rank,
+            "reranker_rank": ranks[hit["chunk_id"]],
+            "reranker_score": scored[hit["chunk_id"]]["score"],
+        }
+        for rank, hit in enumerate(documents, 1)
+    ]
+    scores = [
+        1 / (60 + hit["retrieval_rank"]) + 1 / (60 + hit["reranker_rank"])
+        for hit in annotated
+    ]
+    return rank_documents(annotated, scores)
+
+
 class CrossEncoderReranker:
     def __init__(
         self,

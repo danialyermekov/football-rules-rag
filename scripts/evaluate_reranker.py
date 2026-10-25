@@ -15,7 +15,7 @@ from transformers import AutoTokenizer
 
 from football_rules.embeddings import MODEL_REVISION as BUDGET_REVISION
 from football_rules.evidence_evaluation import evidence_metrics, pack_context
-from football_rules.reranking import CrossEncoderReranker
+from football_rules.reranking import CrossEncoderReranker, fuse_retrieval_reranker
 from football_rules.retrieval import read_chunks
 from football_rules.tracking import configure_tracking
 
@@ -62,8 +62,14 @@ def main():
     parser.add_argument("--candidate-pool", type=int, choices=[20, 50], default=20)
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cuda")
     parser.add_argument("--reranker", choices=["bge", "qwen3-0.6b"], default="bge")
+    parser.add_argument(
+        "--cached-reranker-run",
+        help="RRF60 with stored reranker ranks; no model inference",
+    )
     parser.add_argument("--verify-trace", action="store_true")
     args = parser.parse_args()
+    if args.cached_reranker_run and not args.run_name:
+        parser.error("Cached rank fusion requires --run-name")
     if args.reranker != "bge" and not args.run_name:
         parser.error("Provide --run-name for an alternative reranker experiment")
     if args.limit is not None and args.limit <= 0:
@@ -152,7 +158,53 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(
         "data/models/bge-m3", local_files_only=True
     )
-    reranker = CrossEncoderReranker(args.device, model_name=args.reranker)
+    cached = {}
+    if args.cached_reranker_run:
+        cached_run = client.get_run(args.cached_reranker_run)
+        if (
+            cached_run.info.status != "FINISHED"
+            or cached_run.data.params.get("source_run_id") != args.source_run
+            or cached_run.data.params.get("candidate_pool_size")
+            != str(args.candidate_pool)
+            or cached_run.data.params.get("retrieval_execution")
+            != "replay_no_query_embedding_or_search"
+        ):
+            raise ValueError("Cached reranker run must score this source and pool")
+        (destination / "cached").mkdir(parents=True, exist_ok=True)
+        cached_path = client.download_artifacts(
+            args.cached_reranker_run,
+            "per-question-results.json",
+            str(destination / "cached"),
+        )
+        for row in json.loads(Path(cached_path).read_text(encoding="utf-8"))["records"]:
+            key = (row["inputs"]["query"], row["inputs"]["language"])
+            if key in cached:
+                raise ValueError("Duplicate cached question")
+            cached[key] = row
+        for record in records:
+            key = (record["inputs"]["query"], record["inputs"]["language"])
+            saved = cached[key]
+            candidates = source[key]["outputs"]["documents"][: args.candidate_pool]
+            if (
+                saved["expectations"] != record["expectations"]
+                or saved["outputs"]["source_candidates"] != candidates
+            ):
+                raise ValueError("Cached reranker gold or input candidates differ")
+            for hit in saved["outputs"]["documents"]:
+                if any(
+                    hit[key] != value for key, value in chunks[hit["chunk_id"]].items()
+                ):
+                    raise ValueError("Cached reranker passage differs from corpus")
+            fuse_retrieval_reranker(candidates, saved["outputs"]["documents"])
+        reranker_parameters = {
+            key.removeprefix("reranker_"): value
+            for key, value in cached_run.data.params.items()
+            if key.startswith("reranker_")
+        }
+        reranker = None
+    else:
+        reranker = CrossEncoderReranker(args.device, model_name=args.reranker)
+        reranker_parameters = reranker.parameters()
     pages = {
         (page["document_id"], page["pdf_page"]): page
         for page in read_jsonl(Path("data/processed/cleaned-pages.jsonl"))
@@ -179,7 +231,13 @@ def main():
         ]
         control_context = pack_context(candidates, 2048, count_tokens)
         started = perf_counter()
-        documents = reranker.rerank(query, candidates)
+        documents = (
+            fuse_retrieval_reranker(
+                candidates, cached[query, language]["outputs"]["documents"]
+            )
+            if cached
+            else reranker.rerank(query, candidates)
+        )
         reranking_seconds = perf_counter() - started
         with mlflow.start_span(name="context_packing", span_type="CHAIN") as span:
             span.set_inputs(
@@ -201,6 +259,9 @@ def main():
             "packing_seconds": packing_seconds,
             "rerank_and_pack_seconds": reranking_seconds + packing_seconds,
         }
+        if cached:
+            output["rank_fusion_seconds"] = output.pop("reranking_seconds")
+            output["fusion_and_pack_seconds"] = output.pop("rerank_and_pack_seconds")
         observations[query, language] = output
         active = mlflow.get_current_active_span()
         if active is not None:
@@ -221,12 +282,25 @@ def main():
                 "questions": len(records),
                 "dataset_sha256": fingerprint,
                 "retrieval_execution": "replay_no_query_embedding_or_search",
-                "latency_scope": "reranking_and_packing_only",
+                "latency_scope": (
+                    "offline_rank_fusion_and_packing_only"
+                    if cached
+                    else "reranking_and_packing_only"
+                ),
             }
         )
         mlflow.log_params(
-            {f"reranker_{key}": value for key, value in reranker.parameters().items()}
+            {f"reranker_{key}": value for key, value in reranker_parameters.items()}
         )
+        if cached:
+            mlflow.log_params(
+                {
+                    "cached_reranker_run_id": args.cached_reranker_run,
+                    "reranker_execution": "cached_scores_no_model_inference",
+                    "ranking_policy": "RRF60_equal_retrieval_reranker",
+                }
+            )
+            mlflow.log_artifact(cached_path, artifact_path="cached-reranker")
         mlflow.log_params(
             {
                 f"source_{key}": value
@@ -261,12 +335,12 @@ def main():
         ):
             mlflow.log_artifact(path, artifact_path="code")
         pilot = Path("tmp/reranker-pilot.json")
-        if pilot.exists() and args.reranker == "bge":
+        if pilot.exists() and args.reranker == "bge" and not cached:
             mlflow.log_artifact(str(pilot))
 
         import torch
 
-        if args.device == "cuda":
+        if args.device == "cuda" and not cached:
             torch.cuda.reset_peak_memory_stats()
         result = mlflow.genai.evaluate(
             data=dataset,
@@ -310,11 +384,20 @@ def main():
                     for key in selected[0]["metrics"]
                 }
             )
-            for stage in (
-                "reranking_seconds",
-                "packing_seconds",
-                "rerank_and_pack_seconds",
-            ):
+            stages = (
+                (
+                    "reranking_seconds",
+                    "packing_seconds",
+                    "rerank_and_pack_seconds",
+                )
+                if not cached
+                else (
+                    "rank_fusion_seconds",
+                    "packing_seconds",
+                    "fusion_and_pack_seconds",
+                )
+            )
+            for stage in stages:
                 durations = [row["outputs"][stage] for row in selected]
                 percentiles = (
                     quantiles(durations, n=100, method="inclusive")
@@ -323,7 +406,7 @@ def main():
                 )
                 summary[f"{language}_{stage}_p50"] = percentiles[49]
                 summary[f"{language}_{stage}_p95"] = percentiles[94]
-        if args.device == "cuda":
+        if args.device == "cuda" and not cached:
             summary["gpu_peak_allocated_mib"] = (
                 torch.cuda.max_memory_allocated() / 2**20
             )

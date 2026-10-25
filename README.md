@@ -184,6 +184,15 @@ uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39
 
 Используется встроенная поддержка causal reranker в установленной Sentence Transformers: полный chat template, опубликованная английская инструкция, score = logit(yes) − logit(no). Это оценка релевантности, не вероятность правильного ответа. FP32/batch2, лимит 1024 включает шаблон; превышение вызывает ошибку, обрезания нет. Бюджет контекста остаётся 2048 по прежнему BGE-токенизатору. Для альтернативного reranker обязателен `--run-name`, чтобы не смешивать его с историческими E3/E4. По умолчанию остаётся BGE.
 
+E18 объединяет два сохранённых порядка одних top50 — E10 Hybrid и E15 Qwen reranker — через RRF60 с равными весами:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39d4145ae2f7e08fd49416e --candidate-pool 50 --reranker qwen3-0.6b --cached-reranker-run b8b229800f4246d090eea03a4d5c9900 --run-name E18-qwen-retrieval-reranker-rrf60-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39d4145ae2f7e08fd49416e --candidate-pool 50 --reranker qwen3-0.6b --cached-reranker-run b8b229800f4246d090eea03a4d5c9900 --run-name E18-qwen-retrieval-reranker-rrf60-v2
+```
+
+Ранжирования должны относиться к одному source run, кандидатам и gold. Scores проверяются на конечность и соответствие сохранённому порядку; одинаковые значения разрешаются через chunk ID. E18 использует прежний BM25 без stemming; новых embeddings/LLM/reranker inference нет. Final score = 1/(60 + retrieval_rank) + 1/(60 + reranker_rank); оба исходных ранга и scores сохранены. `fusion_and_pack_seconds` измеряет только пересчёт и упаковку по cached scores: это не end-to-end latency и не ускорение Qwen-реранкера. Без `--cached-reranker-run` прежний режим inference сохраняется.
+
 E17 проверяет Snowball stemming в BM25 при прежнем Qwen Hybrid без reranker:
 
 ```powershell
