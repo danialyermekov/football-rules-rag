@@ -15,7 +15,9 @@ from mlflow.genai.scorers import scorer
 from ragas.metrics.collections import FactualCorrectness, Faithfulness
 from ragas.metrics.result import MetricResult
 
+from football_rules.context_controls import citation_integrity
 from football_rules.generation import (
+    FOCUSED_PROMPT,
     MODEL,
     SOURCE_ID_PROMPT,
     SYSTEM_PROMPT,
@@ -29,6 +31,7 @@ from football_rules.tracking import configure_tracking
 
 CONTROL = "b50e71e2d39d4145ae2f7e08fd49416e"
 PILOT = ["FR001", "FR005", "FR009", "FR055", "FR085", "FR094"]
+NEGATIVE_CONTROL_RUN = "13bca0d6da334de58f200846cac3fbbf"
 
 
 def main():
@@ -44,9 +47,19 @@ def main():
     )
     parser.add_argument("--generate-only", action="store_true")
     parser.add_argument("--run-name")
+    parser.add_argument("--policy", choices=["baseline", "focused"], default="baseline")
+    parser.add_argument("--irrelevant-context", action="store_true")
     args = parser.parse_args()
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be positive")
+    if args.policy == "focused" and args.citation_mode != "legacy":
+        parser.error("Focused prompt comparison uses legacy citations")
+    if args.irrelevant_context and not args.generate_only:
+        parser.error(
+            "Irrelevant contexts use --generate-only and separate refusal checks"
+        )
+    if (args.policy == "focused" or args.irrelevant_context) and not args.run_name:
+        parser.error("Experimental policies require an explicit --run-name")
 
     load_dotenv(".env")
     key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
@@ -54,6 +67,8 @@ def main():
         raise ValueError("Configure GEMINI_API_KEY in .env; never paste it into logs")
 
     prompt = SOURCE_ID_PROMPT if args.citation_mode == "source_ids" else SYSTEM_PROMPT
+    if args.policy == "focused":
+        prompt = FOCUSED_PROMPT
     experiment_id = configure_tracking()
     tracker = mlflow.MlflowClient()
     source_run = tracker.get_run(args.retrieval_run)
@@ -72,7 +87,12 @@ def main():
     if any(scenarios[sid]["split"] != "dev" for sid in args.scenario_ids):
         raise ValueError("This pilot accepts dev scenarios only")
 
-    destination = Path("tmp/generation") / args.retrieval_run
+    destination = (
+        Path("tmp/generation")
+        / args.retrieval_run
+        / args.policy
+        / ("irrelevant" if args.irrelevant_context else "original")
+    )
     destination.mkdir(parents=True, exist_ok=True)
     artifact = Path(
         tracker.download_artifacts(
@@ -88,6 +108,22 @@ def main():
     if len(selected) != 2 * len(set(args.scenario_ids)):
         raise ValueError("Expected both RU and EN retrieval records for each scenario")
     selected = selected[: args.limit]
+    negative = None
+    if args.irrelevant_context:
+        negative_run = tracker.get_run(NEGATIVE_CONTROL_RUN)
+        if negative_run.info.status != "FINISHED":
+            raise ValueError("Frozen negative control must be FINISHED")
+        if (
+            negative_run.data.params["corpus_sha256"]
+            != hashlib.sha256(
+                Path("data/processed/chunks.jsonl").read_bytes()
+            ).hexdigest()
+        ):
+            raise ValueError("Corpus differs from the audited negative controls")
+        negative_path = tracker.download_artifacts(
+            NEGATIVE_CONTROL_RUN, "preparation.json", str(destination.resolve())
+        )
+        negative = json.loads(Path(negative_path).read_text(encoding="utf-8"))
     contexts = {}
     records = []
     for row in selected:
@@ -98,6 +134,23 @@ def main():
         if reference["questions"][language] != inputs["query"]:
             raise ValueError("Retrieval question differs from the reference")
         contexts[sid, language] = row["outputs"]["context"]
+        if negative is not None:
+            case_id = f"{sid}-{language}-irrelevant"
+            saved = next(
+                r for r in negative["records"] if r["inputs"]["case_id"] == case_id
+            )
+            if saved["inputs"]["query"] != inputs["query"]:
+                raise ValueError(
+                    "Negative control question differs from this experiment"
+                )
+            context = negative["contexts"][case_id]
+            if not context["text"].strip() or any(
+                d["language"] != language or d["edition"] != "2026/27"
+                for d in context["documents"]
+            ):
+                raise ValueError("Invalid frozen distractor")
+            contexts[sid, language] = {**context, "token_count": None}
+            inputs["condition"] = "irrelevant"
         records.append(
             {
                 "inputs": inputs,
@@ -106,7 +159,15 @@ def main():
                     "must_include": reference["must_include"][language],
                     "must_not_claim": reference["must_not_claim"][language],
                     "question_type": reference["question_type"],
-                    "retrieval_complete_evidence": row["metrics"]["complete_evidence"],
+                    **(
+                        {"insufficient_context_expected": True}
+                        if args.irrelevant_context
+                        else {
+                            "retrieval_complete_evidence": row["metrics"][
+                                "complete_evidence"
+                            ]
+                        }
+                    ),
                 },
             }
         )
@@ -133,7 +194,7 @@ def main():
     judged = {}
 
     @mlflow.trace(name="generation_from_saved_retrieval", span_type="CHAIN")
-    def predict(query, language, scenario_id):
+    def predict(query, language, scenario_id, condition="original"):
         identity = scenario_id, language
         if identity in observations:
             return observations[identity]
@@ -147,6 +208,7 @@ def main():
                     "citation_mode": args.citation_mode,
                     "generate_only": args.generate_only,
                     "query": query,
+                    "condition": condition,
                 }
             )
             span.set_outputs(context["documents"])
@@ -156,6 +218,7 @@ def main():
             language,
             context["text"],
             model=args.model,
+            system_prompt=FOCUSED_PROMPT if args.policy == "focused" else SYSTEM_PROMPT,
             citation_documents=(
                 context["documents"] if args.citation_mode == "source_ids" else None
             ),
@@ -204,6 +267,14 @@ def main():
         return valid_citations(outputs)
 
     @scorer
+    def declares_insufficient_context(outputs):
+        return outputs["status"] == "insufficient_context"
+
+    @scorer
+    def citations_within_context(outputs):
+        return citation_integrity(outputs)
+
+    @scorer
     def cited_context_faithfulness(inputs, outputs):
         if not valid_citations(outputs):
             identity = inputs["scenario_id"], inputs["language"]
@@ -241,9 +312,17 @@ def main():
         mlflow.log_params(
             {
                 "retrieval_run_id": args.retrieval_run,
+                "policy": args.policy,
+                "negative_control_run_id": (
+                    NEGATIVE_CONTROL_RUN if args.irrelevant_context else "none"
+                ),
                 "citation_mode": args.citation_mode,
                 "generate_only": args.generate_only,
-                "retrieval_mode": "frozen_context_replay",
+                "retrieval_mode": (
+                    "frozen_irrelevant_context_intervention"
+                    if args.irrelevant_context
+                    else "frozen_context_replay"
+                ),
                 "model": args.model,
                 "judge_model": args.judge_model,
                 "temperature": 0,
@@ -268,6 +347,10 @@ def main():
         mlflow.log_dict({"system_prompt": prompt}, "prompt.json")
         mlflow.log_dict({"records": selected}, "retrieval-inputs.json")
         mlflow.log_dict({"records": records}, "evaluation-records.json")
+        if negative is not None:
+            mlflow.log_dict(
+                {"contexts": list(contexts.values())}, "negative-contexts.json"
+            )
         dataset_name = (
             "football-generation-dev-pilot-"
             + hashlib.sha256(json.dumps(records, sort_keys=True).encode()).hexdigest()[
@@ -302,7 +385,11 @@ def main():
             data=dataset,
             predict_fn=predict,
             scorers=(
-                [citation_validity]
+                (
+                    [declares_insufficient_context, citations_within_context]
+                    if args.irrelevant_context
+                    else [citation_validity]
+                )
                 if args.generate_only
                 else [
                     factual_correctness,

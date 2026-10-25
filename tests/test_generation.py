@@ -5,6 +5,7 @@ from unittest.mock import Mock
 from pydantic import ValidationError
 
 from football_rules.generation import (
+    FOCUSED_PROMPT,
     GROUNDED_PROMPT,
     Answer,
     cited_documents,
@@ -65,15 +66,14 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(result["citations"], ["en:10"])
         self.assertEqual(result["model_version"], "pinned-response-version")
         self.assertEqual(result["usage"]["prompt_token_count"], 100)
-        generate_answer(
-            client, "Question?", "en", "context", system_prompt=GROUNDED_PROMPT
-        )
-        self.assertEqual(
-            client.models.generate_content.call_args.kwargs[
-                "config"
-            ].system_instruction,
-            GROUNDED_PROMPT,
-        )
+        for prompt in (GROUNDED_PROMPT, FOCUSED_PROMPT):
+            generate_answer(client, "Question?", "en", "context", system_prompt=prompt)
+            self.assertEqual(
+                client.models.generate_content.call_args.kwargs[
+                    "config"
+                ].system_instruction,
+                prompt,
+            )
 
     def test_empty_context_returns_localized_abstention_without_api(self):
         for language, prefix in [("ru", "Недостаточно"), ("en", "There are")]:
