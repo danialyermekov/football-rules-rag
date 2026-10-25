@@ -30,7 +30,11 @@ class LocalMetricEmbeddings(BaseRagasEmbedding):
 
 
 def metric_applicability(name: str, documents: list[dict[str, Any]]) -> str | None:
-    if not documents and name != "answer_relevancy":
+    if not documents and name in {
+        "context_precision",
+        "context_recall",
+        "faithfulness",
+    }:
         return "No retrieved contexts; this Ragas metric rejects empty context lists"
     return None
 

@@ -17,6 +17,7 @@ from ragas.metrics.collections import (
     AnswerRelevancy,
     ContextPrecision,
     ContextRecall,
+    FactualCorrectness,
     Faithfulness,
 )
 
@@ -50,7 +51,11 @@ def main():
         "--condition", choices=["original", "empty", "removed_evidence", "irrelevant"]
     )
     parser.add_argument("--run-name", default="G3-ragas-four-metrics")
+    parser.add_argument("--factual-correctness", action="store_true")
     args = parser.parse_args()
+    metrics = dict(METRICS)
+    if args.factual_correctness:
+        metrics["factual_correctness"] = FactualCorrectness
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be positive")
     load_dotenv(".env")
@@ -125,7 +130,9 @@ def main():
         if reason:
             data = {"value": None, "status": "not_applicable", "reason": reason}
         else:
-            arguments = {"user_input": inputs["query"]}
+            arguments = (
+                {} if name == "factual_correctness" else {"user_input": inputs["query"]}
+            )
             if name in {"context_precision", "context_recall", "faithfulness"}:
                 arguments["retrieved_contexts"] = [
                     document["text"] for document in outputs["documents"]
@@ -134,6 +141,8 @@ def main():
                 arguments["reference"] = expectations["reference"]
             else:
                 arguments["response"] = outputs["answer"]
+            if name == "factual_correctness":
+                arguments["reference"] = expectations["reference"]
             payload = {"config": config, "metric": name, "inputs": arguments}
             digest = hashlib.sha256(
                 json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()
@@ -155,7 +164,7 @@ def main():
                     else {}
                 )
                 result = evaluate_ragas_metric(
-                    METRICS[name], name, key, MODEL, metric_options=options, **arguments
+                    metrics[name], name, key, MODEL, metric_options=options, **arguments
                 )
                 cached = {
                     "payload": payload,
@@ -214,6 +223,7 @@ def main():
                 "ragas_version": config["ragas"],
                 "answer_relevancy_strictness": 3,
                 "split": "dev",
+                "factual_correctness": args.factual_correctness,
             }
         )
         mlflow.log_dict(config, "evaluation-config.json")
@@ -267,7 +277,7 @@ def main():
                 flush=True,
             )
         result = mlflow.genai.evaluate(
-            data=dataset, scorers=[make_scorer(name) for name in METRICS]
+            data=dataset, scorers=[make_scorer(name) for name in metrics]
         )
         rows = [
             {**record, "scores": scores.get(record["inputs"]["snapshot_id"], {})}
@@ -309,7 +319,7 @@ def main():
                 ),
                 "metrics": {},
             }
-            for metric in METRICS:
+            for metric in metrics:
                 values = [
                     row["scores"][metric]["value"]
                     for row in group
@@ -343,7 +353,7 @@ def main():
         ) / 1e6
         mlflow.log_dict(summary, "summary.json")
         print(json.dumps(summary, ensure_ascii=True, indent=2), flush=True)
-        if len(evaluations) != len(records) * len(METRICS):
+        if len(evaluations) != len(records) * len(metrics):
             raise RuntimeError(
                 "Some scorers failed; inspect assessments before using means"
             )

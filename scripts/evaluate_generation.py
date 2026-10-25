@@ -43,6 +43,7 @@ def main():
         "--citation-mode", choices=["legacy", "source_ids"], default="legacy"
     )
     parser.add_argument("--generate-only", action="store_true")
+    parser.add_argument("--run-name")
     args = parser.parse_args()
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be positive")
@@ -224,9 +225,12 @@ def main():
         client,
         mlflow.start_run(
             run_name=(
-                "G4-source-ids-e10-pilot"
-                if args.citation_mode == "source_ids"
-                else "G0-gemini-e10-pilot"
+                args.run_name
+                or (
+                    "G4-source-ids-e10-pilot"
+                    if args.citation_mode == "source_ids"
+                    else "G0-gemini-e10-pilot"
+                )
             )
             + ("-dry-run" if args.limit else "")
         ) as run,

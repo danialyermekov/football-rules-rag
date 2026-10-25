@@ -25,6 +25,7 @@ class RagasEvaluationTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNotNone(metric_applicability(name, []))
             self.assertIsNone(metric_applicability(name, [{"text": "rule"}]))
         self.assertIsNone(metric_applicability("answer_relevancy", []))
+        self.assertIsNone(metric_applicability("factual_correctness", []))
 
     def test_undefined_scores_remain_na_and_errors_are_not_zeroed(self):
         self.assertIsNone(checked_score(float("nan"), "faithfulness"))
