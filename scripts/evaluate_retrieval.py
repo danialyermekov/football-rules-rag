@@ -22,7 +22,11 @@ from football_rules.evidence_evaluation import (
     prioritize_successors,
 )
 from football_rules.hybrid import HybridRetriever, reciprocal_rank_fusion
-from football_rules.query_rewriting import REWRITE_PROMPT, rewrite_query
+from football_rules.query_rewriting import (
+    EXTRACTIVE_PROMPT,
+    REWRITE_PROMPT,
+    rewrite_query,
+)
 from football_rules.retrieval import DenseRetriever, read_chunks
 from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
 from football_rules.sparse_retrieval import BGESparseRetriever
@@ -121,6 +125,7 @@ def main():
     parser.add_argument("--lexical", choices=["bm25", "bge-m3-sparse"], default="bm25")
     parser.add_argument("--bm25-stemming", action="store_true")
     parser.add_argument("--query-rewrite", action="store_true")
+    parser.add_argument("--extractive-query", action="store_true")
     parser.add_argument(
         "--chunks", type=Path, default=Path("data/processed/chunks.jsonl")
     )
@@ -137,6 +142,9 @@ def main():
         default="rank_order",
     )
     args = parser.parse_args()
+    if args.query_rewrite and args.extractive_query:
+        parser.error("Choose only one query transformation")
+    args.query_rewrite = args.query_rewrite or args.extractive_query
     if args.query_rewrite and (
         args.strategy != "hybrid"
         or args.protocol != "v2"
@@ -384,7 +392,11 @@ def main():
                 )
                 mlflow.log_params(
                     {
-                        "query_expansion": "original_plus_one_same_language_rewrite",
+                        "query_expansion": (
+                            "original_plus_one_extractive_query"
+                            if args.extractive_query
+                            else "original_plus_one_same_language_rewrite"
+                        ),
                         "rewrite_model": MODEL,
                         "rewrite_temperature": 0,
                         "rewrite_max_output_tokens": 512,
@@ -392,13 +404,18 @@ def main():
                         "latency_scope": "frozen_queries_search_fusion_packing_excludes_rewrite_api",
                     }
                 )
-                mlflow.log_text(REWRITE_PROMPT, "query-rewrite-prompt.txt")
+                mlflow.log_text(
+                    EXTRACTIVE_PROMPT if args.extractive_query else REWRITE_PROMPT,
+                    "query-rewrite-prompt.txt",
+                )
                 for record in records:
                     query, language = (
                         record["inputs"]["query"],
                         record["inputs"]["language"],
                     )
-                    rewrite = rewrite_query(rewriter, query, language)
+                    rewrite = rewrite_query(
+                        rewriter, query, language, extractive=args.extractive_query
+                    )
                     rewrites[query, language] = rewrite
                     mlflow.log_dict(
                         {"inputs": record["inputs"], "rewrite": rewrite},
@@ -439,6 +456,14 @@ def main():
                     {
                         "rewrite_api_calls_new": len(fresh),
                         "rewrite_cache_hits": len(rewrites) - len(fresh),
+                        "rewrite_rejected_phrases": sum(
+                            len(row.get("rejected_phrases", []))
+                            for row in rewrites.values()
+                        ),
+                        "rewrite_fallbacks_to_original": sum(
+                            row.get("fallback_to_original", False)
+                            for row in rewrites.values()
+                        ),
                         "rewrite_new_cost_usd_estimate": (
                             rewrite_input * 0.1 + rewrite_output * 0.4
                         )

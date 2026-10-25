@@ -184,6 +184,15 @@ uv run --extra cuda python scripts/evaluate_reranker.py --source-run b50e71e2d39
 
 Используется встроенная поддержка causal reranker в установленной Sentence Transformers: полный chat template, опубликованная английская инструкция, score = logit(yes) − logit(no). Это оценка релевантности, не вероятность правильного ответа. FP32/batch2, лимит 1024 включает шаблон; превышение вызывает ошибку, обрезания нет. Бюджет контекста остаётся 2048 по прежнему BGE-токенизатору. Для альтернативного reranker обязателен `--run-name`, чтобы не смешивать его с историческими E3/E4. По умолчанию остаётся BGE.
 
+E20 проверяет extractive query вместо свободного переписывания:
+
+```powershell
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --extractive-query --run-name E20-qwen-hybrid-extractive-query-rrf-v2 --limit 3 --verify-trace
+uv run --extra cuda python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection football_44d75390ffa00dde1b74f0e6 --extractive-query --run-name E20-qwen-hybrid-extractive-query-rrf-v2
+```
+
+Gemini выбирает 1–6 дословных фраз вопроса. Проверка casefold + границы слов/чисел отбрасывает неподходящие или повторные фразы; оставшиеся соединяются через `;`. Если ни одна не подходит, используется исходный вопрос. Принятые/отклонённые фразы и fallback сохраняются в snapshots, счётчики — в MLflow. Проверка не допускает новые слова или вырезание `6` из `2026`, но не гарантирует смысловую полноту выбранных keywords. Исходный вопрос остаётся отдельной веткой; корпус/модель/бюджет и query RRF те же, что E19. Опции `--query-rewrite` и `--extractive-query` взаимоисключающие; без них прежняя цепочка сохраняется. Время API и поиска учитывается отдельно, как в E19.
+
 E19 проверяет один same-language rewrite Gemini 2.5 Flash-Lite вместе с исходным вопросом:
 
 ```powershell

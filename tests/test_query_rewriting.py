@@ -6,7 +6,11 @@ from unittest.mock import Mock
 
 import mlflow
 
-from football_rules.query_rewriting import REWRITE_PROMPT, rewrite_query
+from football_rules.query_rewriting import (
+    REWRITE_PROMPT,
+    filter_search_phrases,
+    rewrite_query,
+)
 
 
 class QueryRewriteTests(unittest.TestCase):
@@ -62,3 +66,33 @@ class QueryRewriteTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 rewrite_query(self.client, "ball", "en", self.cache)
         self.assertFalse(list(self.cache.glob("*.json")))
+
+    def test_extractive_filter_rejects_invented_numbers_and_topics(self):
+        query = "The goalkeeper handles the ball for nine seconds, not six."
+        result = filter_search_phrases(
+            query,
+            ["goalkeeper", "nine seconds", "six seconds", "handball", "GOALKEEPER"],
+        )
+        self.assertEqual(result["accepted_phrases"], ["goalkeeper", "nine seconds"])
+        self.assertEqual(len(result["rejected_phrases"]), 3)
+        self.assertFalse(result["fallback_to_original"])
+        fallback = filter_search_phrases(query, ["six seconds", "handball"])
+        self.assertTrue(fallback["fallback_to_original"])
+        self.assertEqual(fallback["rewritten_query"], query)
+        partial = filter_search_phrases(
+            "In 2026 the goalkeeper does not touch it.",
+            ["6", "goal", "keeper", "not", "goalkeeper"],
+        )
+        self.assertEqual(partial["accepted_phrases"], ["not", "goalkeeper"])
+
+    def test_extractive_response_is_verified_before_cache_and_on_reuse(self):
+        self.response.text = '{"phrases":["ball", "handball"]}'
+        first = rewrite_query(
+            self.client, "The ball burst.", "en", self.cache, extractive=True
+        )
+        self.assertEqual(first["rewritten_query"], "ball")
+        second = rewrite_query(
+            self.client, "The ball burst.", "en", self.cache, extractive=True
+        )
+        self.assertFalse(second["api_called"])
+        self.client.models.generate_content.assert_called_once()
