@@ -702,3 +702,8 @@ Generation `1717c12dcac84a11a76a6de9039a27ee`, evaluation
 78 новых Argon outputs на frozen G9 contexts и 156 сохранённых baseline snapshots. Получены все 960 Ragas scores: recovery использовал 956 успешных оценок и досчитал четыре без повышения cap. Метрики смешанные, есть регрессии при неизвестных фактах; grounding irrelevant/partial сохранён. Argon примерно в 3,1 раза дороже Flash 3.8, default не меняется. Новые generation+judge расходы ≈$0,425 при cap $1,50. Test не использован.
 
 [Полный результат, runs и ограничения](generation-g10-results.md), [протокол](generation-g10-protocol.md), [ручной разбор](generation-g10-review.md).
+
+
+## G11 — неизвестные факты, 2026-10-28
+
+Один prompt-кандидат на той же Flash3.8 и frozen контекстах G9:78 новых ответов,640/640 Ragas scores. E10 Factual Correctness RU0.5938→0.5044, EN0.7331→0.7544; sufficient RU0.8519→0.8181, EN0.7225→0.7169. На sufficient EN Faithfulness0.8568→0.7246. FR069 sufficient лучше уточняет факты, FR068 теряет уточнения. **Не принят.** Расходы≈$0.1922. [Результат](generation-g11-results.md), [протокол](generation-g11-protocol.md), [разбор и диагностика retrieval](generation-g11-review.md).

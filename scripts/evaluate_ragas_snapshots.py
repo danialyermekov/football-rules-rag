@@ -300,10 +300,23 @@ def main():
             )
             dataset.merge_records(records)
         if args.verify_trace:
-            row = records[0]
-            score_metric(
-                "context_recall", row["inputs"], row["outputs"], row["expectations"]
-            )
+            # Cache hits have no new LLM trace; verify the first fresh assessment.
+            fresh = False
+            for row in records:
+                for metric in metrics:
+                    score_metric(
+                        metric, row["inputs"], row["outputs"], row["expectations"]
+                    )
+                    assessment = evaluations[row["inputs"]["snapshot_id"], metric]
+                    if assessment.get("status") == "ok" and not assessment.get(
+                        "reused", False
+                    ):
+                        fresh = True
+                        break
+                if fresh:
+                    break
+            if not fresh:
+                raise ValueError("All assessments cached; no new judge trace to verify")
             identity = mlflow.get_last_active_trace_id()
             print("Starting trace readback", identity, flush=True)
             mlflow.flush_trace_async_logging()
