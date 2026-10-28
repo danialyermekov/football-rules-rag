@@ -28,6 +28,20 @@ G8 = "723b81f1dd964c358b2ed399b6763231"
 MODEL = "gemini-3.8-flash"
 G9 = "1717c12dcac84a11a76a6de9039a27ee"
 SMOKE = {"FR005-ru-e10", "FR095-en-e10", "FR069-ru-sufficient"}
+CLARIFY_PROMPT = SYSTEM_PROMPT + """
+Before choosing a ruling, distinguish facts explicitly stated in QUESTION from
+conditions required by the applicable rule in CONTEXT. An unstated condition is
+unknown, not false or true. Do not silently supply a typical incident or choose
+one interpretation of an ambiguous action.
+If different values of an unknown fact could change the requested ruling, use
+needs_clarification. Begin the answer with a direct question about that decisive
+fact, then briefly explain the supported conditional outcomes. Do not begin with
+a categorical ruling and qualify it later. Conditional explanations still require
+needs_clarification when the incident cannot be decided from the stated facts.
+If the applicable rule or necessary consequence itself is absent from CONTEXT,
+use insufficient_context instead; a question about the incident cannot repair a
+missing source. Do not ask for facts that cannot affect the requested decision.
+"""
 
 
 def digest(path):
@@ -120,21 +134,26 @@ def main():
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--verify-trace", action="store_true")
-    parser.add_argument("--argon", action="store_true")
+    variant = parser.add_mutually_exclusive_group()
+    variant.add_argument("--argon", action="store_true")
+    variant.add_argument("--clarify", action="store_true")
     args = parser.parse_args()
-    label = "G10" if args.argon else "G9"
-    candidate = "argon" if args.argon else "flash"
+    label = "G11" if args.clarify else ("G10" if args.argon else "G9")
+    candidate = "clarify" if args.clarify else ("argon" if args.argon else "flash")
+    prompt = CLARIFY_PROMPT if args.clarify else SYSTEM_PROMPT
     model = "gemini-4-argon" if args.argon else MODEL
     output_limit = 32768 if args.argon else 2048
     temperature = None if args.argon else 0
     generation_cap, judge_cap = (1.25, 0.25) if args.argon else (0.75, 0.75)
+    if args.clarify:
+        generation_cap, judge_cap = 0.35, 0.40
     input_rate, output_rate = (2.0, 10.0) if args.argon else (0.75, 3.75)
     experiment = configure_tracking()
     tracker = mlflow.MlflowClient()
-    folder = Path("tmp/g10" if args.argon else "tmp/g9").resolve()
+    folder = Path("tmp", label.lower()).resolve()
     folder.mkdir(exist_ok=True, parents=True)
     records, contexts, baselines = prepare(tracker, folder)
-    if args.argon:
+    if args.argon or args.clarify:
         if tracker.get_run(G9).info.status != "FINISHED":
             raise ValueError("G9 must be FINISHED")
         destination = folder / G9
@@ -146,7 +165,7 @@ def main():
                 json.loads(Path(path).read_text(encoding="utf-8"))["records"]
             )
         previous = {r["inputs"]["case_id"]: r for r in previous}
-        argon_records = []
+        candidate_records = []
         for record in records:
             inputs = record["inputs"]
             saved = previous[inputs["case_id"]]
@@ -164,20 +183,26 @@ def main():
                 "source_generation_run": G9,
             }
             if inputs["condition"].startswith("flash_"):
-                argon_records.append(
+                candidate_records.append(
                     {
                         "inputs": {
                             **inputs,
-                            "case_id": context_id + "-argon",
+                            "case_id": context_id + "-" + candidate,
                             "condition": inputs["condition"].replace(
-                                "flash_", "argon_", 1
+                                "flash_", candidate + "_", 1
                             ),
                         },
                         "expectations": record["expectations"],
                     }
                 )
-        records.extend(argon_records)
+        records.extend(candidate_records)
         assert len(records) == 234 and len(baselines) == 156
+        if args.clarify:
+            records = [
+                r for r in records if not r["inputs"]["condition"].startswith("lite_")
+            ]
+            baselines = {k: v for k, v in baselines.items() if k.endswith("-flash")}
+            assert len(records) == 156 and len(baselines) == 78
     preparation = {"records": records, "contexts": contexts}
     (folder / "preparation.json").write_text(
         json.dumps(preparation, ensure_ascii=False, indent=2), encoding="utf-8"
@@ -222,7 +247,7 @@ def main():
                 "query": query,
                 "language": language,
                 "context": context["text"],
-                "system_prompt": SYSTEM_PROMPT,
+                "system_prompt": prompt,
                 "schema": Answer.model_json_schema(),
                 "temperature": temperature,
                 "thinking_level": "LOW",
@@ -251,6 +276,7 @@ def main():
                     language,
                     context["text"],
                     model=model,
+                    system_prompt=prompt,
                     thinking_level=types.ThinkingLevel.LOW,
                     max_output_tokens=output_limit,
                     temperature=temperature,
@@ -318,19 +344,15 @@ def main():
                 "judge_cap_usd": judge_cap,
                 "input_usd_per_million": input_rate,
                 "output_usd_per_million": output_rate,
-                "baseline_g9": G9 if args.argon else "not_used",
-                "prompt_sha256": hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest(),
+                "baseline_g9": G9 if args.argon or args.clarify else "not_used",
+                "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
             }
         )
         for filename in [
             __file__,
             "src/football_rules/generation.py",
             "src/football_rules/api_budget.py",
-            (
-                "docs/generation-g10-protocol.md"
-                if args.argon
-                else "docs/generation-g9-protocol.md"
-            ),
+            f"docs/generation-{label.lower()}-protocol.md",
             "uv.lock",
             "pyproject.toml",
         ]:
