@@ -15,6 +15,7 @@ from mlflow.genai.scorers import scorer
 from ragas.metrics.collections import FactualCorrectness, Faithfulness
 from ragas.metrics.result import MetricResult
 
+from football_rules.api_budget import ApiBudget
 from football_rules.context_controls import citation_integrity
 from football_rules.generation import (
     FOCUSED_PROMPT,
@@ -49,7 +50,20 @@ def main():
     parser.add_argument("--run-name")
     parser.add_argument("--policy", choices=["baseline", "focused"], default="baseline")
     parser.add_argument("--irrelevant-context", action="store_true")
+    parser.add_argument("--max-new-generation-usd", type=float)
+    parser.add_argument("--budget-ledger", type=Path)
     args = parser.parse_args()
+    if (args.max_new_generation_usd is None) != (args.budget_ledger is None):
+        parser.error("Use --max-new-generation-usd and --budget-ledger together")
+    if args.max_new_generation_usd is not None and (
+        args.model != MODEL or not args.generate_only
+    ):
+        parser.error("Budgeted generation requires Flash-Lite and --generate-only")
+    budget = (
+        ApiBudget(args.budget_ledger, args.max_new_generation_usd, 0.10, 0.40)
+        if args.max_new_generation_usd is not None
+        else None
+    )
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be positive")
     if args.policy == "focused" and args.citation_mode != "legacy":
@@ -212,6 +226,10 @@ def main():
                 }
             )
             span.set_outputs(context["documents"])
+        reservation = None
+        if budget is not None:
+            allowance = len((prompt + query + context["text"]).encode("utf-8"))
+            reservation = budget.reserve(allowance, 1024)
         output = generate_answer(
             client,
             query,
@@ -223,6 +241,8 @@ def main():
                 context["documents"] if args.citation_mode == "source_ids" else None
             ),
         )
+        if budget is not None and reservation is not None:
+            budget.settle(reservation, output["usage"])
         output["documents"] = context["documents"]
         output["context_tokens_bge"] = context["token_count"]
         observations[identity] = output
@@ -412,6 +432,8 @@ def main():
             for record in records
         ]
         mlflow.log_dict({"records": rows}, "per-question-results.json")
+        if budget is not None:
+            mlflow.log_artifact(str(budget.path), artifact_path="usage")
         summary = {
             "run_id": run.info.run_id,
             "questions": len(rows),
