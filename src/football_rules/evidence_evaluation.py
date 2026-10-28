@@ -158,6 +158,33 @@ def prioritize_successors(
     return ordered
 
 
+def prioritize_rule_neighbors(
+    documents: list[dict[str, Any]], successors: dict[str, str]
+) -> list[dict[str, Any]]:
+    """Visit one retrieved predecessor, anchor, successor per ranked anchor."""
+    by_id = {document["chunk_id"]: document for document in documents}
+    if len(by_id) != len(documents):
+        raise ValueError("Neighbor ordering requires unique candidate IDs")
+    predecessors = {following: previous for previous, following in successors.items()}
+    if len(predecessors) != len(successors):
+        raise ValueError("Each chunk must have at most one predecessor")
+    ordered = []
+    seen = set()
+    for document in documents:
+        identity = document["chunk_id"]
+        if identity in seen:
+            continue
+        for candidate in (
+            predecessors.get(identity),
+            identity,
+            successors.get(identity),
+        ):
+            if candidate in by_id and candidate not in seen:
+                ordered.append(by_id[candidate])
+                seen.add(candidate)
+    return ordered
+
+
 def pack_context(
     documents: list[dict[str, Any]],
     budget: int,
