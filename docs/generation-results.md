@@ -707,3 +707,8 @@ Generation `1717c12dcac84a11a76a6de9039a27ee`, evaluation
 ## G11 — неизвестные факты, 2026-10-28
 
 Один prompt-кандидат на той же Flash3.8 и frozen контекстах G9:78 новых ответов,640/640 Ragas scores. E10 Factual Correctness RU0.5938→0.5044, EN0.7331→0.7544; sufficient RU0.8519→0.8181, EN0.7225→0.7169. На sufficient EN Faithfulness0.8568→0.7246. FR069 sufficient лучше уточняет факты, FR068 теряет уточнения. **Не принят.** Расходы≈$0.1922. [Результат](generation-g11-results.md), [протокол](generation-g11-protocol.md), [разбор и диагностика retrieval](generation-g11-review.md).
+
+
+## G12 — E21 против frozen E10/E15, 2026-10-28
+
+40 новых Flash-Lite ответов, прежний prompt;120 snapshots и600/600 finite Ragas scores. Относительно E15 RU Faithfulness0.7265→0.7775, Factual Correctness0.6180→0.6960; EN Faithfulness0.8320→0.7963, Factual Correctness0.6905→0.6475. Результат смешанный, default сохранён. E21 — кандидат retrieval, не доказанная лучшая цепочка. Usage≈$0.1447; с резервом прерывания≈$0.2947 при cap$0.50. [Результат](generation-g12-results.md), [протокол](generation-g12-protocol.md), [ручной разбор](generation-g12-review.md).
