@@ -642,3 +642,63 @@ Google. Финальный evaluator232 новых judge calls, **$0,029385**; �
 проверку применимости источника и корректную неопределённость; инструкции
 «сначала решение» недостаточно. Новых кандидатов после просмотра метрик G6
 не пробовали.
+
+## G7 — достаточные источники против E10 — 2026-10-25
+
+Проверены16 dev-ситуаций RU/EN:64 свежих ответа на сохранённых E10 contexts
+и вручную проверенных достаточных фрагментах, с прежними моделью и baseline prompt.
+Все320 оценок пяти Ragas-метрик получены. Factual Correctness RU0,6800→0,7475,
+EN0,6513→0,7356; парные интервалы включают0. Faithfulness RU0,6589→0,7167,
+EN0,7941→0,7854. Есть исправления, устойчивые пропуски и новая RU-регрессия.
+Вывод: качество ограничено и источниками, и применением правил генератором.
+Default E10/SYSTEM_PROMPT сохранён, test не использован.
+
+[Полный результат, метрики, runs и проверки](generation-g7-results.md).
+[Протокол](generation-g7-protocol.md),
+[точные диапазоны](generation-g7-context-selection.json),
+[ручной разбор всех пар](generation-g7-review.md).
+
+## G8 — явная проверка нормы, факта и последствия — 2026-10-25
+
+Один prompt/schema-кандидат, те же32 вопроса и frozen E10 contexts.32 baseline
+ответа G7 переиспользованы; candidate новый. Добавлены28 свежих control answers
+на8 нерелевантных и6 частичных контекстах. Все320 Ragas scores получены.
+Factual Correctness RU0,6800→0,5731, EN0,6513→0,6663; Faithfulness
+RU0,6589→0,7438, EN0,7941→0,7266. Есть отдельные исправления, но ключевые ошибки
+применения остались, появились новые; нерелевантный контроль выдал старое правило.
+**Кандидат отклонён**, default SYSTEM_PROMPT/Answer и E10 сохранены.
+
+[Полный результат и ограничения](generation-g8-results.md),
+[протокол](generation-g8-protocol.md), [ручной разбор](generation-g8-review.md).
+
+## G9 — Gemini3.8Flash на фиксированных источниках — 2026-10-25
+
+64 новых normal answers и14 controls, сравнение с64 frozen baseline G7 и14 G8.
+Прежние prompt/schema/contexts; candidate LOW thinking/output2048 против
+Lite output1024. Все640 Ragas scores получены. Factual Correctness E10
+RU0,6800→0,5938, EN0,6513→0,7331; sufficient RU0,7475→0,8519,
+EN0,7356→0,7225. Faithfulness E10 снизилась в обоих языках, sufficient выросла;
+все парные интервалы включают0. Ни отрицательные scores, ни спорные judgments
+не исключены из отчёта.
+
+Исправлены субъект предупреждения FR095, противоречие FR094 EN и пропуск границы
+руки FR065 EN. RU E10 чаще обоснованно отказывается без нужного основания.
+Irrelevant unsupported norms2/8→0/8, partial unsupported restarts4/6→0/6.
+Остались FR069 и неполное соблюдение политики уточнения. **Кандидат перспективен,
+default не меняется.** Источники и оценка требуют следующей проверки.
+
+Generation `1717c12dcac84a11a76a6de9039a27ee`, evaluation
+`d28849f3011a48279f33a79a3057422a` FINISHED после явно описанных recovery.
+78 успешных candidate потребовали80 попыток; две ошибки учтены резервом.
+Успешные новые generation+judge ≈$0,1822; с резервом ≈$0,2174 при cap$1,50.
+Это не фактический счёт/баланс Google. Argon не вызывался, test не использован.
+131 tests, Ruff/Black и strict mypy двух модулей прошли.
+
+[Результаты, пять метрик, бюджет и ошибки исполнения](generation-g9-results.md),
+[протокол](generation-g9-protocol.md), [ручной разбор](generation-g9-review.md).
+
+## G10 — Argon против обеих Flash — 2026-10-26
+
+78 новых Argon outputs на frozen G9 contexts и 156 сохранённых baseline snapshots. Получены все 960 Ragas scores: recovery использовал 956 успешных оценок и досчитал четыре без повышения cap. Метрики смешанные, есть регрессии при неизвестных фактах; grounding irrelevant/partial сохранён. Argon примерно в 3,1 раза дороже Flash 3.8, default не меняется. Новые generation+judge расходы ≈$0,425 при cap $1,50. Test не использован.
+
+[Полный результат, runs и ограничения](generation-g10-results.md), [протокол](generation-g10-protocol.md), [ручной разбор](generation-g10-review.md).

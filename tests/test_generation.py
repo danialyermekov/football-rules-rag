@@ -1,21 +1,125 @@
+import json
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock
 
+from google.genai import types
 from pydantic import ValidationError
 
 from football_rules.generation import (
+    EVIDENCE_CHECK_PROMPT,
     FOCUSED_PROMPT,
     GROUNDED_PROMPT,
     Answer,
+    EvidenceCheckedAnswer,
     cited_documents,
     generate_answer,
     metric_value,
     valid_citations,
+    valid_evidence_quotes,
 )
 
 
 class GenerationTests(unittest.TestCase):
+    def test_model_thinking_and_output_limit_are_explicit_and_optional(self):
+        client = Mock()
+        usage = Mock()
+        usage.model_dump.return_value = {"prompt_token_count": 10}
+        client.models.generate_content.return_value = SimpleNamespace(
+            text='{"status":"answered","answer":"No.","citations":[]}',
+            model_version="test",
+            usage_metadata=usage,
+        )
+        generate_answer(client, "Question?", "en", "rule")
+        config = client.models.generate_content.call_args.kwargs["config"]
+        self.assertIsNone(config.thinking_config)
+        self.assertEqual(config.max_output_tokens, 1024)
+        self.assertEqual(config.temperature, 0)
+        generate_answer(
+            client,
+            "Question?",
+            "en",
+            "rule",
+            model="gemini-3.8-flash",
+            thinking_level=types.ThinkingLevel.LOW,
+            max_output_tokens=2048,
+        )
+        request = client.models.generate_content.call_args.kwargs
+        self.assertEqual(request["model"], "gemini-3.8-flash")
+        self.assertEqual(
+            request["config"].thinking_config.thinking_level, types.ThinkingLevel.LOW
+        )
+        self.assertEqual(request["config"].max_output_tokens, 2048)
+        generate_answer(
+            client,
+            "Question?",
+            "en",
+            "rule",
+            model="gemini-4-argon",
+            thinking_level=types.ThinkingLevel.LOW,
+            max_output_tokens=32768,
+            temperature=None,
+        )
+        config = client.models.generate_content.call_args.kwargs["config"]
+        self.assertNotIn("temperature", config.model_dump(exclude_none=True))
+        self.assertEqual(config.max_output_tokens, 32768)
+        with self.assertRaises(ValueError):
+            generate_answer(client, "Question?", "en", "rule", max_output_tokens=0)
+
+    def test_evidence_check_is_opt_in_and_preserves_the_observable_checks(self):
+        client = Mock()
+        payload = {
+            "checks": [
+                {
+                    "rule_quote": "Required rule",
+                    "citation": "en:10",
+                    "incident_fact": "Known fact",
+                    "consequence": "Required decision",
+                }
+            ],
+            "missing_facts": [],
+            "missing_rules": [],
+            "status": "answered",
+            "answer": "Decision.",
+            "citations": ["en:10"],
+        }
+        usage = Mock()
+        usage.model_dump.return_value = {"prompt_token_count": 100}
+        client.models.generate_content.return_value = SimpleNamespace(
+            text=json.dumps(payload), model_version="test", usage_metadata=usage
+        )
+        result = generate_answer(
+            client, "Known fact", "en", "Required rule", check_evidence=True
+        )
+        config = client.models.generate_content.call_args.kwargs["config"]
+        self.assertIs(config.response_schema, EvidenceCheckedAnswer)
+        self.assertEqual(config.system_instruction, EVIDENCE_CHECK_PROMPT)
+        self.assertEqual(config.max_output_tokens, 1024)
+        self.assertEqual(result["checks"], payload["checks"])
+        self.assertEqual(result["citations"], ["en:10"])
+        for options in [{"system_prompt": FOCUSED_PROMPT}, {"citation_documents": []}]:
+            with self.subTest(options=options), self.assertRaises(ValueError):
+                generate_answer(
+                    client, "Known fact", "en", "rule", check_evidence=True, **options
+                )
+
+    def test_quote_provenance_rejects_invented_text_and_wrong_page(self):
+        output = {
+            "documents": [
+                {"document_id": "en", "pdf_page": 10, "text": "Required\n rule"}
+            ],
+            "checks": [],
+        }
+        for quote, citation, expected in [
+            ("Required rule", "en:10", True),
+            ("Invented rule", "en:10", False),
+            ("Required rule", "en:11", False),
+            ("  ", "en:10", False),
+        ]:
+            with self.subTest(quote=quote, citation=citation):
+                output["checks"] = [{"rule_quote": quote, "citation": citation}]
+                self.assertEqual(valid_evidence_quotes(output), expected)
+
     def test_citations_resolve_only_to_supplied_pages(self):
         documents = [
             {"document_id": "en", "pdf_page": 10, "text": "first"},

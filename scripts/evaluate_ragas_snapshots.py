@@ -21,6 +21,7 @@ from ragas.metrics.collections import (
     Faithfulness,
 )
 
+from football_rules.api_budget import ApiBudget
 from football_rules.embeddings import BGEEmbedder
 from football_rules.generation import MODEL
 from football_rules.ragas_evaluation import (
@@ -48,11 +49,20 @@ def main():
     parser.add_argument("--verify-trace", action="store_true")
     parser.add_argument("--sources", nargs="+", metavar="LABEL=RUN_ID")
     parser.add_argument(
-        "--condition", choices=["original", "empty", "removed_evidence", "irrelevant"]
+        "--condition", help="Exact condition label in the frozen source"
     )
     parser.add_argument("--run-name", default="G3-ragas-four-metrics")
     parser.add_argument("--factual-correctness", action="store_true")
+    parser.add_argument("--max-new-judge-usd", type=float)
+    parser.add_argument("--budget-ledger", type=Path)
     args = parser.parse_args()
+    if (args.max_new_judge_usd is None) != (args.budget_ledger is None):
+        parser.error("Use --max-new-judge-usd and --budget-ledger together")
+    budget = (
+        ApiBudget(args.budget_ledger, args.max_new_judge_usd, 0.10, 0.40)
+        if args.max_new_judge_usd is not None
+        else None
+    )
     metrics = dict(METRICS)
     if args.factual_correctness:
         metrics["factual_correctness"] = FactualCorrectness
@@ -164,9 +174,39 @@ def main():
                     if name == "answer_relevancy"
                     else {}
                 )
+                reservation = None
+                if budget is not None:
+                    # Bound the fixed metric recipe's calls and intermediate claim text.
+                    requests_bound = max(12, len(outputs["documents"]) + 4)
+                    input_bound = (
+                        len(json.dumps(arguments, ensure_ascii=False).encode()) + 32768
+                    )
+                    reservation = budget.reserve(
+                        input_bound * requests_bound, 2048 * requests_bound
+                    )
                 result = evaluate_ragas_metric(
-                    metrics[name], name, key, MODEL, metric_options=options, **arguments
+                    metrics[name],
+                    name,
+                    key,
+                    MODEL,
+                    metric_options=options,
+                    **arguments,
                 )
+                if budget is not None and reservation is not None:
+                    usages = [r.get("usage_metadata", {}) for r in result["responses"]]
+                    budget.settle(
+                        reservation,
+                        {
+                            "prompt_token_count": sum(
+                                u.get("prompt_token_count", 0) for u in usages
+                            ),
+                            "candidates_token_count": sum(
+                                u.get("candidates_token_count", 0)
+                                + u.get("thoughts_token_count", 0)
+                                for u in usages
+                            ),
+                        },
+                    )
                 cached = {
                     "payload": payload,
                     "result": result,

@@ -83,11 +83,61 @@ SOURCE_ID_PROMPT = SYSTEM_PROMPT.split("Use answered only", 1)[0] + (
     "SOURCE_IDS maps IDs to document_id:pdf_page; printed_page is not used."
 )
 
+EVIDENCE_CHECK_PROMPT = SYSTEM_PROMPT + """
+Before the answer, fill checks with at most three concise source checks. Each
+check contains a short verbatim rule_quote from CONTEXT, its citation in the
+same document_id:pdf_page format, an incident_fact established by QUESTION, and
+the consequence that follows for that actor. Use short factual entries, not
+extended reasoning. Quote only the decisive clause, at most 25 words per check.
+Keep the rule's conditions attached to its consequence. Do not replace the
+actor in the question with a hypothetical actor mentioned elsewhere in a rule.
+Check every essential part of the requested decision, including the restart
+and disciplinary action when applicable; one does not establish the other.
+Record decisive unknown episode facts in missing_facts and absent source rules
+or consequences in missing_rules. Do not turn a missing fact into an assumption.
+If an essential source rule/consequence is missing, use insufficient_context;
+do not complete it from memory inside the refusal. If the rule is available but
+a decisive episode fact is unknown, use needs_clarification and ask for it.
+The final answer must agree with these checks, preserve relevant conditions,
+and state all essential supported consequences without unrelated alternatives.
+Keep answer brief, in LANGUAGE. Citations remain unique document_id:pdf_page
+strings copied from context labels; the extra checks do not change that format.
+"""
+
 
 class Answer(BaseModel):
     status: Literal["answered", "insufficient_context", "needs_clarification"]
     answer: str = Field(min_length=1)
     citations: list[str]
+
+
+class EvidenceCheck(BaseModel):
+    rule_quote: str = Field(min_length=1)
+    citation: str
+    incident_fact: str
+    consequence: str
+
+
+class EvidenceCheckedAnswer(BaseModel):
+    checks: list[EvidenceCheck] = Field(max_length=3)
+    missing_facts: list[str]
+    missing_rules: list[str]
+    status: Literal["answered", "insufficient_context", "needs_clarification"]
+    answer: str = Field(min_length=1)
+    citations: list[str]
+
+
+def valid_evidence_quotes(output: dict[str, Any]) -> bool:
+    """Check quote provenance only, not applicability or completeness of a ruling."""
+    for check in output["checks"]:
+        quote = " ".join(check["rule_quote"].split())
+        if not quote or not any(
+            check["citation"] == f"{document['document_id']}:{document['pdf_page']}"
+            and quote in " ".join(document["text"].split())
+            for document in output["documents"]
+        ):
+            return False
+    return True
 
 
 def cited_documents(
@@ -133,10 +183,20 @@ def generate_answer(
     system_prompt: str = SYSTEM_PROMPT,
     guard_empty_context: bool = True,
     citation_documents: list[dict[str, Any]] | None = None,
+    check_evidence: bool = False,
+    thinking_level: types.ThinkingLevel | None = None,
+    max_output_tokens: int = 1024,
+    temperature: float | None = 0,
 ) -> dict[str, Any]:
     """Guard empty sources locally; bypass is for reproducing legacy experiments."""
     if language not in {"ru", "en"}:
         raise ValueError("Supported languages are ru and en")
+    if max_output_tokens < 1:
+        raise ValueError("max_output_tokens must be positive")
+    if check_evidence and (
+        citation_documents is not None or system_prompt != SYSTEM_PROMPT
+    ):
+        raise ValueError("Evidence-check experiment uses baseline legacy citations")
     if guard_empty_context and not context.strip():
         return {
             "status": "insufficient_context",
@@ -151,7 +211,9 @@ def generate_answer(
             "api_called": False,
             "usage": {"prompt_token_count": 0, "candidates_token_count": 0},
         }
-    schema: Any = Answer
+    schema: Any = EvidenceCheckedAnswer if check_evidence else Answer
+    if check_evidence:
+        system_prompt = EVIDENCE_CHECK_PROMPT
     sources: dict[str, str] = {}
     if citation_documents is not None and context.strip():
         for document in citation_documents:
@@ -174,15 +236,22 @@ def generate_answer(
         contents=f"LANGUAGE: {language}\nQUESTION:\n{query}\n\nCONTEXT:\n{context}",
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,
-            temperature=0,
-            max_output_tokens=1024,
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
+            thinking_config=(
+                types.ThinkingConfig(thinking_level=thinking_level)
+                if thinking_level is not None
+                else None
+            ),
             response_mime_type="application/json",
             response_schema=schema,
         ),
     )
     if not response.text:
         raise ValueError("Gemini returned no answer text")
-    answer = Answer.model_validate_json(response.text)
+    answer = (EvidenceCheckedAnswer if check_evidence else Answer).model_validate_json(
+        response.text
+    )
     raw_citations = answer.citations.copy()
     if sources:
         if any(identity not in sources for identity in raw_citations):

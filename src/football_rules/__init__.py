@@ -67,7 +67,86 @@ def main() -> None:
         default="bge-m3",
     )
 
+    asking = commands.add_parser(
+        "ask", help="Answer a question using E10 retrieval and Gemini"
+    )
+    asking.add_argument("query")
+    asking.add_argument("--language", choices=["ru", "en"], default="ru")
+    asking.add_argument(
+        "--model",
+        choices=["gemini-2.5-flash-lite", "gemini-3.8-flash", "gemini-4-argon"],
+        default="gemini-2.5-flash-lite",
+    )
+    asking.add_argument("--database", type=Path, default=Path("data/qdrant"))
+    asking.add_argument("--collection", default="football_44d75390ffa00dde1b74f0e6")
+    asking.add_argument(
+        "--json", action="store_true", help="Include sources and token usage"
+    )
+    asking.add_argument(
+        "--sources", action="store_true", help="Show the retrieved context excerpts"
+    )
+    asking.add_argument(
+        "--save",
+        type=Path,
+        default=None,
+        help="Append question, sources, answer, and settings to a JSONL file",
+    )
+
+    chatting = commands.add_parser(
+        "chat",
+        help="Interactive question-answering loop that loads E10 index once",
+    )
+    chatting.add_argument("--language", choices=["ru", "en"], default="ru")
+    chatting.add_argument(
+        "--model",
+        choices=["gemini-2.5-flash-lite", "gemini-3.8-flash", "gemini-4-argon"],
+        default="gemini-2.5-flash-lite",
+    )
+    chatting.add_argument("--database", type=Path, default=Path("data/qdrant"))
+    chatting.add_argument("--collection", default="football_44d75390ffa00dde1b74f0e6")
+    chatting.add_argument(
+        "--save-path",
+        type=Path,
+        default=Path("tmp/saved-questions.jsonl"),
+        help="JSONL file used by the /save command",
+    )
+
     args = parser.parse_args()
+
+    if args.command == "ask":
+        from football_rules.asking import (
+            ask_question,
+            format_answer,
+            format_sources,
+            save_report,
+        )
+
+        if not args.query.strip():
+            parser.error("Question must not be empty")
+        report = ask_question(
+            args.query, args.language, args.model, args.database, args.collection
+        )
+        if args.save is not None:
+            save_report(report, args.save)
+        if args.json:
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+        else:
+            print(format_answer(report, args.model))
+            if args.sources:
+                print("\n" + format_sources(report))
+        return
+
+    if args.command == "chat":
+        from football_rules.asking import AskSession, chat_loop
+
+        with AskSession(args.database, args.collection) as session:
+            chat_loop(
+                session,
+                language=args.language,
+                model=args.model,
+                save_path=args.save_path,
+            )
+        return
 
     if args.command == "ingest":
         report = ingest(args.manifest, args.output, Path.cwd())
