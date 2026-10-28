@@ -60,3 +60,21 @@ No new full-system Correct Abstention Rate from four selected controls.
 Manual reviewer is coding assistant, not independent referee or blind review.
 Keep defaults unchanged; choose only whether a candidate merits broader dev
 testing. Cost and latency reported with scope and unknown billing limits.
+
+
+## Execution deviation: cap respected
+
+Argon completed23/24, Flash24/24. FR069 RU Argon blocked before API:
+usage0.14556 + conservative reservation0.36381 =0.50937 > cap0.50.
+No cap increase or smaller-output retry. Failed full generation run
+5c321249de7045bcb0c37b4487efe74a retains71 successful snapshots.
+A separate no-API native snapshot-recovery run4f883b225a9e46d68da5c0898f8244a2
+is FINISHED with explicit partial-budget-stopped tag; this does not make the
+original generation complete. All59 saved normal responses and12 controls
+retained. For comparable numeric groups remove FR069 RU from all three models:
+57 normal snapshots,9 RU/10 EN questions,285 scores instead of300. Full Flash
+FR069 RU and Lite baseline still preserved and reviewed qualitatively.
+Matched subset is post-budget complete-case analysis, not the predeclared full
+pilot and not a representative benchmark; missingness depends on input cost.
+Bootstrap uses9 or10 indices per language, shared across model pairs within
+language; RU/EN index resampling differs because sample sizes differ.
