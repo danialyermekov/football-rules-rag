@@ -712,3 +712,8 @@ Generation `1717c12dcac84a11a76a6de9039a27ee`, evaluation
 ## G12 — E21 против frozen E10/E15, 2026-10-28
 
 40 новых Flash-Lite ответов, прежний prompt;120 snapshots и600/600 finite Ragas scores. Относительно E15 RU Faithfulness0.7265→0.7775, Factual Correctness0.6180→0.6960; EN Faithfulness0.8320→0.7963, Factual Correctness0.6905→0.6475. Результат смешанный, default сохранён. E21 — кандидат retrieval, не доказанная лучшая цепочка. Usage≈$0.1447; с резервом прерывания≈$0.2947 при cap$0.50. [Результат](generation-g12-results.md), [протокол](generation-g12-protocol.md), [ручной разбор](generation-g12-review.md).
+
+
+## G13 — E21 + Flash/Argon, бюджетный пилот — 2026-10-28
+
+Flash24/24, Argon23/24: FR069 RU не отправлен из-за cap, лимит не повышен. Для сопоставления9 RU/10 EN вопросов,285/285 scores. Factual Correctness Lite/Flash/Argon RU0.7100/0.6433/0.5933, EN0.6630/0.7930/0.6100. Смысловые исправления у обеих моделей, но метрики смешанные; raw judgments обнаруживают конкретные ошибки decomposition/reference matching. Argon не продвигать, Flash оставить кандидатом, default сохранён. Расходы≈$0.2484 при cap$0.85. [Результат](generation-g13-results.md), [протокол](generation-g13-protocol.md), [разбор](generation-g13-review.md), [диагностика judge](evaluation-diagnosis-g13.md).
