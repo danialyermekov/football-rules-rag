@@ -569,8 +569,7 @@ def main():
         for path in versioned:
             mlflow.log_artifact(
                 path,
-                artifact_path="reproduction/"
-                + str(Path(path).parent).replace("\\", "/"),
+                artifact_path=(Path("reproduction") / Path(path).parent).as_posix(),
             )
         require(
             {name: sha(path) for name, path in paths.items()} == hashes,
