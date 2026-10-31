@@ -1,9 +1,11 @@
+import os
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from evaluate_e22_budget_oracle import search_oracle
+from evaluate_e22_budget_oracle import search_oracle, validate_runtime_environment
 
 
 class BudgetOracleTests(unittest.TestCase):
@@ -30,6 +32,28 @@ class BudgetOracleTests(unittest.TestCase):
             "text": "text",
             "source_spans": [{"start": start, "end": end}],
         }
+
+    def test_missing_telemetry_workaround_fails_before_evaluation(self):
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaisesRegex(ValueError, "MLFLOW_DISABLE_TELEMETRY=true"):
+                validate_runtime_environment()
+        with patch.dict(os.environ, {"MLFLOW_DISABLE_TELEMETRY": "true"}, clear=True):
+            self.assertIsNone(validate_runtime_environment())
+            self.assertEqual(os.environ.get("MLFLOW_GENAI_EVAL_MAX_WORKERS"), "1")
+            self.assertEqual(
+                os.environ.get("MLFLOW_GENAI_EVAL_MAX_SCORER_WORKERS"), "1"
+            )
+
+    def test_explicit_worker_settings_are_preserved_and_can_be_logged(self):
+        settings = {
+            "MLFLOW_DISABLE_TELEMETRY": "true",
+            "MLFLOW_GENAI_EVAL_MAX_WORKERS": "2",
+            "MLFLOW_GENAI_EVAL_MAX_SCORER_WORKERS": "2",
+        }
+        with patch.dict(os.environ, settings, clear=True):
+            validate_runtime_environment()
+            self.assertEqual(os.environ["MLFLOW_GENAI_EVAL_MAX_WORKERS"], "2")
+            self.assertEqual(os.environ["MLFLOW_GENAI_EVAL_MAX_SCORER_WORKERS"], "2")
 
     def test_pool_impossibility_respects_page_coordinates(self):
         result = search_oracle(

@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import itertools
 import json
+import os
 from pathlib import Path
 from time import perf_counter
 
@@ -109,10 +110,27 @@ def search_oracle(docs, baseline, required, pages, tokens, *, seconds=2, limit=2
     }
 
 
+def validate_runtime_environment():
+    """Use bounded evaluation concurrency for local MLflow's connection pool."""
+    if os.environ.get("MLFLOW_DISABLE_TELEMETRY", "").lower() != "true":
+        raise ValueError(
+            "Run E22 with MLFLOW_DISABLE_TELEMETRY=true; see project-overview.md "
+            "for the documented MLflow import-hook deadlock workaround"
+        )
+    # Trace writes and scoring acquire separate SQLAlchemy connections.
+    os.environ.setdefault("MLFLOW_GENAI_EVAL_MAX_WORKERS", "1")
+    os.environ.setdefault("MLFLOW_GENAI_EVAL_MAX_SCORER_WORKERS", "1")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--limit", type=int, help="Diagnostic prefix, not a full run")
     args = parser.parse_args()
+    if args.limit is not None and (args.limit < 1 or args.smoke):
+        parser.error("Use a positive --limit without --smoke")
+    kind = "smoke" if args.smoke else "diagnostic" if args.limit else "full"
+    validate_runtime_environment()
     experiment = configure_tracking()
     client = mlflow.MlflowClient()
     runs = [client.get_run(x) for x in (E21, E15)]
@@ -196,6 +214,8 @@ def main():
     print("Verified 142 E21 replays and input hashes", flush=True)
     if args.smoke:
         records = records[:3]
+    elif args.limit:
+        records = records[: args.limit]
     name = (
         "football-e22-"
         + hashlib.sha256(json.dumps(records, sort_keys=True).encode()).hexdigest()[:16]
@@ -244,12 +264,8 @@ def main():
         observations[key] = output
         return output
 
-    with mlflow.start_run(
-        run_name="E22-budget-oracle" + ("-smoke" if args.smoke else "")
-    ) as run:
-        mlflow.set_tags(
-            {"stage": "retrieval", "run_kind": "smoke" if args.smoke else "full"}
-        )
+    with mlflow.start_run(run_name="E22-budget-oracle-" + kind) as run:
+        mlflow.set_tags({"stage": "retrieval", "run_kind": kind})
         mlflow.log_params(
             {
                 "e21_run": E21,
@@ -261,6 +277,13 @@ def main():
                 "combination_limit": 20000,
                 "max_chunks": 4,
                 "tokenizer_revision": MODEL_REVISION,
+                "mlflow_disable_telemetry": os.environ["MLFLOW_DISABLE_TELEMETRY"],
+                "eval_max_workers": os.environ.get(
+                    "MLFLOW_GENAI_EVAL_MAX_WORKERS", "unset"
+                ),
+                "eval_max_scorer_workers": os.environ.get(
+                    "MLFLOW_GENAI_EVAL_MAX_SCORER_WORKERS", "unset"
+                ),
             }
         )
         for p in [
@@ -325,7 +348,7 @@ def main():
         mlflow.log_dict(
             {"by_language": summary, "native_metrics": result.metrics}, "summary.json"
         )
-        (folder / ("smoke.json" if args.smoke else "full.json")).write_text(
+        (folder / (kind + ".json")).write_text(
             json.dumps(
                 {"run_id": run.info.run_id, "summary": summary},
                 ensure_ascii=False,
