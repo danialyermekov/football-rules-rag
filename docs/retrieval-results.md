@@ -37,6 +37,7 @@
 | 28.10.2026, **E21 / v2** | E15 cached Qwen reranker → predecessor/anchor/successor, same top50/B2048 | **77,46% / 84,51%** | **+7,04 / +7,04 п.п. к E15** | **81,46% / 87,09%** | Только offline ordering/packing | `174a45eee3c243e2a7bf21be9ddd7bae` |
 | 31.10.2026, **E23 / v2** | Gold-blind anchor-first admission, source-order display, same top50/B2048 | **77,46% / 85,92%** | **0 / +1,41 п.п. к E21**, только canonical FR050 EN | **81,46% / 88,50%** | Только offline packing; не online latency | `005cc004be224106af364013e5dd3c64` |
 | 31.10.2026, **E24 / v2** | E21 order, lossless strict-overlap compaction, same top50/B2048 | **77,46% / 84,51%** | **0 / 0 п.п. к E21**, gate fail | **81,46% / 87,09%** | Только offline packing/validation | `ca86f33245c343869dcd0eacfe879895` |
+| 31.10.2026, **E25 / v2** | Cached Qwen prefix + new local tail scores, full-union rerank → top50 → E21 packing | **76,06% / 81,69%** | **−1,41 / −2,82 п.п. к E21**, gate fail | **80,75% / 85,45%** | Offline cache-assisted inference; не online latency | `a5cd577ec6184069ae7060f95bbebe08` |
 
 † E3/E4/E4b/E11/E15 измеряют только reranking + упаковку сохранённых кандидатов, без поиска. Это время нельзя вычитать из latency E0–E2/E10 как полное изменение задержки системы. Контроли E3/E4 используют 20 кандидатов, E4b/E11/E15 — 50; E0/E2/E10 также используют 50.
 
@@ -1049,3 +1050,7 @@ Paired bootstrap 2000/seed42, scenario RU/EN вместе: 95% percentile CI CER
 ## E24 — lossless overlap compaction — 2026-10-31
 
 Один gold-blind вариант на E21 ordering/top50/B2048, не комбинация с E23. Строго перекрывающиеся intervals одной страницы объединяются с exact source maps и constituent IDs; уникальный source text принятых originals сохраняется. Redundancy RU3,07%/EN3,25%→0 по конструкции, но CER RU55/71/EN60/71 без изменения и без регрессий. Только partial coverage FR091 RU0→0,6591, mean RUcoverage84,91%→85,84%; недостающий хвост gold отсутствует в pool. Gate fail, default не менять. Состав selected originals изменился127/142; освобождённое место часто получает нерелевантный текст. Full FINISHED,142 вопроса/710 finite native assessments/source-union readback; новых model/API calls нет. [Отрицательный результат и разбор](retrieval-e24-results.md), [протокол](retrieval-e24-protocol.md), [сводка](retrieval-e24-summary.json).
+
+## E25 — Qwen reranking полного union перед top50 — 2026-10-31
+
+Один frozen-вариант: E10 union64–92 → общий Qwen ranking → top50 → E21 neighbors/B2048. 7100 E15 scores reused,3960 дополнительных пар localCUDAFP32batch2; smoke150 prefix scores совпали точно. Selected50 poolCER RU61→63/71 иEN67/71, но packedCER RU55→54/71, EN60→58/71, mean80,99%→78,87%. RU1 gain FR090 и2 regressions FR020/094; EN2 regressions FR017/069. Две потери на cutoff идве на packing. FR090 уже имел прямую норму в E21: gain завершает canonical locator. Gate fail, candidate/default не продвигать. Full142/710 FINISHED/readback,≈648s с кешем; новых Gemini/search/embedding вызовов нет, testoff. [Результаты и ограничения](retrieval-e25-results.md), [протокол](retrieval-e25-protocol.md), [сводка](retrieval-e25-summary.json).
