@@ -1,0 +1,183 @@
+{
+  "run_id": "c67931321bab4a00b5902abc50fe0745",
+  "verified_at_utc": "2026-10-31T18:16:55.902932+00:00",
+  "valid": true,
+  "errors": [],
+  "method": "Read-only SQLite and native logged artifacts; no scorer rerun or smoke trace fetch",
+  "status": "FINISHED",
+  "rows": 568,
+  "native_rows": 568,
+  "backend_traces": 568,
+  "backend_finite_assessments": 2272,
+  "assessment_counts": {
+    "canonical_complete_evidence": 568,
+    "alternative_complete_evidence": 568,
+    "canonical_strict_complete_evidence": 568,
+    "alternative_strict_complete_evidence": 568
+  },
+  "backend_native_row_score_comparisons": 2272,
+  "historical_rows": {
+    "E21": 142,
+    "E23": 142,
+    "E24": 142,
+    "E25": 142
+  },
+  "canonical_historical_comparisons": 1136,
+  "groups": {
+    "E21_en": {
+      "n": 71,
+      "counts": {
+        "canonical_complete_evidence": 60.0,
+        "alternative_complete_evidence": 61.0,
+        "canonical_strict_complete_evidence": 60.0,
+        "alternative_strict_complete_evidence": 61.0
+      },
+      "means": {
+        "canonical_complete_evidence": 0.8450704225352113,
+        "alternative_complete_evidence": 0.8591549295774648,
+        "canonical_strict_complete_evidence": 0.8450704225352113,
+        "alternative_strict_complete_evidence": 0.8591549295774648
+      }
+    },
+    "E21_ru": {
+      "n": 71,
+      "counts": {
+        "canonical_complete_evidence": 55.0,
+        "alternative_complete_evidence": 56.0,
+        "canonical_strict_complete_evidence": 55.0,
+        "alternative_strict_complete_evidence": 56.0
+      },
+      "means": {
+        "canonical_complete_evidence": 0.7746478873239436,
+        "alternative_complete_evidence": 0.7887323943661971,
+        "canonical_strict_complete_evidence": 0.7746478873239436,
+        "alternative_strict_complete_evidence": 0.7887323943661971
+      }
+    },
+    "E23_en": {
+      "n": 71,
+      "counts": {
+        "canonical_complete_evidence": 61.0,
+        "alternative_complete_evidence": 61.0,
+        "canonical_strict_complete_evidence": 61.0,
+        "alternative_strict_complete_evidence": 61.0
+      },
+      "means": {
+        "canonical_complete_evidence": 0.8591549295774648,
+        "alternative_complete_evidence": 0.8591549295774648,
+        "canonical_strict_complete_evidence": 0.8591549295774648,
+        "alternative_strict_complete_evidence": 0.8591549295774648
+      }
+    },
+    "E23_ru": {
+      "n": 71,
+      "counts": {
+        "canonical_complete_evidence": 55.0,
+        "alternative_complete_evidence": 56.0,
+        "canonical_strict_complete_evidence": 55.0,
+        "alternative_strict_complete_evidence": 56.0
+      },
+      "means": {
+        "canonical_complete_evidence": 0.7746478873239436,
+        "alternative_complete_evidence": 0.7887323943661971,
+        "canonical_strict_complete_evidence": 0.7746478873239436,
+        "alternative_strict_complete_evidence": 0.7887323943661971
+      }
+    },
+    "E24_en": {
+      "n": 71,
+      "counts": {
+        "canonical_complete_evidence": 60.0,
+        "alternative_complete_evidence": 61.0,
+        "canonical_strict_complete_evidence": 60.0,
+        "alternative_strict_complete_evidence": 61.0
+      },
+      "means": {
+        "canonical_complete_evidence": 0.8450704225352113,
+        "alternative_complete_evidence": 0.8591549295774648,
+        "canonical_strict_complete_evidence": 0.8450704225352113,
+        "alternative_strict_complete_evidence": 0.8591549295774648
+      }
+    },
+    "E24_ru": {
+      "n": 71,
+      "counts": {
+        "canonical_complete_evidence": 55.0,
+        "alternative_complete_evidence": 56.0,
+        "canonical_strict_complete_evidence": 55.0,
+        "alternative_strict_complete_evidence": 56.0
+      },
+      "means": {
+        "canonical_complete_evidence": 0.7746478873239436,
+        "alternative_complete_evidence": 0.7887323943661971,
+        "canonical_strict_complete_evidence": 0.7746478873239436,
+        "alternative_strict_complete_evidence": 0.7887323943661971
+      }
+    },
+    "E25_en": {
+      "n": 71,
+      "counts": {
+        "canonical_complete_evidence": 58.0,
+        "alternative_complete_evidence": 59.0,
+        "canonical_strict_complete_evidence": 58.0,
+        "alternative_strict_complete_evidence": 59.0
+      },
+      "means": {
+        "canonical_complete_evidence": 0.8169014084507042,
+        "alternative_complete_evidence": 0.8309859154929577,
+        "canonical_strict_complete_evidence": 0.8169014084507042,
+        "alternative_strict_complete_evidence": 0.8309859154929577
+      }
+    },
+    "E25_ru": {
+      "n": 71,
+      "counts": {
+        "canonical_complete_evidence": 54.0,
+        "alternative_complete_evidence": 55.0,
+        "canonical_strict_complete_evidence": 54.0,
+        "alternative_strict_complete_evidence": 55.0
+      },
+      "means": {
+        "canonical_complete_evidence": 0.7605633802816901,
+        "alternative_complete_evidence": 0.7746478873239436,
+        "canonical_strict_complete_evidence": 0.7605633802816901,
+        "alternative_strict_complete_evidence": 0.7746478873239436
+      }
+    }
+  },
+  "changed_ids": [
+    "E21-FR005-ru",
+    "E21-FR050-en",
+    "E23-FR005-ru",
+    "E24-FR005-ru",
+    "E24-FR050-en",
+    "E25-FR005-ru",
+    "E25-FR050-en"
+  ],
+  "changed_count": 7,
+  "out_of_scope_equal_rows": 560,
+  "out_of_scope_equal_score_pairs": 1120,
+  "failed_smoke": {
+    "run_id": "d8cb5745836d4738826b6ad323756a3c",
+    "status": "FAILED",
+    "feedback_count": 0,
+    "artifacts": [
+      "input-hashes.json",
+      "snapshots.json",
+      "reproduction/docs/evaluation-q3-protocol.md",
+      "reproduction/docs/evaluation-q3-review-a.json",
+      "reproduction/docs/evaluation-q3-review-b.json",
+      "reproduction/data/evaluation/evidence-alternatives-q3.json",
+      "reproduction/data/evaluation/manifest.json"
+    ],
+    "cause": "Not established: no error artifact or error tag found; no smoke trace fetched"
+  },
+  "artifact_sha256": {
+    "native-results.json": "de4a8895c4f3ab93d594583ac8cc84343a1b6210ff90e8ab42814ae9abe59d62",
+    "per-question-results.json": "9261106f887069ce1967989c19d34fca98c62165e3a68edcb1206dd85899e8a6",
+    "summary.json": "942b7f9cf72cf1b6609a5edbb93a42ecc009aadf5b5dd21ee2709ad8cd0c9767"
+  },
+  "scores_and_status_unchanged": true,
+  "frozen_output_comparisons": 568,
+  "native_response_serialization": "Exact match after pandas DataFrame.to_json default double_precision=10, as used by runner; frozen snapshots compared without rounding. All four score values compared exactly."
+}
