@@ -84,3 +84,7 @@ Smoke не принимает качественного решения (`gate=n
 ## Проверки до запуска
 
 Core и семь behavior tests реализованы; первоначальный red зафиксирован до создания модуля, затем163 tests прошли. Проверяются lossless union, strict/transitive overlap, touching/disjoint/cross-page, порядок admission, exact trial tokenization, не-восстановление удалённого текста и ошибки provenance. `py_compile` и `git diff --check` прошли. Это не заменяет runtime smoke и не является результатом E24.
+
+## Уточнение SDK preflight до любых E24 scores
+
+Первый smoke остановился до создания MLflow run: строгая проверка native dataset после `merge_records` обнаружила добавленные SDK provenance/tags в переданные Python dicts. Установленный MLflow мутирует этот аргумент (`_infer_source_types`, resolved user tags); исходные inputs/expectations в сохранённом native dataset совпадают с fresh records. Исправление — передавать deep JSON copy в `merge_records`, не ослаблять сравнение. Oracle/policy/gold не менялись, E24 scores на момент исправления отсутствуют. Повторный smoke и full используют один и тот же исправленный runner.

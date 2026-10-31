@@ -34,11 +34,11 @@ from evaluate_anchor_first import (
     sha,
 )
 from evaluate_retrieval import evaluation_records, make_evidence_scorer, read_jsonl
-from football_rules.context_compaction import pack_overlap_context
 from mlflow.genai.datasets import create_dataset, get_dataset
 from transformers import AutoTokenizer
 
 from football_rules.chunking import source_positions, source_ranges
+from football_rules.context_compaction import pack_overlap_context
 from football_rules.embeddings import MODEL_REVISION
 from football_rules.evidence_evaluation import (
     chunk_successors,
@@ -521,7 +521,9 @@ def main():
         dataset = create_dataset(
             name=name, experiment_id=[experiment], tags={"split": "dev"}
         )
-        dataset.merge_records(records)
+        # MLflow adds provenance/tags to the supplied dictionaries in place.
+        # Keep our frozen expectations and record-hash inputs unchanged.
+        dataset.merge_records(json.loads(json.dumps(records)))
     dataset_records = [
         {"inputs": row["inputs"], "expectations": row["expectations"]}
         for row in dataset.to_df().to_dict("records")
