@@ -276,7 +276,7 @@ def main():
         dataset = get_dataset(dataset_id=existing.dataset_id)
         dataset_records = [
             {"inputs": r["inputs"], "expectations": r["expectations"]}
-            for r in dataset.df.to_dict("records")
+            for r in dataset.to_df().to_dict("records")
         ]
         require(
             canonical(dataset_records) == canonical(records),
