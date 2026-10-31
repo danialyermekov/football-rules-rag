@@ -36,6 +36,7 @@
 | 25.10.2026, **E20 / v2** | Qwen Hybrid: исходный + проверенные дословные фразы → RRF60/top50, B=2048 | **66,20% / 74,65%** | **0,00 / −1,41 п.п. к E10** | **70,42% / 79,11%** | **0,515 / 0,496 с¶** | `75f9030d7e1d42aab0073550e938bbf7` |
 | 28.10.2026, **E21 / v2** | E15 cached Qwen reranker → predecessor/anchor/successor, same top50/B2048 | **77,46% / 84,51%** | **+7,04 / +7,04 п.п. к E15** | **81,46% / 87,09%** | Только offline ordering/packing | `174a45eee3c243e2a7bf21be9ddd7bae` |
 | 31.10.2026, **E23 / v2** | Gold-blind anchor-first admission, source-order display, same top50/B2048 | **77,46% / 85,92%** | **0 / +1,41 п.п. к E21**, только canonical FR050 EN | **81,46% / 88,50%** | Только offline packing; не online latency | `005cc004be224106af364013e5dd3c64` |
+| 31.10.2026, **E24 / v2** | E21 order, lossless strict-overlap compaction, same top50/B2048 | **77,46% / 84,51%** | **0 / 0 п.п. к E21**, gate fail | **81,46% / 87,09%** | Только offline packing/validation | `ca86f33245c343869dcd0eacfe879895` |
 
 † E3/E4/E4b/E11/E15 измеряют только reranking + упаковку сохранённых кандидатов, без поиска. Это время нельзя вычитать из latency E0–E2/E10 как полное изменение задержки системы. Контроли E3/E4 используют 20 кандидатов, E4b/E11/E15 — 50; E0/E2/E10 также используют 50.
 
@@ -1044,3 +1045,7 @@ Paired bootstrap 2000/seed42, scenario RU/EN вместе: 95% percentile CI CER
 ## E23 — gold-blind anchor-first packing — 2026-10-31
 
 Один заранее фиксированный алгоритм без evidence/query/scenario аргументов, прежние E15 top50/B2048, контроль E21. RU55/71 без изменения; EN60/71→61/71, исправлен только FR050 EN, CER-регрессий нет. MeanCER80,99%→81,69%,21 контекст изменился по составу. Принятие anchor до predecessor вернуло canonical evidence PDF136, но альтернативная прямая норма PDF182 была и раньше: смысловое улучшение не доказано. Предварительный gate выполнен, default не меняется; generation/test не запускались. Full FINISHED,142 вопроса/710 finite native assessments/readback; native phase41,52s, полный offline command≈103,47s. [Подробный результат и ограничения](retrieval-e23-results.md), [протокол](retrieval-e23-protocol.md), [сводка](retrieval-e23-summary.json).
+
+## E24 — lossless overlap compaction — 2026-10-31
+
+Один gold-blind вариант на E21 ordering/top50/B2048, не комбинация с E23. Строго перекрывающиеся intervals одной страницы объединяются с exact source maps и constituent IDs; уникальный source text принятых originals сохраняется. Redundancy RU3,07%/EN3,25%→0 по конструкции, но CER RU55/71/EN60/71 без изменения и без регрессий. Только partial coverage FR091 RU0→0,6591, mean RUcoverage84,91%→85,84%; недостающий хвост gold отсутствует в pool. Gate fail, default не менять. Состав selected originals изменился127/142; освобождённое место часто получает нерелевантный текст. Full FINISHED,142 вопроса/710 finite native assessments/source-union readback; новых model/API calls нет. [Отрицательный результат и разбор](retrieval-e24-results.md), [протокол](retrieval-e24-protocol.md), [сводка](retrieval-e24-summary.json).
