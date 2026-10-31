@@ -1,0 +1,2859 @@
+{
+  "selection": {
+    "seed": 20261031,
+    "source_runs": [
+      "88d58a2bd1c442a4a5f4172b4ffabdf5",
+      "39b9184f90be4c30a75e87ebfc33bd7d",
+      "f434ef6d599f485192878bf58551eb75",
+      "3f506b8e79514157bdea51749c57b261"
+    ],
+    "population_count": 378,
+    "population_by_language": {
+      "en": 189,
+      "ru": 189
+    },
+    "source_hashes": {
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\per-question-results.json": "7778b5ffda8270393177894a201af35fd69728771b767c07fba7808949eb4a11",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\per-question-results.json": "f9b679464aa2dfd2a2067aed93393c193e1aeb6cf0cd1dfd624f6bbc1bfa5524",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\per-question-results.json": "e70bc4076d96c3ca99adb69fe7fba529a3dd1cf4d8558399fcf30bfb0e068260",
+      "mlruns\\1\\3f506b8e79514157bdea51749c57b261\\artifacts\\per-question-results.json": "042219644da75c6792a581670baac82a289f5e5d8a0ac3ac566b7eb55cf4ff3e",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\c8467d3a18244eec824ce4c73f469ef7b47be3cb81c733d59e7f7ce39bcb484d.json": "a4e8a2abe8c124db513d0f26063f5e3bfb80e4a9c67f8f52576faa19bc42cab1",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\b0ad4a772b81b39da3b9820da27d53a192769943e2a3c2eccd2dcfb3447323c7.json": "b5334427cf139a724848b683669ee04e485be767c3ddf2d40a97fc9632c87aa4",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\9a1d6ac863827be88984f35b697f06f26171f2522fceeafaaaf622938f0e9398.json": "087b635ab9a14a469ad4f7a06cc2cccd21167c31170373129d6d87abcde619d4",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\5c4768c442435361a55f56da7147cad175cc2b8e745d47504f7bf173e9196a99.json": "269518dbc97803abcbb471c8265b5d237fe48ff3fecfecc47688d3a6f7482209",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\64dcb6e5682b9cfc04d8a45030dbf4a3abe6727b131867ffd173a97a54a9d7c9.json": "8ccf5d7636d2dbc8893296e91a79507a4087a8c5b851e77240c515ff9c634aef",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\4538a535632c11f0e8629d2a9e7be588045f8b5aa56065276a2a521d997c610d.json": "63d3e2b5c1fc26da3ebbd1c04c7125d22ba7443ccf849dd373423e2d99b25511",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\30a1f2c416b3bfd5ac4f050e689106f41666d1d00a6bba372fe8244862c8e73c.json": "e21335fcc6b0525941295e8726e1b28eaac4ac3bda2b533d1f949f9471446efb",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\f54e68f3b9e240d7b21077fac5977ed4ebf987413ed1507fa890563bee040930.json": "6c7909e7c7b23ebdc52ca5c8607544aeeb7c7f855159cbd02585e67c235d4391",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\534a4cfadf0870a9200b702bbff97b18da9038b923aa9f749d8ef00f8a31d15d.json": "720ed936fda372409c92bab8b62ad09063edf29e2ea3d396dea4ea6b1150b50b",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\f43ac48d97c50637ad0481236e0e712168252cdb43d2bfec622b16629f049095.json": "d96ecce9d63149d454b459474ae3a95cd3f93ad32fec7a6156c33a7c6b09ab01",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\bc7d2bc8c50c7ee1479e2301541903270d95abf0f1a69aa172db20186b393239.json": "7a9edd067a4d5e28b2d227e2ffba56bf5aae00630fa1b36ebb1fca919c7995a4",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\b8dd2efaa1c2e3f8f390b607d7ccc232640d3f7f959d5631400ba23e386cecfa.json": "662e87a72b3c6af60c8392b9aeccf4719073f36709f893045893a5ca160f41a3",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\256aad0becb4bee645da8ed5288e82f00e2d491a8b5d91b50a0697fe8caae561.json": "e3a1c4e3816f9a01b43fec2e59b9b72ae2a097fe4f82d6ddd77df93a9a34bb03",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\4309bc317eadac407c19364223387af7057e2c593ecb56b7839bf0c9fcfd6ef8.json": "c045ca0d1521f388465bab3a82601cb38f46ca6dc51f6c7583cf030d4f8fecfc",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\ea1aae0988fcd22706857dc572fe1e7ac78a03b30923ab9cd183f6dc69186efe.json": "c7a8dfabccec4010f5c15529d11e089283631b9435549906f72e8870bbe1844c",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\ae1c518df51463096d8b1535c52eda654b519f23edcfa67f7c77f81188c81de6.json": "ef204a878476f78d5653c8949ab3088d0865efb445386a34aaf441ebeae1c058",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\0034b3d2564d0a753be8b436f160a972eea6bcc1934b50b0a17b55cbafc56fc9.json": "7479a6345eacdc7a2556c4328289cf4329a22685b58633d6cc9ee435441e9599",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\e4cac5afe7b28009e650506c438ded9c0b2e35d0003ed97a6ebd915de60cd3ef.json": "9d96f6127b3dc9836e9d7b7085b1cf9b0cdd2df64a2582f801b18705911f7268",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\3e8115cb2430f3a1af608a91b6e4ad6efd2d3d8ec0669ee87176c391ede74d67.json": "5bc35cbad54d968ef5c4f20267c84bf1a19699b113e23f2b1eb09ded01a797d4",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\a41a654c70e2277a6ddafa968b3d2625447d32f52d8a94d4676b52a0215d686f.json": "292a2610b36134d0110209601a68cebb6559007f7360cd5e9e0a0f7909682c47",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\74fcb64ee7ce0c682325f97a0dad1fc824f995fcd2adafb4d6077315aefe7fb8.json": "65c04b2cb9cadbeac58532ebf2039618125c99a38261525a6697ec02764e81e3",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\18c64101ad3cee70cdb2da1553e11d5b71f27ca301244008aa67e96632c80e5c.json": "8f58e66cfab9da11eb4aef2f4e86392ebb2cf9664a9cce32e4363b1075870879",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\fe7ada7d46e70607fc0feecd152ed68012f7823dba20a3b1878d0deac9a2bec2.json": "dada70cd4512cd88d8b2310a65b40f08dc9998842db136ec158873aeb4a9230f",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\407c903e0c4476c5964dc27b754f89ac7db64a4dfbbfaa1072c950eb97bb2209.json": "6d00243abb7ffe5d154b5318e9eca880697f424eb1679a50287bd964da38a100",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\95fee2511cb543a34147d1e4dbf817f4e1652e16f8343d74c938955cd2ca2d30.json": "f3b81cccadc844f77c1b2ab944e40e8a2c784fbff6930ada859f672d145574cf",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\7250c515e08303f37502882fc59127dd17613b21160a55f02f05cb029755d1c1.json": "ff21bab2ed3c415fc869f3f91d370741100e3637776eafdb20e975a82ae503a2",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\63e4e9fa7b27c10ad4bff4e979ed07ae2cdb1ab3126b13492c9d6d59e0b589c2.json": "7aa252b79179868b73145aab99583c7144c7b0dee35c4c9b6eb040a02a08eefd",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\701023af1adbb0644bd131fa382269023acc43e9863dad5fa5ba33ea030e0ec4.json": "73b070f03c03fb5eb66973c470bde569e7b3854c8d95d3eee8347935e354e116",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\888a7b80624fc86dc17d602cc07727a30793e582779b02a27ff19531ee64a3cd.json": "97e561d96568b243a9c584157563bcd33c289d07fcf8644149356b5882fb475e",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\8da0dae24c9cd6a7ed4af3a0854e08e2cabf328283f71414e4bdbe614b594ddc.json": "aad1b964ffc9c67f1fb4504a94aeab96e69680f41e1997686d4057849459b401",
+      "mlruns\\1\\3f506b8e79514157bdea51749c57b261\\artifacts\\judgment-cache\\242055888ac01d236146c30e9859b527b13344e7e1c9a740f1bb1f7c2fe7fa1b.json": "45c76efee01b5380fcf04ea472960abfe4e3fccf705274ad127c1c5d5ef78e15",
+      "mlruns\\1\\3f506b8e79514157bdea51749c57b261\\artifacts\\judgment-cache\\f7b491b824befac57ffa1643100ab86b2f93c4b70b1ac4e3a5dc172e44bc7c2d.json": "92c305001587941e9192952e3102ac40b1ca7197437a1be2b0fa2d5b6fda9a3c",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\e35ed3de4dbd8c01333e1a8c30564eab24bb796f5126efac5ad74a1589ea97c9.json": "f08ec6c7285d36f606702228993b3741675aac0a7e9aa227c798b76e467b65a8",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\4539a3f74de8604b3555f92096126166252a197619a6ccf50cd447b8447f1f50.json": "4933d75c2a79ef17c4b1d4aaa5fd7ef9781d7ab20288169cd52720600755378f",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\c14cac4d3832aeee0f6c34760bfded7f82f04a2cf89bdf7874083d0f436154d1.json": "5595fbe2f94026df3d1a2274d15354cabb9c53413d401b1a50dc911380fd2f63",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\37b96118b13fe5c018ea631c7f5727d7aa4d8d99fe1c386035251b21435c29f6.json": "ba2ea3b36d1ddbe684db9d5e4a85651fe1314402578560d0d09352dbbf4243a7",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\27b8a28f63f8afb64d5ae65944158e35a560d8e8e5a9126a18679bd845430c4f.json": "e56bd8d8b3af48ab8950aff4180f10d18c527a24a08c93eadb61e1682da2a2e7",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\304c6f045b128aaa941f4c0aa626340e85d3fce357838887fb95621d474d1846.json": "a056d8dcf7387120d5320cfb5389b5885c3aebc6ed605551a80d8e0405cef14a",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\80ff33b947afb54c0282faf473a3f50f87a2a3a0a4489c6fffc06cfc1576a734.json": "dc1b73f28f4cf4623f9a977509114e05ac9651cb19afe8d132c2eaa87faf6fe3",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\e06fefcaa5cfe7f6f70917780de51c89fc8bede06c3abd1eae1bdd860f12160c.json": "86bbf7225c445a86c12964e8860ba558173d9795ec7ecdca577376173bd522af",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\bc188ae1be0369ee7ef70d3d0a49e3403b5c3d217df48aab40cb3f1f7968d791.json": "c8e9668cd1b3c22343c071ad5eceb2111003a832701bf24b7d5ee1c195eeb421",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\b8b72bf5c8dfb6bf359dc153082aecd458f3887b933eafd674cf905125ec1758.json": "273fdd6bbdcf425b198f5045b14cd865516ceeb88be650a8408a97d36334515a",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\168a8d665b101a1b27df6f5067a4810de8f619c15250839ea6604d209e9e366f.json": "978bd4b06e2d94de3f123fc275017b5b4c73bf0b229d6011e8c6a24c8f9ae737",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\ec723416196a5061c230b6ce27e43db1aef8de3aebbdbdd94681ecab9787ca37.json": "231a64fd51070534ba2d46bacc3baef342d04cb6d112d90c9d72997c3748f872",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\dd34c28776e87d40272b8485af6feaf71c914d419afb595768a3d89a5138583c.json": "db3df27c2246e60be765657e13c98e5fbe357f9c844fae3b3c1d161cffe59b35",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\1e5a9638bbaf5d4c289623a23a5b0d2f177d98678164b57d481678666a63bd68.json": "f79799066d4ba4adaaa55b145cc768ef78e86b92e242f4d11243ec4b4e36489e",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\29bfbc0c88a4eda819f953e4264d1d925dd7cdc07e1f4d6cdddebfb0293cd720.json": "12580b07e2cfcabea6452082262eff0e6bca3941fd7bb3645f82b4a98f5fad7f",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\2d9bd1eea5dde98a27767e6f56df85672ebc602fd30d55808c033149de6b92ed.json": "530800c956fa65a22436082bbbbfa2bcdcd1a70a41ad41e9e1f65b4111a80371",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\d1bc577bee278fee478f17145c4192dc5ec396b787b5d3bdc0b028ede95a6601.json": "58c980e28d866e6ec8e4787d32b464d6e43fd6e92454c441badd2a2cc64906f0",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\1e74a3724368be5b71ee6f39f3325b2fcd5f006a8a7371c75a5bc26f297457f5.json": "44f0668783fee23b07e2cf0d00d0f5e980e14c2d9ab149e74fa98484809bf6ff",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\8650e0553de72b1e3e6f86c725c87c2f2c3263c66db280a37dc700d8b70082a8.json": "2953acd31e832354f6e54c30ecae528d7030f3aa286c1dc66dd79a2374e45154",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\780184b2d2ac23a176156a9ff3e94afda6bafb7ac57c37ded66684f2f1d9ca5a.json": "1038a9fdeaa3981fa604cf00c04d3fb98bde4dd02984be29e86d418325a90404",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\6a5fb00a2d370e88cffd269ebaddf438f666fc6ab3d3bb4ead02b063f587d615.json": "6992ba31895c30b601a90d8d45339944ce4ffd16cbc40684d3a32aebc54b2342",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\1beff95a8c5d071b943615c80bca12523bec87031d98ed51070768004ca09185.json": "7784c1fc3f7fda81d5ef5d8a83b6f6aabd22677251ad494185d3aa9069f2a75d",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\7ed6a537bed7e2e13c2affd48c0d04d0e5a5b4996e820a72e5b29aad289b459c.json": "b33188554e44d0c911f1e423e755e52d5b60ec33f612fd344ee3fd3df28539ed",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\df634401681f8576ef2f78762a9bfb1c3c0e1345ed9c5c193a1a0f5dfe698e51.json": "f0459decb6037e07fca9d9b192eaeb37f11fc6347b49488370e854c761912471",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\653135113c22e059b6444f405f9af6ae68d463515c20d553a15723982f9d3d1a.json": "0c7fd0b64711afca1bbf38d3858fe338d5ddd0d9fa3febf3ab1f156039d362c2",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\878199521394267e664abdde303e3d054c8f2c2fa478d3f717dd50f5b613bee6.json": "d1129533f805e8a2cfd1d4a8f518cb52967f6ac6f5f142e3e255a3af98602607",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\429f96133728c3051a3e79faf1a2cc89c3d018ea31c8aa711c5051396de42ce0.json": "ae81905180de6cc778ed3853b0560a384f3ba5ee41c5f82c42595946333b99c5",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\85cf0d3bce4f3107198727327490059c697641a53f024aae31d5c1e56ba69c35.json": "1f0d0d79e9c9f4894d4ca60c51704c788ff19b0fb7f318b0b32a9ae89f1bf18f",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\c6077ceaba152871393769294dbb9ebd95f03918c5fc7df33db2308f7b3501b1.json": "c9cf3d38a38a63220b5227eafa508ba09c474675f32a1c71f21d2b876e6c0f28",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\e25e7d867998ddee4e70670e47835ca81e7a8d01888fb3ce19cb0f7a0da7522c.json": "e0952e27f2a49b82c29c5c271e2ed783d772e615c9bf8f61fe8ad90b893726ee",
+      "mlruns\\1\\3f506b8e79514157bdea51749c57b261\\artifacts\\judgment-cache\\83d51f0e606602b2777535bff86e7e011fa6f20f64c09200db23c61fcd3e67b2.json": "1694ea526e77ff8719990cbb9a8479621bd8189d1e1ece1204f658d1f77b1883",
+      "mlruns\\1\\3f506b8e79514157bdea51749c57b261\\artifacts\\judgment-cache\\d1c0fb5bbbb21eb5c1eb5308a57e5ba8d328dd34170ebc57ca10c7356ad1425e.json": "5dbedb08951074ea2eebd993e5e0915cb5305b6211374869732ac4db6dda1a50",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\8a831919401d79a61350310df546687426534216f6b0bf181b0c060bb07b74a8.json": "56cd1352bb731dbaef3638494ca590c3bc8b43ffe958e9e882207d162c076fcc",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\15a1f3c2682b635c69ce93d2252daa5e6446d7c9bc4e40bd0ee63961eae8fae1.json": "d0239707d84eae205a106d7cff00964b1c4f3ac67a49a9457c6d06315469d1c1",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\fafc74c5cff7818fc003308319f18bc552d49a20953c6a295a31dce104459701.json": "18d4233478f2cbee2bb8890785aef356eb5cdd37245ce5e4278c98d2a2a27521",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\69c297f9123cdfdab6ad059e0dd3b45d553cbc5d8588dd2472d4c3aa184e270a.json": "182313a34c7b6b4cb37ef5f2a9c21c954e890baa390fa201ba9eca73d8c2db2d",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\2805d8921f9b2e5f5f7b94b19efb51832ed4d5928ea3a3352e7eaa9485077a50.json": "0ac4b6ca4d33d84ff093d9b48ac2d235253a2a7dc4609f3270b78e7bb8c5ed45",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\8b91762d723b4f8d5d563fd572d7c0f74c8bc4c8994f439efdcb4f0174f0b235.json": "a5768e11cd00a1fa179f84e6de325c5f4191c76c384e3bc245651c6f9df4e6f1",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\b4843d9cd20c5601349a96a791944f9b8a0829d125846bc33c94698751900d5d.json": "fa59a0470c370abd0ea9288a6aae532ad9f6af88b755f6ea3d364d07629fb75f",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\a3d73e3bef69737213c4143f9909f12fdb962777f93d0c027e07df48d634dbad.json": "ba616dbaba2bbdac56f77e78ae747ab44619b9cabfd56805632420d12ae9909e",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\5f494a6834f30b31c8f5f93a505a58deade6489d33e2c969b4d2ec306d62bc95.json": "54e826cc65578d83bf170399f6c7b4d93f136c16f4661c666337ee1c2d468426",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\20a654b562c01c6ab57558f3f80134b290e2aa59858c732628f164535d5b2a0b.json": "d9f170a1469d1d53134d522029cf2186230fe9229c033d6da0eafdff8897026a",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\9be5bf07b5ab945f109e5cbb88c2f94615c0338fc61f05bd685fa06d0e76ba6f.json": "975e7494dfe91203ab5a88bdfdcf58049934827f3672a8501a00996e6f443eff",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\8bc14e81be94d8377b0f03180a5335bd915a61f619f84795840809a170b9e1e3.json": "2dc0738915ce659dc3118af395e0af96ad7920c8aa0f1c6bba174936d4267c66",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\124bd7a5905b782e16a6360b3721a2b76b550521ec8bc6da557cda7216eb767b.json": "2f22243642758cb74736a43633a726a583a324ef912f9029830018f287391b35",
+      "mlruns\\1\\39b9184f90be4c30a75e87ebfc33bd7d\\artifacts\\judgment-cache\\f641b9e41a487c8e758f276d38288a6b8b60d3d6fa86a54eebd70b322505d21f.json": "5152112f9375444893f1b50592a0ce3479d4960682038249fd6159048da7a936",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\86615cd6f8c35556b84d7174cfba7a8704be4416ccda1225f01835cd1fe1fa01.json": "34ebecaaaee6925a63ea86c1d9fbc2bc9e1fddcb3c8398c2c7dc14c8413d3e40",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\96f539b2aa14b3cf91e0741bbf451df7b8bb54ebc903c4868d00554a340e75be.json": "b0532c3a4878251912a0bfd18d7ab2a6900cbaf1c685626e9654361ae079b2c5",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\b7ed1a123f92e2402d3b6e0d14aaa2de51bec5ba7ab5b6662808c781413790ce.json": "37b5f5b87f7507d29285e441f518035041d12e4210cbd5d5b72c75f77bdab541",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\7b69a0e13edf17e14686aead3271ee342303afecdb30538d5b16c61835a5b69d.json": "f3c626e2c826ad5390592c926b8dd6f33b2b7a567527ae81c3fc604c859ff57c",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\d933a72d2a6708dcacbb7f95a2d280eb5b4c3a2db15d28d69daabc024a4c570b.json": "91aea0ddad5f0197ec82d2cd5f0079fb5aa16ae69e1023da1d948178edbd6efc",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\113466e3e6b1b03f70451f8ed2c7ba8d76f9daa28bcf61349bcc3d13a94c44fa.json": "f344911146da7e89f3d846363461160dec4db77d3ba436a4bb4b75098a18c75b",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\bbb3e76c66e04e1b22273377416cce6ce1ed5564d1942376a0d64005660a68a8.json": "9590f8410a1706fb48346a86f5711bcc667f74d4052094f8a8ed411a0c47fba9",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\3a21161dde7e1f05f58816f5ec4fbe080ae22df329ca54b5a79863fa5b74cb53.json": "f06b0653c4cd7aff95b27b381db1896a2ad9a929f3200383e52a57fe9e9c9913",
+      "mlruns\\1\\3f506b8e79514157bdea51749c57b261\\artifacts\\judgment-cache\\61999682e59d5daa3c7929805e282d3d41a8a38085bfe6522131e224a254544b.json": "8b5d6669439a4cc8473345988e4791d0dc98644c1060fd4a66a9c79d30eff111",
+      "mlruns\\1\\3f506b8e79514157bdea51749c57b261\\artifacts\\judgment-cache\\dd256f103825c2504586c66dcd937aa62df4c4f549e24c09c92ecec22897f518.json": "6346ccb79d386d50b91148aa41dd1d4996b034f3c4fc3ab019afba541aed403d",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\63ba17522bf0ca941bea6a47016da84fa3409ceabd26ef07252de28de43f5a35.json": "02ddc2dbab69496626e4d376e673e3a0ca225f870df61f7bccc5b898c7ffde0a",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\e8ca52fa131059e332931cefa9a9d33e77ee51ab0eca76e623e7cc516eda56e5.json": "bf1fea9919450b0e185870ad5b594d54987ac35a1362add3defe0647fa1cf365",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\52ab23e80227c0c1ed45c3f7a001e5ef08550f6f36203e9a27f8380a7b9ae8da.json": "21ab5062c62da8c04cf3513f5c8bcb1417fb87f7fc803d8a38031a3c5c0b4441",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\08fe9304e0669b30df0fccd2d11781bbda16f856579c284b8ed25d18a76480b9.json": "7094d85520c2c117df8d84a252d606ab0b0fe8e8a27d4da5fe5c313e13839b46",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\603091f6ecc8a0710c81e404a5182d5eebda0e85f513a3318f57dc08becd5afd.json": "7f7bc63d388d44be91b036e40d2d1a0d0b8dfe370dc544b55656594619e3b86b",
+      "mlruns\\1\\88d58a2bd1c442a4a5f4172b4ffabdf5\\artifacts\\judgment-cache\\29800b4981be6d8cb3ccda632446109326e5f9206b1a9c16bc6bc8bcb9fd7447.json": "39321baa8c5909ef5d6eb738d0317b036c6121fd863a5878da04741f085e9567",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\e48597ed5db31323a3bbe005f59991b80ffcd3f9d213d7822d8ea0485a1b7889.json": "1ba33f67db313e100d0d33b10c9ac432e18f3a1b1c0db9f42aad649b7e8b6d19",
+      "mlruns\\1\\f434ef6d599f485192878bf58551eb75\\artifacts\\judgment-cache\\b7f7c2a1df121942e387ab20474a3c310423dae5b5416736a57a4e03770dfa35.json": "fea268fdad39e42dac1f9661a414e5f1d6345828a67cedbc8b862731a9c3628d"
+    },
+    "common_ids": [
+      "Q001",
+      "Q002",
+      "Q017",
+      "Q018",
+      "Q033",
+      "Q034"
+    ],
+    "records": [
+      {
+        "audit_id": "Q001",
+        "stratum": "targeted",
+        "fingerprint": "bea37b838765fd2be52d541cce0e5699e7d442b631cc4899c69d396a59aaf881",
+        "scenario_id": "FR037",
+        "language": "ru",
+        "condition": "argon_sufficient",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR037-ru-argon_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q002",
+        "stratum": "random",
+        "fingerprint": "56d2090548b8fafb052fead93ea9f6615feaea005818e788fdee350255716caf",
+        "scenario_id": "FR005",
+        "language": "en",
+        "condition": "argon_sufficient",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR005-en-argon_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.0,
+          "factual_correctness": 0.8
+        }
+      },
+      {
+        "audit_id": "Q003",
+        "stratum": "random",
+        "fingerprint": "143b3666c92eebcad9522b1edfc3c27650a53b5ed649954bf2c02c5db660b124",
+        "scenario_id": "FR009",
+        "language": "en",
+        "condition": "clarify_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR009-en-clarify_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.75
+        }
+      },
+      {
+        "audit_id": "Q004",
+        "stratum": "targeted",
+        "fingerprint": "b38eb634b6becc674693b4d33655d4f6ce9e74175d133ce248d99d682ce0818d",
+        "scenario_id": "FR037",
+        "language": "en",
+        "condition": "lite_e10",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR037-en-lite_e10"
+          },
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E10-FR037-en-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q005",
+        "stratum": "targeted",
+        "fingerprint": "5cb15c4e526307e92550188a479135be1e0363ea4e33436516016b22f2be5d97",
+        "scenario_id": "FR009",
+        "language": "ru",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E21-FR009-ru-original"
+          },
+          {
+            "run_id": "3f506b8e79514157bdea51749c57b261",
+            "snapshot_id": "G13-FR009-ru-lite_normal"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.8
+        }
+      },
+      {
+        "audit_id": "Q006",
+        "stratum": "targeted",
+        "fingerprint": "60ea4f88f7bc75f3566840966629e7250c4e312926a024440b3b714178f55cb5",
+        "scenario_id": "FR095",
+        "language": "en",
+        "condition": "flash_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR095-en-flash_sufficient"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR095-en-flash_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.67
+        }
+      },
+      {
+        "audit_id": "Q007",
+        "stratum": "targeted",
+        "fingerprint": "f86abfaae99df7beb6c72ad97ef24c847e5b1095d4aef271831fa1116494f72d",
+        "scenario_id": "FR037",
+        "language": "en",
+        "condition": "clarify_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR037-en-clarify_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q008",
+        "stratum": "random",
+        "fingerprint": "6e511ba267d5716b0433809e7e28ed306fd913a607d0434f81c73a7d490c18b6",
+        "scenario_id": "FR065",
+        "language": "ru",
+        "condition": "flash_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR065-ru-flash_sufficient"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR065-ru-flash_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q009",
+        "stratum": "targeted",
+        "fingerprint": "3e1095090f1ad069163320538eb89c27c9357ab7267edc3353b8b587f71e1abb",
+        "scenario_id": "FR095",
+        "language": "en",
+        "condition": "argon_sufficient",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR095-en-argon_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.89
+        }
+      },
+      {
+        "audit_id": "Q010",
+        "stratum": "targeted",
+        "fingerprint": "941bf76c540aff9e88ada05ab9f72cd7c61919ce0c4f1f35c53275bf0f16d7a3",
+        "scenario_id": "FR005",
+        "language": "ru",
+        "condition": "argon_e10",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR005-ru-argon_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.0,
+          "factual_correctness": 0.5
+        }
+      },
+      {
+        "audit_id": "Q011",
+        "stratum": "random",
+        "fingerprint": "cc44b2dfd1164c940f29dcb21d1e9af04d379cf56c08205803f389fdb9f44693",
+        "scenario_id": "FR037",
+        "language": "en",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E21-FR037-en-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.67
+        }
+      },
+      {
+        "audit_id": "Q012",
+        "stratum": "random",
+        "fingerprint": "4734519dde3a231e2b815eb55d4ddf09124a1e1715cab350361f3ba45b322a88",
+        "scenario_id": "FR037",
+        "language": "en",
+        "condition": "argon_e10",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR037-en-argon_e10"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR037-en-clarify_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q013",
+        "stratum": "targeted",
+        "fingerprint": "295e94976a8ed11ccdaafc2c66343fb6dceeaa367f2de789569b085791e52c65",
+        "scenario_id": "FR065",
+        "language": "ru",
+        "condition": "lite_sufficient",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR065-ru-lite_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q014",
+        "stratum": "targeted",
+        "fingerprint": "639100fc01f8fde4a5a56d78f88b962358fd85f354486c0f9a59939b83a30bdb",
+        "scenario_id": "FR095",
+        "language": "en",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E15-FR095-en-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.67
+        }
+      },
+      {
+        "audit_id": "Q015",
+        "stratum": "targeted",
+        "fingerprint": "021b26dd1f8447efb6045c64e1cec5b3df973fc3e0804c4fd592324c9e6199ce",
+        "scenario_id": "FR094",
+        "language": "en",
+        "condition": "clarify_e10",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR094-en-clarify_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.0,
+          "factual_correctness": 0.4
+        }
+      },
+      {
+        "audit_id": "Q016",
+        "stratum": "random",
+        "fingerprint": "21087f77a5042c98b4a7e99b531e991ec54fc18d67f6a29325d5af86c42270fe",
+        "scenario_id": "FR085",
+        "language": "en",
+        "condition": "argon_normal",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "3f506b8e79514157bdea51749c57b261",
+            "snapshot_id": "G13-FR085-en-argon_normal"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.4
+        }
+      },
+      {
+        "audit_id": "Q017",
+        "stratum": "random",
+        "fingerprint": "1a2d0c1e66e290a20104080539bcdfcee48ed37bec3049b82e0dc8237a275412",
+        "scenario_id": "FR069",
+        "language": "ru",
+        "condition": "argon_sufficient",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR069-ru-argon_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.9230769230769231,
+          "factual_correctness": 0.4
+        }
+      },
+      {
+        "audit_id": "Q018",
+        "stratum": "targeted",
+        "fingerprint": "71367606f17d3081bfa976ed2ae5ceab50feeb03fda707b767bf2f516afd3124",
+        "scenario_id": "FR068",
+        "language": "en",
+        "condition": "lite_e10",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR068-en-lite_e10"
+          },
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E10-FR068-en-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.8
+        }
+      },
+      {
+        "audit_id": "Q019",
+        "stratum": "random",
+        "fingerprint": "479c67654df11c580fe9017712c0521d3a8bd81620caae7e0de770c032e2a929",
+        "scenario_id": "FR085",
+        "language": "ru",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E15-FR085-ru-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.75
+        }
+      },
+      {
+        "audit_id": "Q020",
+        "stratum": "targeted",
+        "fingerprint": "e70de25c7004b69958288c231d05c4891b72cebc62763ec5a08578c9be284165",
+        "scenario_id": "FR094",
+        "language": "ru",
+        "condition": "flash_e10",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR094-ru-flash_e10"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR094-ru-flash_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.3333333333333333,
+          "factual_correctness": 0.0
+        }
+      },
+      {
+        "audit_id": "Q021",
+        "stratum": "random",
+        "fingerprint": "3dc5f826a0de805976557b14edba862a33e14aa02ea87d7ea3fa3f50c7853df6",
+        "scenario_id": "FR023",
+        "language": "en",
+        "condition": "lite_sufficient",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR023-en-lite_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q022",
+        "stratum": "random",
+        "fingerprint": "a697374bc28a473693fbb57a8cf16c18050f738d4969b4c1e308f06f7ba3c30d",
+        "scenario_id": "FR095",
+        "language": "ru",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E15-FR095-ru-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.42857142857142855,
+          "factual_correctness": 0.73
+        }
+      },
+      {
+        "audit_id": "Q023",
+        "stratum": "targeted",
+        "fingerprint": "23b5298dde14a674e9199a3e92fc57ac537dd8615b0876737ee8e9550e4c5590",
+        "scenario_id": "FR005",
+        "language": "en",
+        "condition": "argon_e10",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR005-en-argon_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.5
+        }
+      },
+      {
+        "audit_id": "Q024",
+        "stratum": "random",
+        "fingerprint": "2b62ac65575c4a9ada931fdd93d34a845deab11924acfd7fe74624269d81e928",
+        "scenario_id": "FR001",
+        "language": "en",
+        "condition": "clarify_e10",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR001-en-clarify_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.25,
+          "factual_correctness": 0.89
+        }
+      },
+      {
+        "audit_id": "Q025",
+        "stratum": "random",
+        "fingerprint": "58eccb38abba005dc63594e2d8225f15c4e51a56abc414542596c4f7040caa11",
+        "scenario_id": "FR019",
+        "language": "ru",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E15-FR019-ru-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.6,
+          "factual_correctness": 0.5
+        }
+      },
+      {
+        "audit_id": "Q026",
+        "stratum": "random",
+        "fingerprint": "b4e22163f362e8e52bb1909800c6a0f226a24834c06649710f938298d12bb4d1",
+        "scenario_id": "FR095",
+        "language": "ru",
+        "condition": "flash_e10",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR095-ru-flash_e10"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR095-ru-flash_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.8,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q027",
+        "stratum": "random",
+        "fingerprint": "5fc91d51304dff2794c335655bc4957e1ce91ca4d28e4fe4a8d6d760cc61c2cc",
+        "scenario_id": "FR068",
+        "language": "ru",
+        "condition": "clarify_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR068-ru-clarify_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.7142857142857143,
+          "factual_correctness": 0.0
+        }
+      },
+      {
+        "audit_id": "Q028",
+        "stratum": "random",
+        "fingerprint": "ca24983a4465ca1049d05a924ac3853742dc66605f186fdeae79b5c23dde31f4",
+        "scenario_id": "FR077",
+        "language": "en",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E10-FR077-en-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.5
+        }
+      },
+      {
+        "audit_id": "Q029",
+        "stratum": "random",
+        "fingerprint": "65b78da3a4e8f8d2a936f9df9b28736cf77d48d12d0c12efc3f4ff6f05754f01",
+        "scenario_id": "FR009",
+        "language": "en",
+        "condition": "lite_e10",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR009-en-lite_e10"
+          },
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E10-FR009-en-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.8
+        }
+      },
+      {
+        "audit_id": "Q030",
+        "stratum": "random",
+        "fingerprint": "8206c8eccd9e84828cdf34565be56b067b064bbc1df295ce1ee966e2fcaa3478",
+        "scenario_id": "FR010",
+        "language": "ru",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E15-FR010-ru-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.8,
+          "factual_correctness": 0.4
+        }
+      },
+      {
+        "audit_id": "Q031",
+        "stratum": "random",
+        "fingerprint": "e38bc6c226299e8a04cad05a9bab66ff876f9a69e2f1158feeb3e2223b99f421",
+        "scenario_id": "FR069",
+        "language": "ru",
+        "condition": "lite_e10",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR069-ru-lite_e10"
+          },
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E10-FR069-ru-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.8
+        }
+      },
+      {
+        "audit_id": "Q032",
+        "stratum": "targeted",
+        "fingerprint": "3ab5db326f339d9a528f9076f5ded58f5e1eefc6b9aa2bcd29637d433503d0e9",
+        "scenario_id": "FR050",
+        "language": "ru",
+        "condition": "flash_normal",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "3f506b8e79514157bdea51749c57b261",
+            "snapshot_id": "G13-FR050-ru-flash_normal"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.0
+        }
+      },
+      {
+        "audit_id": "Q033",
+        "stratum": "targeted",
+        "fingerprint": "c74898d17acd518ae77b47338ae366d5cc4a87eeb746a273c5743f9aca616bda",
+        "scenario_id": "FR065",
+        "language": "en",
+        "condition": "clarify_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR065-en-clarify_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.14285714285714285,
+          "factual_correctness": 0.44
+        }
+      },
+      {
+        "audit_id": "Q034",
+        "stratum": "targeted",
+        "fingerprint": "f85f0f5dbf1f4f72458a76148af1ef465ae4197a3d6cbe03a3a328125bea8c57",
+        "scenario_id": "FR085",
+        "language": "ru",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E21-FR085-ru-original"
+          },
+          {
+            "run_id": "3f506b8e79514157bdea51749c57b261",
+            "snapshot_id": "G13-FR085-ru-lite_normal"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.89
+        }
+      },
+      {
+        "audit_id": "Q035",
+        "stratum": "targeted",
+        "fingerprint": "f9462920f3b1059273332cb30b097ad52e5d65097e52ab9785303b6273dda17b",
+        "scenario_id": "FR068",
+        "language": "en",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E21-FR068-en-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.8,
+          "factual_correctness": 0.4
+        }
+      },
+      {
+        "audit_id": "Q036",
+        "stratum": "targeted",
+        "fingerprint": "2180559d160079b5300b0ead06dc55c0eca6dfbd03326e3804c097d722d40c8c",
+        "scenario_id": "FR037",
+        "language": "ru",
+        "condition": "flash_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR037-ru-flash_sufficient"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR037-ru-flash_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q037",
+        "stratum": "random",
+        "fingerprint": "aea4edf82b84f1b3b13b7f63101a93f1f6e9c249bf7ddb885e39e1c5e2c2c726",
+        "scenario_id": "FR001",
+        "language": "en",
+        "condition": "flash_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR001-en-flash_sufficient"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR001-en-flash_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.4,
+          "factual_correctness": 0.67
+        }
+      },
+      {
+        "audit_id": "Q038",
+        "stratum": "targeted",
+        "fingerprint": "450c2fbc2b0dee2b66b029343900d6439fcb9bc0bba11589c54d886a80927c7f",
+        "scenario_id": "FR050",
+        "language": "ru",
+        "condition": "argon_e10",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR050-ru-argon_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.75,
+          "factual_correctness": 0.4
+        }
+      },
+      {
+        "audit_id": "Q039",
+        "stratum": "targeted",
+        "fingerprint": "facbc282c005f285365d13ce2251eb1b79778cad215289e1390fd70c4b4c6c60",
+        "scenario_id": "FR005",
+        "language": "ru",
+        "condition": "clarify_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR005-ru-clarify_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q040",
+        "stratum": "targeted",
+        "fingerprint": "a45970baabfed5cd4ea4bad7a1d783070a9997198f692693ca88d4e7a30c1836",
+        "scenario_id": "FR069",
+        "language": "ru",
+        "condition": "flash_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR069-ru-flash_sufficient"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR069-ru-flash_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.8,
+          "factual_correctness": 0.4
+        }
+      },
+      {
+        "audit_id": "Q041",
+        "stratum": "random",
+        "fingerprint": "4c518005e94e777d796fc64ab26b0a6bbb586902ad7ab7ad552b69ffe3097a6a",
+        "scenario_id": "FR094",
+        "language": "ru",
+        "condition": "lite_e10",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR094-ru-lite_e10"
+          },
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E10-FR094-ru-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.6666666666666666,
+          "factual_correctness": 0.67
+        }
+      },
+      {
+        "audit_id": "Q042",
+        "stratum": "targeted",
+        "fingerprint": "d5e9dc3ce6d6d64e39b355aa2cad745777448aa901bd9294ea3d27e173d5f597",
+        "scenario_id": "FR010",
+        "language": "ru",
+        "condition": "flash_sufficient",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR010-ru-flash_sufficient"
+          },
+          {
+            "run_id": "39b9184f90be4c30a75e87ebfc33bd7d",
+            "snapshot_id": "G11-FR010-ru-flash_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q043",
+        "stratum": "random",
+        "fingerprint": "fd23d5f0e8ec49a74fb6b60fbded1b0352450e3dfda5c3961b4769e934bfdfa7",
+        "scenario_id": "FR001",
+        "language": "ru",
+        "condition": "argon_e10",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR001-ru-argon_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.6666666666666666,
+          "factual_correctness": 0.89
+        }
+      },
+      {
+        "audit_id": "Q044",
+        "stratum": "random",
+        "fingerprint": "121cf1f672237ad18e304ba5fc951f42f0a2026cbe55095be8eeddcbcbee97ff",
+        "scenario_id": "FR085",
+        "language": "ru",
+        "condition": "flash_normal",
+        "model_version": "gemini-3.8-flash",
+        "occurrences": [
+          {
+            "run_id": "3f506b8e79514157bdea51749c57b261",
+            "snapshot_id": "G13-FR085-ru-flash_normal"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.8,
+          "factual_correctness": 0.86
+        }
+      },
+      {
+        "audit_id": "Q045",
+        "stratum": "random",
+        "fingerprint": "d2b1a29f24be7cdf89d9ed272b8c4aa781e01f8d80bfb8f38bbe6937e2d9db22",
+        "scenario_id": "FR037",
+        "language": "en",
+        "condition": "argon_sufficient",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR037-en-argon_sufficient"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 1.0
+        }
+      },
+      {
+        "audit_id": "Q046",
+        "stratum": "targeted",
+        "fingerprint": "977df284b345e671754346da4646c9b0b4c022495bb24711e97d723fc9c42a02",
+        "scenario_id": "FR005",
+        "language": "en",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E21-FR005-en-original"
+          },
+          {
+            "run_id": "3f506b8e79514157bdea51749c57b261",
+            "snapshot_id": "G13-FR005-en-lite_normal"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.67
+        }
+      },
+      {
+        "audit_id": "Q047",
+        "stratum": "random",
+        "fingerprint": "85941731948db0a2135eb60fbc05b7df6078c2d377a15abeb3d5707b7ae88255",
+        "scenario_id": "FR100",
+        "language": "en",
+        "condition": "argon_e10",
+        "model_version": "gemini-4-argon",
+        "occurrences": [
+          {
+            "run_id": "88d58a2bd1c442a4a5f4172b4ffabdf5",
+            "snapshot_id": "G10-FR100-en-argon_e10"
+          }
+        ],
+        "scores": {
+          "faithfulness": 0.8888888888888888,
+          "factual_correctness": 0.75
+        }
+      },
+      {
+        "audit_id": "Q048",
+        "stratum": "targeted",
+        "fingerprint": "9b6499761cb39ecc7c7523460ce8399344d0375b084ebdbbee3bb1b2fc8b871b",
+        "scenario_id": "FR009",
+        "language": "en",
+        "condition": "original",
+        "model_version": "gemini-2.5-flash-lite",
+        "occurrences": [
+          {
+            "run_id": "f434ef6d599f485192878bf58551eb75",
+            "snapshot_id": "E15-FR009-en-original"
+          }
+        ],
+        "scores": {
+          "faithfulness": 1.0,
+          "factual_correctness": 0.8
+        }
+      }
+    ]
+  },
+  "phase_a_all": [
+    {
+      "reviewer": 1,
+      "audit_id": "Q001",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Корректно: «на серию послематчевых пенальти не переносятся» прямо подтверждено RU, стр. 107; право удалённого участвовать не утверждается."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q002",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Угловой за контроль руками более восьми секунд прямо предусмотрен EN, стр. 119. Адресат углового понятен из названного возобновления; девять секунд и выполненный отсчёт заданы вопросом."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q003",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "«An indirect free kick» и исключение при явной попытке выбить мяч соответствуют EN, стр. 118. Вопрос прямо исключает такую попытку; основание свободного названо."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q004",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Ответ «cautions ... are not carried forward» непосредственно подтверждён EN, стр. 103. Неперенос предупреждения не смешивается с отменой удаления."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q005",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": false,
+      "clarification_policy_met": null,
+      "citations_support": false,
+      "critical_error": true,
+      "notes": "Свободный удар выбран верно (RU, стр. 120–121), но фраза «не требует дисциплинарных санкций, если только нарушение не срывает перспективную атаку или не лишает ... явной возможности» ошибочно расширяет исключение. На стр. 120 санкции за SPA/DOGSO предусмотрены для повторной игры после возобновления до касания другого игрока, а не для взятия руками паса партнёра с игры. Цитаты не поддерживают это существенное дисциплинарное утверждение."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q006",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Нарушение независимо от последующего касания руками, свободный удар и обязательное предупреждение инициатору за неспортивное поведение указаны полностью: EN, стр. 118 и 122."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q007",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Неперенос замечаний и предупреждений в серию точно соответствует EN, стр. 103; лишних выводов об участии удалённых нет."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q008",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно не устанавливает точку контакта и прямо спрашивает «выше или ниже линии ... по ее нижней границе?»; граница руки подтверждена RU, стр. 118. Однако отсутствует существенное уточнение «Не каждое касание мяча рукой является нарушением» и необходимость оценить умышленность/положение руки, также указанные на стр. 118."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q009",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Полностью указаны нарушение независимо от игры руками, свободный сопернику и предупреждение инициатору. Условное замечание о вратаре-инициаторе также подтверждено EN, стр. 118 и 122; оно не подменяет факт вопроса."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q010",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Угловой сопернику за контроль руками более восьми секунд прямо подтверждён RU, стр. 121; порядок отсчёта подтверждён стр. 122 и уже задан вопросом."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q011",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Неперенос предупреждений подтверждён EN, стр. 103; дополнительное утверждение о периоде дисциплинарных полномочий, включая серию, соответствует процитированной стр. 74."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q012",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Ответ точно передаёт EN, стр. 103: замечания и предупреждения игроков и официальных лиц матча не переносятся в серию; ошибочного восстановления права удалённых нет."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q013",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Условное «это может считаться нарушением» не является категорическим решением; критерий увеличения тела и граница руки подтверждены RU, стр. 118. Но не сказано, что без уточнения точки контакта нельзя решить, попал ли мяч в руку, и нет прямого уточняющего вопроса. «Необходимо уточнить, неестественно ли увеличил...» не заменяет вопрос о контакте относительно границы подмышки."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q014",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": true,
+      "clarification_policy_met": null,
+      "citations_support": false,
+      "critical_error": true,
+      "notes": "Наличие нарушения независимо от касания руками признано верно. Но «An indirect free kick is awarded if the goalkeeper is responsible» даёт возобновление только для условного случая вратаря-инициатора; для игрока из вопроса оставлено неопределённое «is penalised». Обязательное предупреждение этому игроку отсутствует: названа только фраза «The goalkeeper is cautioned if responsible». EN, стр. 118 предусматривает свободный и при инициаторе-полевом игроке; стр. 122 содержит соответствующий пункт о трюке, но предоставленный фрагмент не включает заголовок списка предупреждений. Условные утверждения сами по себе не ложны, однако цитаты не восполняют пропущенные существенные последствия."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q015",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": false,
+      "clarification_policy_met": null,
+      "citations_support": false,
+      "critical_error": false,
+      "notes": "Вывод для обычного паса головой без трюка верен (EN, стр. 118 и 122); отсутствие трюка дано вопросом. Но обобщение «a goalkeeper is only penalized ...» с тремя перечисленными случаями слишком категорично: на той же стр. 118 есть запрещённое повторное касание руками после выпуска мяча до другого игрока, а стр. 119 предусматривает превышение восьми секунд. Кроме того, трюк наказуем независимо от последующей игры руками (стр. 118, 122). Это дефект общего объяснения, не ошибка решения данного эпизода."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q016",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "«Not an automatic retake» и условие явного воздействия при промахе верны; условные замечание/предупреждение также соответствуют EN, стр. 137, а таблица стр. 139 поддерживает основной вывод. Неизвестное влияние не выдано за установленный факт. Однако прямого вопроса о влиянии нет: ответ лишь излагает условие, поэтому clarification_policy_met=false."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q017",
+      "decision_correct": false,
+      "required_consequences_complete": false,
+      "claims_grounded": false,
+      "clarification_policy_met": false,
+      "citations_support": false,
+      "critical_error": true,
+      "notes": "Начальное «это всё ещё офсайд» категорически решает эпизод без сведений о характере касания и активном участии нападающего. RU, стр. 111 требует участия в активных действиях, а стр. 112 различает рикошет/спасение и умышленную игру с контролем. Последующее изложение этих различий верно, но не исправляет безусловный исход в первой фразе; уточняющего вопроса нет. Цитаты поддерживают критерии, но не категорическое решение данного эпизода."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q018",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно: «not just the direction of the pass»; позиции и активное участие нужны по EN, стр. 109–110. Но «I need to know if the receiver was in an offside position» просит готовую правовую квалификацию вместо конкретных координат: не названы положение относительно мяча, предпоследнего соперника и половины поля со стр. 109. Прямого уточняющего вопроса нет. Категорического решения об офсайде не вынесено."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q033",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Прямой вопрос «Did the ball touch the arm below ... and ... was it deliberate or did the arm unnaturally enlarge the body?» охватывает точку контакта и обстоятельства. EN, стр. 116 поддерживает границу и критерии; фактическая точка контакта не выдумана. С учётом предоставленного фрагмента условное объяснение корректно."
+    },
+    {
+      "reviewer": 1,
+      "audit_id": "Q034",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Для заданного промаха условие явного воздействия и отсутствие автоматического повтора объяснены верно: RU, стр. 141, 144 и 199. «Если ... мяч не был забит» читается в контексте указанного в вопросе промаха, а не как решение неизвестного эпизода со спасением. Неизвестное влияние не объявлено установленным. Однако «Необходимо уточнить, повлиял ли...» не является прямым уточняющим вопросом; clarification_policy_met=false."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q001",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно: предупреждение матча не переносится в серию. Стр. 107 прямо подтверждает ответ; право удалённых игроков участвовать не утверждается."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q002",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно назначен угловой за контроль руками более восьми секунд: стр. 119. Получатель углового не назван отдельно, но противоположное не утверждается; требуемое возобновление указано однозначно."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q017",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Различие рикошета, спасения и умышленной игры с контролем раскрыто верно по стр. 111–112; участие нападающего также оговорено. Начальное «это всё ещё офсайд» излишне категорично, но далее явно приведены условия, поэтому весь ответ не трактую как безусловное решение эпизода. Нет прямого вопроса о характере касания защитника и участии нападающего."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q018",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно: направление паса само по себе не определяет нарушение; нужны положение в момент игры партнёра и активное участие, стр. 109–110. «I need to know if the receiver was in an offside position» обозначает пробел, но прямого уточняющего вопроса нет. Категорического решения неизвестного эпизода нет."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q019",
+      "decision_correct": false,
+      "required_consequences_complete": false,
+      "claims_grounded": false,
+      "clarification_policy_met": false,
+      "citations_support": false,
+      "critical_error": true,
+      "notes": "Последнее предложение «если ... мяч прошел мимо или был отбит, удар повторяется» отменяет ранее верную оговорку: на стр. 141 повтор при промахе зависит от явного воздействия на бьющего; стр. 144–145 подтверждают это. Стр. 142 связывает замечание/предупреждение с нарушением, приведшим к повтору. Специальное правило завершения тайма на стр. 140 нельзя переносить на любой пенальти. Нужда установить влияние названа, но прямого вопроса нет."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q020",
+      "decision_correct": null,
+      "required_consequences_complete": null,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Обоснованный отказ: в данном пакете перечень на стр. 120 действительно заканчивается словами «после того, как:», а условия запрета паса ногой не приведены. Стр. 125 описывает умышленный трюк, исключённый QUESTION, но не восстанавливает отсутствующий перечень. Reference не заменяет отсутствующее правило. Футбольное решение не вынесено, поэтому decision_correct и последствия — null; ссылка подтверждает заявленную неполноту источника."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q021",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно: опасный предмет должен быть снят, а не заклеен или закрыт. Это прямо сказано на стр. 67."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q022",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": true,
+      "notes": "Наличие нарушения независимо от касания руками установлено верно, стр. 120. Но вместо обязательного свободного удара сказано «может быть свободным ударом», а предупреждение описано только для гипотетического инициатора-вратаря: «вратарь может быть наказан предупреждением». Пропущено предупреждение фактическому инициатору-игроку из QUESTION, предусмотренное перечнем на стр. 125. Ссылки подтверждают названные виды санкций, но не восполняют отсутствующее применение обязательного предупреждения к этому игроку."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q023",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно: угловой сопернику за контроль руками свыше восьми секунд. Стр. 119 подтверждает определение начала контроля и отсчёт, а приведённое дополнение к Правилу 17 на стр. 184 прямо подтверждает угловой за превышение восьми секунд; ссылка не сводится к задержке удара от ворот."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q024",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно: мяч остаётся в игре, пока полностью не пересёк боковую линию по земле или по воздуху, если судья не остановил игру. Стр. 101; частичное нависание и отсутствие остановки заданы в QUESTION."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q025",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": false,
+      "clarification_policy_met": true,
+      "citations_support": false,
+      "critical_error": false,
+      "notes": "Основное решение верно: с шестью игроками матч начинать нельзя, стр. 59. Однако дополнительное «В команде должно быть одиннадцать игроков» неверно превращает максимум в обязательное число: на стр. 59 сказано «максимум из одиннадцати» и допускается начало менее чем с одиннадцатью. Ссылка не поддерживает это существенное дополнительное утверждение; правильный запрет начала с шестью сохраняется."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q026",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно указаны нарушение независимо от игры вратаря руками, свободный удар и предупреждение инициировавшему трюк игроку. Стр. 120 задаёт нарушение и свободный удар, стр. 125 — предупреждение. Факт умышленного обхода установлен в QUESTION, заново доказывать его по источнику не требуется."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q027",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно изложены критерии положения относительно мяча, предпоследнего соперника и половины поля, а также необходимость участия: стр. 111. Формулировка «Если принимающий игрок ...» условная и не объявляет нарушение в неизвестном эпизоде. Не задан прямой вопрос о позиции принимающего в момент паса, которую пользователь не помнит."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q028",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно: минимум 2 м от точки на боковой линии, а не от фактического положения корпуса вбрасывающего, стр. 141. Добавленные предупреждение за неспортивную помеху и свободный удар после выполненного вбрасывания поддержаны стр. 142."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q029",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно назначен свободный удар за игру руками после намеренного паса ногой от партнёра, стр. 118. Отсутствие предварительной попытки выбить мяч ногой прямо задано QUESTION, поэтому вывод об отсутствии исключения обоснован."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q030",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно отвергнут автоматический пенальти: стр. 118 говорит, что не каждое касание руки является нарушением, и задаёт умышленность либо неестественное увеличение тела. «Необходимо знать, умышленно ли ... или рука сделала ... тело неестественно больше» обозначает неизвестные условия, но прямого уточняющего вопроса нет; движение руки и оправданность положения движением тела не раскрыты. Категорического исхода не заявлено."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q031",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": false,
+      "clarification_policy_met": false,
+      "citations_support": false,
+      "critical_error": true,
+      "notes": "Начальное «Нет, не значит» и условное описание рикошета верны по стр. 243–245; это не безусловное назначение офсайда. Но «не коснулся мяча или не мешал сопернику» ошибочно делает каждое из этих обстоятельств самостоятельным освобождением: стр. 239 предусматривает нарушение при касании без помехи, а стр. 243 и 241 — при помехе без обязательного касания. Не выяснен характер игры защитника; различие умышленной игры и рикошета не раскрыто, хотя полного правила об умышленной игре в контекстах этого ответа нет. Прямого уточняющего вопроса нет."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q032",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно назначен повтор: случайное касание опорной ноги сразу после удара с последующим голом прямо предусмотрено на стр. 140 и 190. Случайность уже установлена QUESTION; отсутствие её повторения в коротком ответе не превращает ответ в правило о любом втором касании."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q033",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно: задан прямой вопрос «Did the ball touch the arm below the line of the bottom of the armpit ...?», обозначены граница руки и дополнительные условия нарушения, стр. 116. Не заявлено, что изображение просмотрено или точка контакта установлена; при невозможности уточнить остаётся условное объяснение."
+    },
+    {
+      "reviewer": 2,
+      "audit_id": "Q034",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Для заданного промаха ответ верен: повтор только при явном воздействии нарушения вратаря на бьющего, стр. 141, 144 и 199; гол при попадании засчитывается. Фразу «Если же влияние не было явным, и мяч не был забит» читаю в контексте описанного промаха, а не как правило о спасении вратарём. Нужда установить влияние названа, но прямого уточняющего вопроса нет."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q001",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Корректно: предупреждение матча не переносится в серию; это прямо сказано на с. 107 ru. Удалённому игроку право участия не приписано."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q002",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Корректно указаны угловой и предел more than eight seconds; с. 119 en прямо поддерживает решение. Получатель углового однозначно следует из описанной ситуации, хотя to the opponents не повторено."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q017",
+      "decision_correct": false,
+      "required_consequences_complete": false,
+      "claims_grounded": false,
+      "clarification_policy_met": false,
+      "citations_support": false,
+      "critical_error": true,
+      "notes": "Начальное «это всё ещё офсайд» категорически решает эпизод при неизвестном характере касания и участии нападающего. С. 111 ru требует активного участия, с. 112 различает рикошет, спасение и умышленную игру. Последующее объяснение этих различий верно, но не устраняет первоначальный безусловный вывод. Нет прямого вопроса о характере касания и участии нападающего."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q018",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Корректно отвергает решающую роль направления паса и требует позицию в момент передачи и активное участие; с. 109–110 en поддерживают выводы. Однако «in an offside position» не раскрыто через положение относительно мяча, предпоследнего соперника и половины поля, как требует rubric. «I need to know if...» сообщает о нехватке данных, но прямого уточняющего вопроса нет."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q033",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Точка контакта не выдумана: задан прямой вопрос «Did the ball touch the arm below the line of the bottom of the armpit...?» и указаны условные признаки нарушения. Граница руки и отсутствие автоматического нарушения подтверждены с. 116 en. Пользователь уже не может точнее описать контакт, поэтому окончательное решение обоснованно не дано."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q034",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Для описанного промаха правильно дано условие явного воздействия, а не автоматический повтор; с. 141, 144 и 199 ru. Фразы «если ... мяч не был забит» читаются в контексте промаха, не как решение об неизвестном спасении. «Необходимо уточнить, повлиял ли...» не является прямым вопросом. Оговорка для специально продлённого ради пенальти времени на с. 140 не рассмотрена, но обычный промах разобран верно."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q035",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Корректный условный разбор: позиция относительно мяча, предпоследнего соперника и половины поля плюс последующее участие, независимо от направления передачи; с. 109 en. «we need to know if...» не заменяет прямой уточняющий вопрос; категорического исхода эпизода нет."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q036",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верное отрицание переноса предупреждения матча в серию, непосредственно подтверждено с. 107 ru."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q037",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Для заданной ситуации ответ верен: часть мяча над линией означает, что он не wholly passed over; с. 101 en. Судья игру не останавливал по QUESTION, дополнительное подтверждение этого факта источником не требуется."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q038",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": false,
+      "clarification_policy_met": true,
+      "citations_support": false,
+      "critical_error": false,
+      "notes": "Основное решение «Пенальти повторяется» верно для случайного немедленного касания опорной ноги с голом; с. 140, 144–145 и 190 ru. Дополнение «при умышленном втором касании свободный удар назначается независимо от исхода удара» слишком широко: с. 190 прямо оговаривает «или штрафной удар при игре рукой в мяч». Ошибка дополнительного обобщения не меняет решения описанного эпизода."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q039",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Корректно: угловой за контроль руками более восьми секунд, с. 121 ru. Отсчёт последних пяти секунд дан в QUESTION и подтверждён с. 122; для решения не требуется повторять его. Получатель углового однозначен по ситуации."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q040",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": null,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "«Нет, не обязательно» и различение рикошета, умышленной игры и спасения корректны по с. 112 ru; это условное объяснение, не категорический исход данного эпизода. Но «если мяч просто отскочил ... игрок наказывается» не оговаривает игру в мяч или помеху сопернику: с. 111–112 требуют активного участия. Неясно, подразумевается ли оно, поэтому claims_grounded=null. Нет прямого вопроса о касании защитника и участии нападающего."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q041",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": null,
+      "clarification_policy_met": true,
+      "citations_support": false,
+      "critical_error": false,
+      "notes": "Основной ответ согласуется с reference: обычная передача головой без трюка не является запрещённым пасом ногой; отсутствие трюка установлено QUESTION. Но с. 120 ru обрывает перечень после «после того, как:» и не содержит самого запрета намеренного паса ногой: цитаты не подтверждают полностью вывод «вратарь может взять мяч руками». С. 120 и 125 подтверждают только дополнительное объяснение о трюке и предупреждении инициировавшему его вратарю. Полную источниковую обоснованность основного правила по пакету установить нельзя; это не доказательство ошибочного решения."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q042",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Обоснованно не назначает и не исключает пенальти автоматически. Прямо спрашивает об умышленности и неестественном увеличении тела, включая оправданность положения руки движением; с. 118 ru поддерживает все эти критерии."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q043",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": false,
+      "clarification_policy_met": true,
+      "citations_support": false,
+      "critical_error": false,
+      "notes": "Решение «мяч всё ещё в игре» верно для QUESTION и поддержано с. 103 ru. Однако общее «только тогда, когда ... полностью пересёк ... либо когда игру остановил судья» неполно: на той же с. 103 есть ещё касание официального лица матча с перечисленными последствиями. Это неверное исчерпывающее обобщение, не ошибка решения данного эпизода."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q044",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Условие явного воздействия при промахе правильно приведено по с. 141, 144 и 199 ru. Исключение «когда добавлено время ... для завершения пенальти» прямо имеется на с. 140; его нельзя объявлять выдумкой из-за отсутствия в reference. Не утверждается, что влияние в данном эпизоде было или отсутствовало. Прямого вопроса о влиянии и специальном продлении времени нет."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q045",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Корректно: предупреждения матча не переносятся в серию; с. 103 en прямо подтверждает ответ. Возврат права участия удалённому игроку не заявлен."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q046",
+      "decision_correct": true,
+      "required_consequences_complete": false,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "«A corner kick is awarded to the opposing team» — правильное возобновление. С. 119 en и раздел Law 17 на с. 184 действительно подтверждают угловой именно за контроль руками более восьми секунд, а не только за затяжку удара от ворот. Но обязательная по rubric формулировка восьмисекундного предела в самом ответе отсутствует."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q047",
+      "decision_correct": null,
+      "required_consequences_complete": null,
+      "claims_grounded": true,
+      "clarification_policy_met": false,
+      "citations_support": null,
+      "critical_error": false,
+      "notes": "Обоснованный отказ: «provided context does not contain the rules for determining the outcome of a drawn match» соответствует пакету, где с. 60, 62 и 93 en описывают сопутствующие процедуры, но не основания назначения дополнительного времени или серии. Ошибочное футбольное решение не вынесено, поэтому decision_correct и required_consequences_complete=null; без цитат citations_support=null. Нет прямого вопроса о регламенте соревнования. Упоминание обычного расположения правила в Law 10 не используется как доказательство исхода."
+    },
+    {
+      "reviewer": 3,
+      "audit_id": "Q048",
+      "decision_correct": true,
+      "required_consequences_complete": true,
+      "claims_grounded": true,
+      "clarification_policy_met": true,
+      "citations_support": true,
+      "critical_error": false,
+      "notes": "Верно назначен indirect free kick за взятие руками намеренного паса ногой партнёра без попытки выбить мяч; с. 118 en прямо содержит правило и исключение. Обстоятельства установлены QUESTION, их не требуется отдельно доказывать цитатой."
+    }
+  ],
+  "phase_b_all": [
+    {
+      "audit_id": "Q001",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Проверены обе parsed responses по порядку. Составной тезис и отдельные тезисы о yellow cards/reprimands получили verdict=1 и соответствуют RU, стр. 107. Повторная атомизация не меняет смысл."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены все четыре parsed responses: claims ответа → verifier по reference → claims reference → verifier по ответу. Прямой claim «Предупреждения (жёлтые карточки) и замечания, вынесенные игрокам и официальным лицам команд во время матча, не переносятся на серию послематчевых пенальти.» → verdict=1; reason: «The statement is a direct translation and elaboration of the provided context, which states that match warnings do not carry over to a penalty shootout.» Reference «Нет. Предупреждения матча в серию пенальти не переносятся» не раскрывает отдельно замечания и официальных лиц; полная формулировка правильна по RU, стр. 107. reference_limitation=true. Uncertainty: принятие этой развёртки может быть слишком широким NLI, но общее правило о предупреждениях допускает обобщённое прочтение; уверенный verification_error не ставлю. Обратный claim о предупреждениях/вердикт 1 корректен."
+      }
+    },
+    {
+      "audit_id": "Q002",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Обе parsed responses проверены. «A corner kick is awarded.» → 0; reason: «The context states that a corner kick is awarded under specific conditions related to a goalkeeper's ball control, but it does not state that a corner kick is awarded in general.» Это ответ об эпизоде QUESTION с девятью секундами/отсчётом, не безусловный закон обо всех эпизодах; факты QUESTION отсутствуют в NLI context. Второй claim «Under the 2026/27 Laws, a goalkeeper controlling the ball with hands or arms inside the penalty area for more than eight seconds before releasing the ball results in a corner kick restart.» → 0; reason: «The context describes the condition for a corner kick but does not mention the specific season or year of the laws (e.g., 2026/27).» Само правило буквально есть в EN, стр. 119; год дан QUESTION/идентификатором документа, не текстом NLI context. construct_mismatch, не уверенная ошибка verifier относительно переданного текста. Декомпозиция сохраняет исходные две фразы."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. Прямые два claims получили 1; reason полного правила: «The context mentions that a corner kick was awarded because hand control exceeded the eight-second limit, which aligns with the statement's description of the rule, although the specific year of the laws is not mentioned.» Reference не раскрывает год/полное условие штрафной площади; правильные детали есть в EN, стр. 119 и QUESTION: reference_limitation. Обратно «A corner kick was awarded to the opponents.» → 0; reason: «The context states that a corner kick is awarded, but does not specify which team was awarded it.» Ответ действительно говорит только «A corner kick is awarded». «Hand control exceeded the eight-second limit.» → 1; reason: «The context states that if a goalkeeper controls the ball with their hand(s) or arm(s) for more than eight seconds, a corner kick is awarded. This implies that the hand control exceeded the limit.» Uncertainty: футбольный смысл углового подразумевает соперника, связь решения с правилом допускает применение условия; буквальное NLI может оценить иначе. Уверенный verification_error не ставлю."
+      }
+    },
+    {
+      "audit_id": "Q003",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Обе parsed responses, все пять claims/verdict=1 проверены. «The offense occurs if the goalkeeper touches the ball with a hand or arm», «The offense occurs after a team-mate deliberately kicks the ball to the goalkeeper» и отдельное «unless ... clearly kicked or attempted to kick» относятся к одному названному нарушению; это разумная атомизация составного условия, не независимые универсальные запреты. EN, стр. 118 поддерживает совокупность."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Все четыре parsed responses проверены. Прямые три claims/verdict=1 сохраняют правило и исключение; reference лишь называет «the stated clearance-attempt exception does not apply», не раскрывая исключение, которое правильно объяснено в ответе и EN, стр. 118: reference_limitation. Обратно «An indirect free kick was awarded to the opponents.» → 0; reason: «The context states that an indirect free kick is awarded, but does not specify to which team.» Это буквальная неполнота ответа, уверенной ошибки verdict не фиксирую. «The stated clearance-attempt exception does not apply.» → 0; reason: «The context states that the goalkeeper has clearly kicked or attempted to kick the ball to release it into play, which is an exception. However, the statement implies this exception does not apply, which cannot be inferred from the context alone.» Первая часть reason неправильно превращает unless в факт, но verdict=0 защитим: ответ даёт правило с исключением, не сообщает явно отсутствие попытки. Оно дано QUESTION, не ответом-context: construct_mismatch. Не ставлю verification_error только за ложный reason. Обратный claim о пасе/касании имеет допустимый 1."
+      }
+    },
+    {
+      "audit_id": "Q004",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Обе parsed responses проверены. Единственный claim «Cautions issued to players during the match are not carried forward into the penalty shoot-out.» → 1; reason прямо цитирует EN, стр. 103. Смысл ответа сохранён."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Все четыре parsed responses проверены. Обе декомпозиции дают один эквивалентный тезис о непереносе предупреждений матча; оба verifier дают 1 с reason о direct paraphrase. Reference и ответ взаимно поддерживают claims."
+      }
+    },
+    {
+      "audit_id": "Q005",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Обе parsed responses, восемь claims/verdict проверены. «Disciplinary sanctions are not required unless the violation stops a promising attack or denies an obvious goal-scoring opportunity.» → 1; reason: «The context states that disciplinary sanctions are not applied for a goalkeeper handling the ball in their own penalty area unless the offense disrupts a promising attack or denies a goal-scoring opportunity.» Но RU, стр. 120 ограничивает исключение: «повторная игра в мяч ... после возобновления игры и до того, как мяч коснется другого игрока». Verdict неверен относительно переданного context. Исходный ответ уже содержит «не требует дисциплинарных санкций, если только нарушение не срывает перспективную атаку...» без этого условия; декомпозиция ошибку не создала. «The goalkeeper immediately picked up the ball with hands.» → 1; reason: «The context implies the goalkeeper's action of picking up the ball with hands after a teammate's pass is the direct cause for the free kick, suggesting immediacy.» Немедленность есть в QUESTION, но не общем правиле context: construct_mismatch, не дополнительная уверенная ошибка verifier из-за отсутствующего QUESTION. Остальные атомы допустимы."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Все четыре parsed responses проверены. Прямой ошибочный дисциплинарный claim «Это нарушение не требует дисциплинарных санкций, если только нарушение не срывает перспективную атаку или не лишает соперника явной возможности забить гол.» → 0; reason: «В тексте нет информации о дисциплинарных санкциях или их отсутствии.» Verdict защитим по reference; сама оговорка ошибочна по RU, стр. 120, поэтому её отсутствие не reference_limitation для правильной детали. Обратно «The exception for attempting to clear the ball does not apply in this situation.» → 0; reason: «The context mentions that disciplinary sanctions are not required unless the offense stops a promising attack or denies an obvious goal-scoring opportunity. It does not mention an exception for attempting to clear the ball.» Ответ действительно не описывает исключение, а отсутствие попытки дано QUESTION: construct_mismatch. Остальные четыре прямых и два обратных verdict=1 допустимы."
+      }
+    },
+    {
+      "audit_id": "Q006",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Обе parsed responses и все семь verdict=1 проверены. EN, стр. 118, 122 поддерживает трюк, независимость от рук, свободный и предупреждение. Разделение head/chest/knee допустимо; deliberate trick сохраняет смысл обхода правила."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. «Initiating a deliberate trick to pass the ball to the goalkeeper with the head is penalized.» и аналогичные claims с chest/knee → 0 каждый; reason одинаков: «The context does not specify the body part used for the trick, only that a trick to pass the ball to the goalkeeper is an offense.» Reference действительно не перечисляет части тела; правильные подробности есть в исходном ответе и EN, стр. 118, 122. Это reference_limitation, не автоматически ошибка verifier. Оставшиеся три прямых и все три обратных verdict=1 поддержаны inputs."
+      }
+    },
+    {
+      "audit_id": "Q007",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Обе parsed responses проверены. Разделение players/team officials сохраняет смысл; оба verdict=1 прямо поддержаны EN, стр. 103."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. Прямой claim «Warnings and cautions issued to players and team officials during the match are not carried forward into penalties (penalty shoot-out).» → 1; reason: «The statement is a rephrasing of the context, which explicitly states that cautions from the match are not carried forward into the shoot-out.» Reference говорит только о cautions from the match, не выделяет warnings/officials; полная формулировка правильна по EN, стр. 103: reference_limitation. Uncertainty: уверенная ошибка verdict не установлена из-за общего характера reference. Обратный claim о cautions/вердикт 1 корректен."
+      }
+    },
+    {
+      "audit_id": "Q008",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Обе parsed responses проверены. Три verdict=1 поддерживаются границей руки из RU, стр. 118. «Was the contact above or below the line passing through the lower border of the armpit?» сохранено как вопрос, не выдуманный факт контакта. Но faithfulness=1 не проверяет пропуск исходным ответом существенной оговорки источника «Не каждое касание мяча рукой является нарушением» и условий умышленности/положения руки: construct_mismatch, не ошибка verifier по извлечённым тезисам."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. Три прямых claims/verdict=1 корректны. Обратная декомпозиция reference потеряла существенное требование «Нужно уточнить точку контакта», сохранив только границу и обстоятельства: decomposition_error. Обратный claim «Contact with the arm is not always a violation; circumstances are needed.» → 1; reason: «The context implies that the determination of whether a body part is considered an arm depends on the location of the contact point relative to the armpit, suggesting that not all contacts are automatically violations.» Но ответ обсуждает только анатомическую принадлежность контакта к руке, а не то, что даже контакт с рукой не обязательно нарушение. Verdict=1 ошибочно засчитывает отсутствующую правовую оговорку: verification_error. Обратный claim о границе/вердикт 1 корректен."
+      }
+    },
+    {
+      "audit_id": "Q009",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Обе parsed responses и все шесть verdict=1 проверены. Сохранены нарушение, цель обхода, независимость от рук, свободный сопернику и предупреждение инициатору, включая условного вратаря. EN, стр. 118, 122 поддерживает выводы."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. «If the goalkeeper is responsible for initiating the deliberate trick, they must also be cautioned (shown a yellow card) for unsporting behaviour.» → 0; reason: «The context states that the player who initiated the trick is cautioned. It does not specify if this applies to the goalkeeper or if the goalkeeper would receive a different punishment.» Reference отдельно не раскрывает вратаря; правильная деталь есть в EN, стр. 122: reference_limitation, не автоматическая ошибка verifier. Uncertainty: goalkeeper является player, поэтому общее правило допускает и entailment; уверенный verification_error не ставлю. also допускает распространение той же нормы, не обязательно две карточки: не decomposition_error. Первый claim о конкретном трюке получил 1; reason признаёт «The description of the action is not present in the context, but the statement is a reasonable inference of what the offense might be.» Это показывает неполноту reference; уверенный дефект verdict не установлен. Остальные прямые и все три обратных 1 допустимы."
+      }
+    },
+    {
+      "audit_id": "Q010",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Обе parsed responses проверены. «Игра возобновляется угловым ударом в пользу команды соперника.» → 0; reason: «The context states that if a goalkeeper controls the ball with their hands for more than 8 seconds in their penalty area, a free kick is awarded, not a corner kick. A corner kick is awarded if the attacking team kicks the ball out over the defending team's goal line.» Полное правило с «Согласно Правилам 2026/27» тоже получило 0; reason повторяет «a free kick is awarded, not a corner kick». Это противоречит переданному RU, стр. 121: «Угловой удар назначается, если вратарь ... более 8 секунд». verification_error независимо от отсутствующего в тексте года. Конкретная выполненность девяти секунд/отсчёта дана QUESTION, не NLI context: также construct_mismatch; отсутствие этих фактов само по себе не ошибка verifier. Декомпозиция сохраняет две исходные фразы."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Все четыре parsed responses проверены. Полное правило «According to the 2026/27 Rules, a corner kick is awarded if the goalkeeper controls the ball with their hands for more than 8 seconds within their penalty area before releasing it.» → 0; reason: «The context mentions an eight-second limit for hand control, but does not specify the year of the rules (2026/27) or explicitly state that this rule applies within the penalty area.» Правильные детали есть в RU, стр. 121 и QUESTION, но опущены в reference: reference_limitation. Обратно «The eight-second limit for hand control was exceeded.» → 0; reason: «The text states that a corner kick is awarded if the goalkeeper controls the ball with his hands for more than 8 seconds within his penalty area. However, it does not state that this condition was met in this specific instance.» Девять секунд даны QUESTION, а не отдельным фактом ответа-context: construct_mismatch. Uncertainty: связь соседних фраз ответа допускает применение условия, но без QUESTION verdict=0 защитим; уверенный verification_error не ставлю. Прямой и обратный claims об угловом сопернику имеют обоснованные 1."
+      }
+    },
+    {
+      "audit_id": "Q011",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Обе parsed responses и три verdict=1 проверены; поддержаны EN, стр. 103 (неперенос cautions) и 74 (период дисциплинарных полномочий, включая серию). Разделение периода и включённой серии допустимо."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. Прямой claim «The referee has the authority to take disciplinary action from entering the field of play for the pre-match inspection until leaving the field of play after the match ends, including during penalties.» → 0; reason: «The context only discusses cautions not being carried forward into a shoot-out and does not provide information about the referee's authority regarding disciplinary actions throughout the entire match and penalties.» Reference действительно краток; правильная добавленная деталь дословно подтверждена EN, стр. 74. reference_limitation, не verification_error. Прямой и обратный claims о непереносе/вердикты 1 корректны."
+      }
+    },
+    {
+      "audit_id": "Q012",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено. Обе parsed responses и четыре verdict=1 проверены; EN, стр. 103 поддерживает claims о players/officials и cautions/yellow cards. Синонимическое разложение не меняет actor/action/condition."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. Прямой claim «Warnings and cautions issued to players and team officials during a match are not carried forward into penalty shoot-outs.» → 1; reason: «The context explicitly states that cautions from the match are not carried forward into the shoot-out.» Reference не раскрывает отдельно warnings/официальных лиц; EN, стр. 103 подтверждает полный ответ: reference_limitation. Uncertainty как у Q007: степень допустимости обобщения спорна, уверенный verification_error не ставлю. Обратный claim о cautions/вердикт 1 корректен."
+      }
+    },
+    {
+      "audit_id": "Q013",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Обе parsed responses и три verdict=1 проверены. Соответствуют RU, стр. 118: увеличение тела, оправданность положения движением, граница руки. Исходное «это может считаться нарушением» сохранено как may be considered a violation, не превращено в категорический исход. Faithfulness=1 не проверяет пропущенное требование установить точку контакта и отсутствие прямого уточняющего вопроса: construct_mismatch."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Все четыре parsed responses проверены. Прямой claim «Если положение руки не было следствием или не оправдывалось движением тела игрока в данной конкретной ситуации, то это может считаться нарушением.» → 1; reason: «The context mentions that circumstances are needed for a hand contact to be a violation, which aligns with the statement that if the hand position is not justified by body movement, it can be a violation.» Но reference лишь говорит «Даже контакт с рукой не всегда является нарушением; нужны обстоятельства»; он не определяет конкретный критерий неправомерного положения руки. Общей необходимости обстоятельств недостаточно: verification_error относительно переданного reference. Сам критерий правилен по RU, стр. 118, но отсутствует в reference: одновременно reference_limitation. Первый прямой claim об увеличении тела также принят 1 через «implying that the unnatural increase in body size due to hand position is a factor to consider», чего reference не называет. Третий прямой claim о границе поддержан. Обратная декомпозиция пропустила существенное «Нужно уточнить точку контакта»: decomposition_error. Два оставшихся обратных verdict=1 поддержаны. FC=1 не проверяет наличие прямого уточняющего вопроса, а утрата требования уточнения маскирует неполноту: construct_mismatch."
+      }
+    },
+    {
+      "audit_id": "Q014",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Обе parsed responses и шесть verdict=1 проверены. Сохранены исходные условные «An indirect free kick is awarded if the goalkeeper is responsible for initiating the trick» и «The goalkeeper is cautioned if responsible for initiating the deliberate trick». EN, стр. 118/122 поддерживает эти условные положения; if не надо читать как only if. Но faithfulness=1 не выявляет отсутствие явного свободного и обязательного предупреждения полевому инициатору из QUESTION: construct_mismatch. Reasons второго/шестого verdict ошибочно упоминают «under the section for direct free kick offenses», хотя стр. 118 — Indirect free kick; это дефект пояснения, но сам verdict=1 по соответствующим claims верен."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. Обратно «An indirect free kick is awarded to the opponents.» → 1; reason: «The context states \"An indirect free kick is awarded if the goalkeeper is responsible for initiating the trick.\"» Ответ не устанавливает это условие и не даёт явного свободного для полевого инициатора; verdict=1 неправомерно снимает условие: verification_error. Обратный claim об обязательном предупреждении инициатору → 0; reason: «It does not mention a caution for the player who initiated the trick.» Это корректное обнаружение пропуска. Прямой «The goalkeeper is cautioned if responsible for initiating the deliberate trick.» → 0; reason: «It does not mention the goalkeeper being cautioned, only the player who initiated the trick.» Правильная деталь EN, стр. 122 отдельно не раскрыта в reference: reference_limitation, не автоматически ошибка verifier. Uncertainty: прямой 0 для условного свободного можно оспорить следованием из общего правила reference; отдельно уверенным дефектом его не отмечаю. Остальные claims/verdict=1 допустимы."
+      }
+    },
+    {
+      "audit_id": "Q015",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Обе parsed responses и все шесть claims/verdict проверены. Исходное «a goalkeeper is only penalized ... after it has been deliberately kicked ... received directly from a team-mate's throw-in, or if a deliberate trick was initiated» заменено первыми тремя claims «A goalkeeper is not penalized ... after the ball has been deliberately kicked ...», «... is not penalized ... after receiving ... throw-in», «... is not penalized ... if a deliberate trick was initiated». Инверсия полярности: decomposition_error. Verifier дал 0, корректно отвергая сгенерированные отрицания по EN, стр. 118; это не доказательство ложности исходного ответа. «The ball was headed back in normal play.» → 0, reason: context «does not state that the ball was headed back in normal play»; «No deliberate trick was initiated to circumvent the Law.» → 0, reason: context «does not provide information about whether such a trick was initiated or not in a specific instance». Оба факта прямо заданы QUESTION, не NLI context: construct_mismatch, не verification_error. Последний «The goalkeeper is permitted to handle the ball.» также потерял существенное исходное «Because the ball was headed back in normal play without any deliberate trick»; его 0 с reason «not universally permitted» относится уже к обобщённому claim."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Все четыре parsed responses проверены. FC сохраняет is penalized в первых трёх claims и because в последнем, в отличие от F. «A goalkeeper is penalized for touching the ball with their hand/arm inside their own penalty area after receiving it directly from a team-mate's throw-in.» → 0; reason: «The context does not mention anything about throw-ins.» Правильная подробность EN, стр. 118 отсутствует в reference: reference_limitation. Claims о пасе ногой и трюке тоже получили 0; reasons «This implies that a deliberate kick to the goalkeeper is not penalized» и «This implies that a deliberate trick is not penalized» ошибочно выводят отрицание из reference об обычном пасе головой. Но verdict=0 как отсутствие достаточной поддержки кратким reference защитим; не ставлю verification_error только за ложный reason. Четвёртый прямой и все три обратных verdict=1 поддержаны inputs. Uncertainty: отдельное исчерпывающее only не отражено в атомах, но они не утверждают отдельного полного списка; уверенный decomposition_error не фиксирую."
+      }
+    },
+    {
+      "audit_id": "Q016",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Обе parsed responses и шесть verdict=1 проверены; EN, стр. 137/139 поддерживает три случая промаха/каркаса, явное влияние, условные замечание/предупреждение. Атом «The penalty kick is retaken only if the goalkeeper's offense clearly impacted the kicker» читается в области действия предшествующих случаев, не как универсальный запрет повтора после спасения; разумная атомизация, не установленный decomposition_error. Faithfulness=1 не проверяет отсутствие прямого вопроса о неизвестном влиянии: construct_mismatch, не ошибка verifier по изложенному правилу."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Все четыре parsed responses проверены. «When the goalkeeper commits an offense and the ball rebounds from the crossbar or goalposts, the penalty kick is retaken if the goalkeeper's offense clearly impacted the kicker.» → 0; reason: «The context only discusses a 'shot wide' and does not mention scenarios where the ball rebounds from the crossbar or goalposts.» «If a penalty kick is retaken due to a goalkeeper's offense, the goalkeeper is warned for their first offense in the game.» и «If a penalty kick is retaken due to a goalkeeper's offense, the goalkeeper is cautioned for any subsequent offenses.» → 0 каждый; reason: «The provided text does not contain any information about warnings or cautions for goalkeepers.» Все три детали правильны по EN, стр. 137, но отсутствуют в reference: reference_limitation, не verification_error. Прямой claim о промахе и оба обратных claims получили обоснованные 1. Преобразование only if в if для целиком указанного случая допускается нормативным контекстом; уверенная смысловая ошибка декомпозиции не установлена. FC проверяет содержание, не наличие прямого уточняющего вопроса: construct_mismatch."
+      }
+    },
+    {
+      "audit_id": "Q017",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены statements и следующий verifier по порядку. Исходное «умышленно сыграл в мяч ... не совершая при этом спасения ворот» ограничивает отмену преимущества, но claim 8 стал «Deliberate play of the ball by the defender does not include an attempt to save a goal»: исключение перенесено с последствия на определение умышленной игры. На стр. 112 прямо допускается умышленная игра при спасении, не отменяющая офсайд. Поэтому verdict=0 с reason «This means an attempt to save a goal IS considered deliberate play» для уже искажённого claim не является ошибкой verifier. Разбиение возможностей паса/овладения/выбивания отдельно не считаю уверенно установленным дефектом: его можно прочитать как перечисление альтернатив, а не требование всех трёх. Остальные verdicts не дают уверенного отдельного verification_error. Construct mismatch: проверяется опора заявленных правил, но не исполнение политики уточнения; исходный ответ не задаёт прямого вопроса о касании и участии нападающего."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены все четыре parsed responses: claims ответа → verifier по reference, затем claims reference → verifier по ответу. В A→R claim «Deliberate play (excluding handball) means a defender controlled the ball and had the opportunity to pass, possess, or clear it, even if the action was inaccurate or unsuccessful» получил verdict=0, reason «The context does not provide a definition for deliberate play ...». Определение верно по стр. 112, но действительно отсутствует в кратком reference. Аналогично 0 для последствий рикошета/спасения и для deliberate handball отражают отсутствие подробностей в reference, а не автоматически ошибку verifier. В R→A все четыре verdict=1 поддержаны условным объяснением ответа. Декомпозиции исходных claims сохраняют существенный смысл. В тексте verifier третьего claim появляется «a fullback's deliberate handball» вместо исходного «a deliberate handball»; это неточная переформулировка уже внутри verifier, но отрицательный verdict всё равно обоснован отсутствием самого handball в reference, поэтому отдельную ошибку verdict или декомпозиции уверенно не ставлю."
+      }
+    },
+    {
+      "audit_id": "Q018",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Statements и все восемь verdict=1 проверены: положение в момент игры партнёра, недостаточность направления паса и формы активного участия поддержаны стр. 109–110 и примерами. Разбиение видов участия не меняет actor/action/condition. Однако faithfulness=1 относится к заявленным правилам, а не к полноте уточнения. Исходное «I need to know if the receiver was in an offside position ...» не является прямым вопросом пользователю; ни один claim/verdict не проверяет этот аспект. Это construct mismatch, не ошибка подтверждения правил."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены claims/verifier обоих направлений. A→R: «It is important to know if the receiver gained an advantage from the ball rebounding or being deflected» — verdict=0, reason «The context does not mention anything about gaining an advantage from a rebound or deflection». Это ограничение reference: подробность верна по стр. 110, но в нём не названа. R→A: «The receiver's position relative to the ball, second-last opponent, and half of the field ... is needed» — verdict=0, reason «it does not mention the second-last opponent or half of the field as criteria». Эти конкретные ориентиры действительно не раскрыты в ответе; это не тот же самый дефект reference и не уверенная ошибка verifier. Остальные verdict=1 согласуются с переданными текстами."
+      }
+    },
+    {
+      "audit_id": "Q019",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "Проверены все пять statements и verdicts. В claim 2 исходное «независимо от того, что мяч прошел мимо ворот» стало «regardless of whether the ball went past the goal»: уступка при известном промахе превращена в независимость от исхода, потенциально включая гол. Для такой расширенной формулировки verdict=1 не поддержан: стр. 141 при голе требует засчитать гол. Независимый явный дефект verifier — claim 5 «If the goalkeeper committed a violation and the ball went past the goal or was saved, the shot is repeated ...», verdict=1, reason «The context states that if the goalkeeper commits a violation and the ball goes past the goal or is saved, the shot is repeated ...». Стр. 141 и 144–145 требуют при промахе явного воздействия; похожая фраза на стр. 140 относится только к продлению тайма для завершения пенальти. В переданном claim этого условия нет. Полное подтверждение последнего claim также не учитывает противоречие с claim 3 о промахе без воздействия."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Обе декомпозиции и оба verifier просмотрены. В A→R claim «Если вратарь совершил нарушение, но мяч был забит, гол засчитывается» получил 0, reason «The context does not mention what happens if a goal is scored after a violation». Это правильная дополнительная деталь по стр. 141, отсутствующая в reference. Последний составной claim о повторе и санкциях тоже получил 0 с reason «The context does not mention any remarks or warnings for the goalkeeper»: reference действительно не содержит дисциплины, но сам claim дополнительно ошибочен из-за безусловного повтора при промахе. Его 0 нельзя объявлять ошибкой verifier или целиком объяснять краткостью reference. В R→A все три 1 имеют буквальную опору в первых условных предложениях ответа; наличие противоречащего последнего предложения важно для качества ответа, но само по себе не доказывает неверность каждого такого entailment-verdict."
+      }
+    },
+    {
+      "audit_id": "Q020",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Claims отказа сохранены по смыслу. Claim 1 об отсутствии полного перечня получил 1. Claim 3 «Based on the presented text, it is impossible to provide a reliable and complete conclusion about a violation» получил 0, reason «The text provides several rules and conditions for violations, allowing for conclusions about specific scenarios ...». Для описанной обычной передачи головой это не опровержение отказа: в доступных contexts перечень на стр. 120 обрывается после «после того, как:», а стр. 125 регулирует намеренный трюк, исключённый QUESTION. Наличие других правил не восполняет отсутствующее правило — это ошибка проверки достаточности именно данного материала. Claim 2 о стр. 120 получил 0, reason «The context does not mention any page numbers ...». В blind метаданные pdf_page=120 есть; полный сериализованный prompt NLI в judge-файле не сохранён. Если номера страниц не передавались, как указывает reason, это construct mismatch из-за потери метаданных, а не установленная ошибка verifier."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Проверены все четыре parsed responses; в обоих направлениях verdicts=0. A→R: claim об обрыве перечня получил 0, reason «The context does not mention any page numbers or specific fragments of rules ...»; claim о невозможности надёжного вывода получил 0, reason «The context explicitly states that the described action does not fall under the prohibition ...». R→A: «The described action does not fall under the prohibition of an intentional kick pass» получил 0, потому что ответ прямо воздерживается от решения. Эти verdicts соответствуют переданным reference/ответу: из отказа действительно нельзя вывести решение, а из краткого решения reference — состояние retrieval. Ограничение reference: он даёт футбольный итог, но не отражает отсутствие необходимого правила в contexts. Construct mismatch: симметричное совпадение с решением не измеряет обоснованность отказа при неполных источниках; ноль не доказывает ошибочное футбольное решение."
+      }
+    },
+    {
+      "audit_id": "Q021",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено: проверены statements и все четыре verdict=1. Снятие опасного предмета и недопустимость замены снятия заклеиванием/закрытием прямо поддержаны стр. 67; разбиение этих действий разумно."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено: проверены четыре parsed responses, включая все три A→R и два R→A verdict=1. Claims о снятии опасного предмета и недостаточности tape сохраняют смысл ответа/reference. Упоминание covering согласуется со снятием предмета, а не задаёт отдельное неописанное разрешение."
+      }
+    },
+    {
+      "audit_id": "Q022",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Statements и все семь verifier-решений проверены. Claim «In this specific situation, the player tossed the ball with the foot and passed it to the goalkeeper with the head» — 0, reason «The context describes the general rule but does not provide a specific situation ...». То же для «This action constitutes a deliberate trick ...», 0, reason «a specific situation not detailed in the context». Оба факта прямо заданы QUESTION, но QUESTION не является NLI context: это потеря фактов на этапе inputs, не ошибка verifier. Начальное «The violation still exists», 0, также зависит от применения к эпизоду. Для «The punishment ... can be an indirect free kick» выставлен 0: в contexts именно Q022 пункт о трюке на стр. 120 дан без заголовка начала перечня, а присутствующий заголовок относится к нарушениям вратаря; поэтому уверенно объявлять этот 0 ошибкой на переданных фрагментах нельзя. Подтверждение гипотетического предупреждения вратарю не проверяет пропущенное обязательное предупреждение фактическому инициатору-игроку."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены claims → verifier в обоих направлениях. A→R: «The goalkeeper may be cautioned if they initiated such a situation» — 0, reason «it does not specify that the goalkeeper is cautioned, nor does it state the goalkeeper initiated the situation». Reference говорит «Инициировавший трюк игрок предупреждается ...»: условная специализация на инициатора-вратаря не требует утверждать, что он фактически был инициатором. Отказ только из-за этого неверен. В R→A «Свободный удар сопернику» получил 1 с reason «the penalty ... can be a free kick»; это как минимум спорное усиление возможной санкции до назначаемой, поэтому не использую его как единственное основание флага. 0 для «Инициировавший трюк игрок предупреждается за неспортивное поведение» в R→A обоснован: ответ упоминает предупреждение лишь гипотетическому вратарю. Reference limitation отдельно: A→R «the player kicked the ball up and headed it ...» — 0, reason «does not provide specific details about how the player tricked the ball». Деталь есть в QUESTION и ответе, но не в reference."
+      }
+    },
+    {
+      "audit_id": "Q023",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено: проверены statements и пять verdict=1. Отсчёт поддержан стр. 119; дополнение к Правилу 17 на стр. 184 прямо назначает угловой за контроль руками свыше восьми секунд. Reason первого verdict ссылается на задержку goal kick, что неудачно для данного эпизода, но сам verdict имеет другую достаточную опору в переданных contexts. Ошибку verdict по одной неудачной ссылке reason не ставлю."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Просмотрены оба направления. A→R: claim о 2026/27 и вратаре получил 0, reason «it does not specify the year of the laws (2026/27) or explicitly state it's a penalty for a goalkeeper»; claim об установлении начала контроля и отсчёте получил 0, reason «It does not provide any details about how the referee counts the time or visually signals the countdown». Эти детали верны по QUESTION и стр. 119/184, но reference содержит только угловой и восемь секунд. Это reference limitation, не уверенная ошибка verifier на коротком input. R→A: оба claim — угловой сопернику и превышение восьми секунд — получили обоснованные 1. Декомпозиция существенных условий не исказила."
+      }
+    },
+    {
+      "audit_id": "Q024",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены все восемь claims/verdicts. Исходное «wholly passed over the touchline (or goal line) on the ground or in the air» стало четырьмя утверждениями вида «... only when ... over the touchline on the ground». Раздельные исключительные only when убирают альтернативы линии и способа пересечения: это не безобидное перечисление вариантов. Их 0 обоснованы, reason правильно указывает OR в стр. 101. Отдельно «Part of the ball still overhangs the touchline» получил 1 с reason «implying that if part of it overhangs, it is still in play»: условное правило не подтверждает сам факт нависания в данном эпизоде. Это неверный verdict относительно rule-only context. «The referee has not stopped play» получил 0, reason «does not provide information ...»: отсутствие этого факта и нависания в NLI inputs, хотя оба есть в QUESTION, — construct mismatch. Поэтому 0 для эпизодного «The ball is not out of play» нельзя автоматически считать ошибкой verifier."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "В FC дизъюнкция touchline/goal line и ground/air сохранена в одном claim; дефекта декомпозиции Faithfulness здесь нет. Проверены оба verifier. A→R «Part of the ball still overhangs the touchline» — 1, reason «If part of the ball overhangs ... the entire ball has not crossed it». Reference «The entire ball must cross the touchline ...» даёт критерий, а не факт нависания: reason подменяет факт условной импликацией. A→R «The referee has not stopped play» — 0, reason «does not provide any information about the referee's actions ...»; факт задан QUESTION, но не reference, поэтому это reference limitation, не ошибка данного 0. Оба R→A verdict=1 о полном пересечении и воздухе поддержаны ответом."
+      }
+    },
+    {
+      "audit_id": "Q025",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "Проверены пять statements/verdicts. «Судья не может начать матч, если в команде менее семи игроков» получил 0, reason «It does not explicitly state that the referee cannot start the match, but rather that the match cannot be started». Стр. 59 запрещает начало матча при менее семи; запрет судье начать такой матч — нормальное следствие, не неподтверждённая новая футбольная норма. Это излишне буквальный неверный verdict. Напротив, «В команде должно быть одиннадцать игроков» — 0, reason «a maximum of eleven ... not ... must have eleven» — корректно выявляет ошибку исходного ответа, а не ошибку декомпозиции. Остальные 1 не требуют отдельного уверенного флага."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены все четыре parsed responses. A→R «Матч нельзя начинать или продолжать, если ... менее семи игроков» — 0, reason «only mentions ... starting ... not ... continuing». Продолжение действительно отсутствует в reference, хотя верно по стр. 59: reference limitation. Другой 0 для «В команде должно быть одиннадцать игроков, один из которых вратарь» нельзя целиком списать на краткость reference: обязательные одиннадцать ошибочны и в самом ответе, тогда как требование вратаря верно, но reference его не содержит. Минимум семь на старте подтверждён в обоих направлениях. Декомпозиции сохраняют исходные формулировки."
+      }
+    },
+    {
+      "audit_id": "Q026",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "Проверены statements и пять verdicts. Исходное «За это назначается свободный удар» превратилось в «A direct free kick is awarded for the violation». Свободный удар здесь indirect, а не direct: изменён тип возобновления. Вердикт 0 для этого claim не ошибочен относительно переданного текста — ошибку внёс предшествующий разбор. Reason неудачно сосредоточен на нарушениях вратаря и предупреждении вместо точного различия direct/indirect, но это не делает отрицательный verdict неверным. Остальные claims сохраняют правило о трюке и предупреждении; уверенной дополнительной ошибки verdict не установлено."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено: просмотрены четыре parsed responses, все четыре A→R и три R→A verdict=1. Отсутствие зависимости от касания руками, свободный удар и предупреждение инициатору поддержаны в обоих текстах. Здесь нет добавления direct, обнаруженного в Faithfulness; английское free kick само по себе не утверждает direct. Отдельное отсутствие слов «за неспортивное поведение» в коротком ответе не меняет описанную санкцию за этот трюк настолько, чтобы уверенно объявить R→A verdict неверным."
+      }
+    },
+    {
+      "audit_id": "Q027",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены семь statements и все verdicts. Исходное условие «на половине поля соперника и ... ближе ... чем мяч и предпоследний соперник» стало claim 3 «If a receiving player is in the opponent's half ... the player is in an offside position» и отдельным claim 4 только о близости к воротам. Каждый объявляет достаточным лишь часть необходимой конъюнкции. Оба получили 1, хотя их reasons сами цитируют объединённые условия стр. 111: это ошибка verifier уже относительно искажённых claims. Claims 6–7 «A player is penalized for offside even if ...» также потеряли условия положения и участия исходного условного предложения. У claim 6 verdict=1 с reason о rebound/save и opponent, которых нет в переданных двух фрагментах стр. 111; такой reason не подтверждает безусловный claim. Наконец, отсутствие прямого уточняющего вопроса о забытой позиции игрока вне охвата заявленных rule-claims — отдельный construct mismatch."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены обе пары claims/verifier. Декомпозиция A→R сохранила конъюнкцию положения в claim 2, но claim 4 «Игрок наказывается за офсайд, даже если мяч полетел назад» отделён от исходных условий положения и вмешательства и звучит как безусловная санкция. Отдельная ошибка verifier: claim 1 «Офсайд определяется положением игрока в момент передачи мяча партнером по команде» получил 0, reason одновременно признаёт, что reference требует положение относительно мяча/соперника/половины поля в момент игры партнёра. В таком общем утверждении нет отрицания необходимости участия; отрицательный verdict чрезмерно строг. Остальные 0 нельзя все объявить ошибками: reference не раскрывает точную формулу положения и наказание за касание, хотя они верны по стр. 111. Это reference limitation. Все четыре R→A verdict=1 поддержаны полным условным объяснением ответа, а не доказывают безусловный офсайд в неизвестном эпизоде."
+      }
+    },
+    {
+      "audit_id": "Q028",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено: проверены семь statements и verdict=1 для каждого. Отдельные варианты meters/yards и distracts/impedes — разумное атомизирование, а не изменение правила. Последнее «If the throw-in has already been taken, an indirect free kick is awarded» уже является отдельным предложением исходного ответа; в связке с предыдущими claims оно относится к описанной неправомерной помехе, как в стр. 142. Не считаю его автоматически новым правилом о любом выполненном вбрасывании. Стр. 141 поддерживает точку отсчёта, стр. 142 — предупреждение и свободный удар."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены все четыре parsed responses. A→R claim о предупреждении за неспортивную помеху — 0, reason «does not mention any consequences for moving closer, such as a caution ...»; claim о свободном ударе после вбрасывания — 0, reason «does not provide information ... awarding of free kicks». Обе детали правильны по стр. 142 и присутствуют в ответе, но краткий reference содержит только дистанцию 2 м от точки на линии. Поэтому это reference limitation, не ошибка этих verdicts. Условную связь последнего предложения с помехой читаю так же, как в исходном ответе; отдельного уверенного decomposition_error нет. Основная дистанция подтверждена в обоих направлениях."
+      }
+    },
+    {
+      "audit_id": "Q029",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены четыре statements и verdict=1 для каждого. Разделение решения и причин само по себе разумно. Но для «The ball was deliberately kicked to the goalkeeper by a team-mate» reason цитирует условное правило о таком пасе, а для «The goalkeeper did not attempt to play the ball with the foot first» reason выводит отсутствие попытки из формулировки исключения на стр. 118. Правило IF ... UNLESS ... не устанавливает, что конкретный пас состоялся и попытки не было. Это неподтверждённые 1 относительно rule-only NLI context, хотя оба факта истинны по QUESTION. Construct mismatch отдельно состоит в исключении QUESTION из inputs: verifier вынужден либо ошибочно превращать условие правила в факт, либо отвергать данные пользователем обстоятельства. Ошибку самой футбольной рекомендации это не устанавливает."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены claims/verifier обоих направлений. Исходное «An indirect free kick is awarded because ... after it was deliberately kicked ... and they did not attempt ...» стало первым claim «An indirect free kick is awarded when the goalkeeper handles the ball inside their penalty area». Когда причинные ограничения вынесены в отдельные claims, первый сформулирован как общее правило о любом взятии руками в своей штрафной, чего ответ не утверждает. Его verdict=0 нельзя объявлять ошибкой verifier; reason «does not specify ... inside the penalty area» не исчерпывает проблему расширения условия. Reference limitation: уточнение собственной штрафной и буквальное отсутствие попытки ногой отсутствуют в кратком reference, который говорит лишь, что clearance-attempt exception не применимо; нужные обстоятельства есть в QUESTION и правило на стр. 118 их поддерживает. Остальные A→R 1 и все три R→A 1 не дают уверенной отдельной ошибки verdict."
+      }
+    },
+    {
+      "audit_id": "Q030",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены пять statements и verifier. Раздельные вопросы об умышленности и неестественном увеличении тела не утверждают, что оба нарушения должны иметь место, поэтому обычное атомизирование не помечаю. Claim 5 «Without this information, it is impossible to accurately determine if the episode is a penalty» получил 0, reason «does not state ... without knowing if the player was a goalkeeper ... this specific piece of information being the sole determinant». В исходном ответе и предыдущих claims «this information» включает также умышленность и увеличение тела; это не единственный признак вратаря. Стр. 118 требует различить нарушающее и ненарушающее касание, и без обстоятельств единственный категорический исход не следует. Reason неверно сужает antecedent и ведёт к неправильному 0. Construct mismatch: наличие или отсутствие прямого уточняющего вопроса не проверяется этими claims; ответ лишь перечисляет, что необходимо знать."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Просмотрены все четыре parsed responses. Явная чрезмерная буквальность в R→A: «It is necessary to determine how the hand was positioned» — 0, reason «whether the hand made the body unnaturally bigger ... implies position, but doesn't explicitly state how the hand was positioned as a separate criterion». Проверка неестественного увеличения тела уже требует положения руки; отдельной фразы не нужно. Другие 0 разграничиваю: A→R «Важно, был ли игрок вратарем ...» — 0, reason «does not mention the goalkeeper or penalty area ...», и claim об unnatural enlargement — 0 из-за отсутствия этого термина в reference. Правильные детали закона со стр. 118 не полностью изложены в reference: reference limitation, не автоматически ошибка verifier. R→A 0 для отдельного требования оправданности положения движением тела обоснован тем, что ответ этого не раскрывает. Для equivalence движения к мячу и умышленности есть семантическая неопределённость; дополнительный уверенный флаг по этим 0 не ставлю."
+      }
+    },
+    {
+      "audit_id": "Q031",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены четыре statements/verdicts. Исходное «не коснулся мяча или не мешал сопернику» допускает освобождение по любому из двух отрицательных признаков. Последний claim «An example of not gaining an advantage is if the player did not touch the ball or interfere with an opponent» получил 1; reason цитирует стр. 239 «не мешая сопернику, не касается мяча» и отдельный пример без борьбы. Пример, где нет ни касания, ни помехи, не обосновывает освобождение при наличии любого одного из этих отрицаний: стр. 239 допускает наказание за касание без помехи, стр. 241/243 — за помеху без обязательного касания. Английское did not ... or ... допускает также прочтение neither; из-за этой неоднозначности уверенно не ставлю decomposition_error, но принятие русской исходной дизъюнкции без оговорки не поддержано contexts. Construct mismatch: faithfulness=1 не проверяет полноту разбора характера касания/умышленной игры и наличие прямого уточнения; этих элементов в ответе нет."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены обе пары claims/verifier. A→R «A player is not penalized ... by not touching the ball or not interfering with an opponent» — 1, reason «The context emphasizes ... involvement and advantage gained are crucial». Reference требует выяснить касание и участие, но не утверждает освобождение по такой дизъюнкции; verdict приписывает reference отсутствующий конкретный вывод. Claim о наказании после рикошета тоже получил 1 лишь со ссылкой на общую релевантность обстоятельств; точного правила санкции reference не содержит. Для правильной части этого claim это reference limitation, а не повод подтверждать все подробности. R→A 0 для «Нужно отличить умышленную игру с контролем от рикошета или спасения ворот» верен: ответ такого различия не содержит. R→A последний 1 поддержан начальным «Нет, не значит», хотя reason неудачно подменяет «нельзя автоматически отменять» словами «offside is not automatically applied». Сам неверный reason ещё не делает этот последний verdict ошибочным."
+      }
+    },
+    {
+      "audit_id": "Q032",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено: единственный statement сохраняет исходное немедленное касание опорной ноги с голом и повтор пенальти; verdict=1 опирается на прямую цитату со стр. 140, подтверждённую также стр. 190. Случайность уже задана QUESTION, а ответ не заявляет, что любое умышленное повторное касание разрешено; отсутствие повторения этого факта не считаю автоматически дефектом декомпозиции."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены все четыре parsed responses. A→R единственный claim получил 0, reason «does not mention specific rules for the 2026/27 season or ... the kicker's standing foot». Год и опорная нога заданы QUESTION и поддержаны стр. 140/190, но действительно не названы в reference: reference limitation, не автоматически ошибка этого verifier. R→A «This refers to an accidental immediate second touch with a goal, not an intentional re-play» получил 1, reason «immediately after the kick ... implies an accidental touch rather than an intentional re-play». Немедленность сама по себе не доказывает случайность; в переданном ответе слова о случайности нет. Поэтому именно этот verdict приписывает answer больше, чем он буквально сообщает. QUESTION снимает фактическую неопределённость эпизода для человека, но его нельзя молча использовать как доказательство внутри сравнения reference с переданным answer. Первый R→A verdict=1 о повторе поддержан ответом."
+      }
+    },
+    {
+      "audit_id": "Q033",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 целиком. PR1 превращает исходный вопрос ‘Did the ball touch the arm below the line of the bottom of the armpit, and if so, was it deliberate or did the arm unnaturally enlarge the body?’ в факты ‘The ball touched the arm below the line of the bottom of the armpit’, ‘The touch was deliberate’, ‘The arm unnaturally enlarged the body’. Их verdict=0 не ошибка verifier: факты добавлены декомпозицией. Также исходное ‘only an offence if ... deliberately touched ... or ... unnaturally bigger’ превращено в два самостоятельных необходимых условия ‘only ... if ... deliberately touched’ и ‘only ... if ... unnaturally bigger’, что меняет OR. Отдельная ошибка verifier: ‘Contact on the shoulder above this line is not a handball offence’, verdict=0, reason ‘does not specify what happens with contact on the shoulder above this line’. С. 116 en определяет верхнюю границу руки по нижней границе подмышки; вывод о контакте выше границы следует из определения, буквальная дополнительная формулировка не нужна."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. В PR1 ‘Contact below the bottom of the armpit is an offense only if the player deliberately touched the ball’ и отдельное ‘only if ... hand/arm made their body unnaturally bigger’ искажают исходную дизъюнкцию необходимых альтернатив, а не просто атомизируют её. PR2 ‘Contact on the shoulder above the line of the bottom of the armpit is not a handball offense’, verdict=0, reason ‘does not mention contact on the shoulder or explicitly state it is not an offense’: отрицание излишне буквальное, reference уже определяет границу руки. Для ‘If the ball touches the arm below the bottom of the armpit, it is an offense if it was deliberate’ и аналогичного unnaturally enlarged body стоят verdict=0; reasons ссылаются на отсутствие конкретных обстоятельств в reference. Это reference_limitation: reference говорит лишь ‘the circumstances matter’, тогда как с. 116 en содержит оба основания. Эти два отрицательных verdict сами по себе не объявлены ошибками verifier. PR3→PR4: дефекта не обнаружено."
+      }
+    },
+    {
+      "audit_id": "Q034",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. Условный разбор передан без превращения неизвестного влияния в установленный факт. ‘If the goalkeeper committed a violation and the ball went past the goal or hit the frame, the kick is repeated only if there was a clear influence on the striking player’, verdict=1, reason с прямой цитатой соответствующего условия: поддержано с. 141 ru. Faithfulness=1 не проверяет политику уточнения: исходное ‘Необходимо уточнить, повлиял ли ...’ не задаёт прямого вопроса. Это construct_mismatch, не ошибка verdict. Возможная широта отдельных ‘ball was not scored’ вне контекста промаха неоднозначна; уверенный verification_error по ней не ставлю."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. PR2 ‘If the goalkeeper committed a violation but the ball still went into the goal, the goal is counted’, verdict=0, reason ‘does not explicitly state what happens if a violation occurs and a goal is scored. It focuses on the scenario of a missed shot’. Это корректный отказ относительно reference, но ограничение reference: с. 141 ru прямо говорит ‘если мяч забит в ворота ударом с пенальти, гол засчитывается’. Декомпозиция сохраняет условность. Спорную широту ‘ball was not scored’ читаю в контексте промаха; отдельную ошибку verdict уверенно не устанавливаю. Обратные claims о неавтоматическом повторе и необходимости установить влияние поддержаны ответом."
+      }
+    },
+    {
+      "audit_id": "Q035",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. ‘A backward pass does not automatically make offside impossible’, verdict=0, reason ‘does not explicitly mention backward passes in relation to offside impossibility’. Это неверное требование буквального упоминания: переданная с. 109 en определяет положение относительно мяча, соперников и половины поля в момент передачи, затем участие, а не направление передачи. Остальные четыре verdict=1 поддержаны. Отдельно проверка NLI не отличает объяснение нужных условий от прямого уточняющего вопроса: исходное ‘we need to know if ...’ вопроса не задаёт (construct_mismatch)."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. PR2 ‘If the pass was backwards, an offside offence occurs if the receiver was in an offside position when the ball was played and became involved in active play by playing or touching the ball’, verdict=0, reason ‘does not specify conditions for a backwards pass or how it relates to an offside offence’. Reference прямо говорит ‘Pass direction alone does not decide it’ и требует позицию в момент передачи плюс участие: отказ неверен. В то же время verdict=0 для критериев ‘head, body, or feet ... nearer ...’ и ‘opponents’ half (excluding the halfway line)’ отражают краткость reference: точные критерии есть на с. 109 en, но не раскрыты в reference. Последний reason приписывает claim ‘sole determinant’, хотя claim лишь ‘check if’; сам отрицательный verdict всё же объясним отсутствием конкретики, поэтому не использую его как отдельное уверенное основание verification_error. Обратные claims подтверждены корректно."
+      }
+    },
+    {
+      "audit_id": "Q036",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено"
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено"
+      }
+    },
+    {
+      "audit_id": "Q037",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. Исходное ‘only out of play when it has wholly passed over the goal line or touchline’ стало двумя claims: ‘The ball is out of play only when the ball has wholly passed over the goal line’ и ‘... only ... touchline’. OR ошибочно разделён на два исключительных необходимых условия. Их verdict=0 с reasons ‘not exclusively the goal line’ / ‘not exclusively the touchline’ корректны для уже искажённых claims. ‘The ball is not out of play’, verdict=0, reason ‘The context explicitly states conditions under which the ball IS out of play’: не объявляю ошибкой verifier, поскольку контекст с. 101 en содержит правило, но не факт QUESTION о части мяча над линией и отсутствии остановки. Это construct_mismatch на этапе inputs."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. PR3 теряет существенное начальное ‘No’ из reference и оставляет только ‘The entire ball must cross the touchline’ и ‘This applies even when the ball is in the air’. PR2 ‘The ball is not out of play’, verdict=0, reason ‘The context states “No.”, implying a negation of a previous statement ... cannot be directly inferred as true’. Без QUESTION в NLI input разрешение дейксиса No спорно: verification_error уверенно не ставлю. Reference не содержит позицию конкретного мяча и ограничен touchline, тогда как ответ добавляет goal line; это ограничение reference и потеря контекста вопроса. PR4 правильно подтверждает оставшиеся правила."
+      }
+    },
+    {
+      "audit_id": "Q038",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. ‘An indirect free kick is awarded for an intentional second touch, regardless of the outcome of the kick’, verdict=1, reason цитирует только ‘назначается свободный удар’. Но переданные с. 142, 190 ru продолжают ‘(или штрафной удар при игре рукой в мяч)’ и задают условие до касания другого игрока: безоговорочное обобщение не поддержано. Это дефект проверки уже имеющегося в ответе утверждения, не декомпозиции. ‘The penalty kick is retaken’, verdict=0, reason ‘too general and lacks context’: конкретные условия верного решения даны QUESTION, не NLI context; такой отказ отмечен construct_mismatch, не автоматически verification_error."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. PR2 расширенный claim о редакции 2026/27, опорной ноге или обеих ногах и повторе при голе получает verdict=0, reason ‘does not mention the specific year ... or the detailed conditions’. Claim ‘Если бы в такой ситуации гол не был забит, судья назначил бы свободный удар в пользу обороняющейся команды’ получает verdict=0, reason ‘does not provide information about what happens if a goal is not scored’. Reference действительно короче: обе правильные ветви и варианты касания есть на с. 140 ru. Это reference_limitation, не автоматически ошибка verifier. Отрицательный verdict для общего intentional second touch оправдан относительно reference; вдобавок исходный ответ упускает исключение игры рукой на с. 190. Обратные claims корректно подтверждены."
+      }
+    },
+    {
+      "audit_id": "Q039",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. ‘The goalkeeper controlled the ball with hands in the penalty area for more than 8 seconds’, verdict=1, reason ‘This is the condition described in the context for awarding a corner kick’. Переданная с. 121 ru содержит условное правило ‘Угловой удар назначается, если ... более 8 секунд’, не свидетельство произошедшего эпизода. Условие IF не доказывает фактическое событие: ложноположительный verdict относительно rule-only NLI input. Сам факт верен по QUESTION; его отсутствие в inputs — construct_mismatch, а не ошибка ответа. PR1 передаёт исходное ‘так как вратарь контролировал ... более 8 секунд’ без смыслового изменения."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено"
+      }
+    },
+    {
+      "audit_id": "Q040",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. Исходное ‘... умышленно сыграл ... и это не было умышленной игрой при спасении’ становится безоговорочным ‘A player is not considered to have gained an advantage if an opponent deliberately played the ball’. Отдельный claim ‘Deliberate play of the ball does not include an intentional action during a save attempt’ меняет исключение из последствий для офсайда на определение deliberate play. PR2 первому claim даёт verdict=1, хотя reason сам говорит ‘with an exception for saves’; с. 112 ru прямо содержит исключение, поэтому этот verdict неверен. Verdict=0 для изменённого определения save не обязан быть ошибкой verifier. NLI также не устанавливает, запросил ли ответ недостающие обстоятельства касания и участия нападающего: условное объяснение не является прямым уточняющим вопросом (construct_mismatch)."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. PR1 ‘A simple touch of a defender is not enough to be considered offside’ меняет исходное ‘Простого касания защитника недостаточно’, относящееся к отмене офсайда, на условие установления офсайда. PR2 даёт verdict=1, reason цитирует только ‘Самого касания недостаточно’, теряя различие отменить/установить. Кроме того, claim о deliberate play отделён от save-исключения. PR2 verdict=0 для подробного определения deliberate play объясняется reference_limitation: pass, possess, clear и неудачное действие есть на с. 112 ru, но не в кратком reference. PR4 ‘Нужны обстоятельства касания и участия нападающего’, verdict=1, reason ‘implies ... crucial’ допустим как смысловой вывод, но не подтверждает реального запроса данных в ответе — construct_mismatch по политике уточнения, не отдельная уверенная ошибка verdict."
+      }
+    },
+    {
+      "audit_id": "Q041",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. Claims ‘In the described situation, a teammate returned the ball to the goalkeeper with a normal playing motion of the head’ и ‘There was no intentional trick to circumvent the rules’ получают verdict=0 с reasons об отсутствии этих фактов конкретного эпизода. Оба факта даны QUESTION, но не NLI context: это construct_mismatch, не ошибка отрицательных verdict. Отдельно ‘The goalkeeper can therefore take the ball with hands in the penalty area’, verdict=1, reason ‘the prohibition is linked to the intentional trick’: из одного запрета трюка не следует полное разрешение. Переданная с. 120 ru обрывает перечень ограничений после ‘после того, как:’, а факты эпизода не переданы. Положительные verdict для самого трюка и предупреждения инициировавшему его вратарю поддержаны с. 120, 125. Декомпозиция фактов и правила разумна."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. PR1 ‘A back-pass is not forbidden if there was no deliberate trick to circumvent the rules’ теряет ограничение обычной передачей головой, заданное исходным ‘это’ и последующим объяснением; возникает разрешение любого паса назад без трюка. PR2 verdict=1, reason ссылается на ‘normal header pass’: reference разрешает лишь описанное действие и отличает намеренный пас ногой, а не утверждает общее правило. Это неверный verdict и потеря условия при декомпозиции. ‘The goalkeeper is cautioned for initiating a deliberate trick ...’, verdict=0, reason ‘does not mention any specific caution or punishment’ — корректно относительно reference, но reference_limitation: с. 125 ru прямо предусматривает предупреждение. Для разрешения взять обычный пас головой PR2 тоже даёт verdict=0 с reason ‘doesn’t explicitly state’; оценка достаточности краткого reference без полного QUESTION спорна, этот случай не использую как самостоятельное уверенное основание verification_error. Обратные claims поддержаны."
+      }
+    },
+    {
+      "audit_id": "Q042",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено"
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено"
+      }
+    },
+    {
+      "audit_id": "Q043",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. PR1 отделяет альтернативу остановки судьёй от исходного ‘только ... полностью пересёк ... либо когда игру остановил судья’, получая исключительное ‘the ball is considered out of play ... only when ... completely crossed the touchline (or goal line)’. PR2 verdict=1, reason ‘explicitly states ... completely crossed’: не подтверждает ONLY, на с. 103 ru отдельно перечислены остановка судьёй и касание официального лица с последствиями. Claims ‘A part of the ball is still above the touchline’ и ‘The referee has not stopped the match’, verdict=0, reasons ‘does not provide information ...’: верные факты QUESTION отсутствуют в NLI inputs, это construct_mismatch, не ошибка отрицательных verdict. Положительные verdict для конкретных ‘The ball is still in play’ и ‘Play continues’ тоже не доказаны одними общими правилами без фактов эпизода."
+      },
+      "factual_correctness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. PR3 теряет начальное ‘Нет’ из reference — решение конкретного эпизода — и оставляет лишь два правила. PR2 ‘According to the Laws ... only when ... crossed ... or when play has been stopped by the referee’, verdict=1, reason ‘The provided context is a direct translation of Law 9.1 ...’: reference говорит лишь о полном пересечении боковой линии, текста об остановке судьёй в нём нет. Verifier подменяет переданный reference внешним знанием. ‘Part of the ball is still over the touchline’, verdict=1, reason выводит конкретную позицию из общего требования полного пересечения — это тоже не entailment. Верные факты позиции и отсутствия остановки даны QUESTION, не reference: reference_limitation и construct_mismatch, не галлюцинация ответа. Verdict=0 для ‘The referee has not stopped the match’ корректен относительно reference. Само общее ONLY-обобщение ответа дополнительно неполно по с. 103 ru из-за касания официального лица; это уже дефект ответа, не декомпозиции FC."
+      }
+    },
+    {
+      "audit_id": "Q044",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. ‘A penalty kick is not automatically repeated if the goalkeeper moved off the line before the kick’, verdict=0, reason ссылается на информирование судьи и положение стопы, затем ‘does not explicitly state ... not automatically repeated’. На с. 141 ru прямо есть условие явного воздействия при промахе; следующий verifier claim сам получает verdict=1 за это правило. Первый отрицательный verdict неверен. Исключение при времени, специально добавленном для завершения пенальти, действительно подтверждено с. 140 ru. Проверка поддержки условных правил не устанавливает неизвестное влияние и не заменяет прямой уточняющий вопрос; в исходном ответе его нет (construct_mismatch)."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. ‘Исключение предусмотрено для ситуации, когда добавлено время в конце тайма для завершения пенальти: там при нарушении обороняющегося игрока или вратаря промах ведет к перебитию’, verdict=0, reason ‘This statement is not present in the provided context’. Это верно относительно краткого reference, но с. 140 ru прямо содержит данное исключение: reference_limitation, не ошибка verifier. PR4 claim о необходимости установить влияние получает verdict=1, хотя reason неудачно поясняет early exit как ‘presumably of the ball’. Это ошибка пояснения actor в reason, но сам verdict поддерживается ответом; по заданному определению verification_error флаг не ставлю."
+      }
+    },
+    {
+      "audit_id": "Q045",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено"
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено"
+      }
+    },
+    {
+      "audit_id": "Q046",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. ‘A corner kick is awarded to the opposing team’, verdict=1, reason говорит о задержке goal kick после five-second countdown, а не о контроле руками восемь секунд. Reason нерелевантен эпизоду, но сам verdict поддержан другими переданными фрагментами — с. 119 en и Law 17 на с. 184 en прямо называют контроль руками более восьми секунд. Поэтому ошибки verdict не устанавливаю. Faithfulness=1 подтверждает единственное краткое утверждение, но не полноту: исходное ‘A corner kick is awarded to the opposing team’ не содержит обязательное по rubric объяснение eight-second limit. Это construct_mismatch, не поддержка всех обязательных деталей."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "не обнаружено"
+      }
+    },
+    {
+      "audit_id": "Q047",
+      "faithfulness": {
+        "decomposition_error": true,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 целиком. Исходное ‘rules that apply during extra time and penalty shoot-outs (such as substitutions and half-time intervals)’ распределено в claims ‘Substitutions are rules that apply during extra time and penalty shoot-outs’ и ‘Half-time intervals are rules that apply during extra time and penalty shoot-outs’: каждый пример необоснованно приписан обоим режимам. Последний claim получает verdict=1; reason цитирует half-time in extra time и возможность временного удаления включая shoot-out. С. 93 en говорит о коротком перерыве только в extra time; полномочия удаления не доказывают наличие перерыва в серии. Это ошибка verdict на уже искажённом claim. ‘Rules ... normally found in Law 10’, verdict=0, reason ‘does not mention Law 10’: верно относительно inputs. Отказ из-за отсутствия правил исхода ничьей обоснован."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": true,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. Метаутверждения об исходном provided context проверяются против reference об исходе ничьей: референт context меняется, это construct_mismatch. PR2 ‘Law 10 normally contains ...’, verdict=0, reason ‘does not mention Law 10’; и ‘The text mentions rules that apply during extra time and penalty shoot-outs’, verdict=0, reason отличает правила назначения от правил во время этих процедур. Reference не предназначен для описания исходного набора фрагментов: reference_limitation, не футбольная ошибка отказа. PR4 ‘If competition rules require a winner, they determine the permitted deciding procedure’, verdict=1, reason ‘The context mentions ... extra time or penalties are required to be played’: исходный ответ этого правила не утверждает, а прямо сообщает, что не знает when extra time or penalties are required и how competition rules govern drawn matches. Также ‘Without rules, extra time and a shoot-out cannot be imposed on the match’, verdict=1, reason ‘implies ... necessary’ выводит положительную норму из признания нехватки сведений. Эти обратные verdict не поддержаны текстом ответа; обоснованный отказ не равен всем положительным утверждениям reference."
+      }
+    },
+    {
+      "audit_id": "Q048",
+      "faithfulness": {
+        "decomposition_error": false,
+        "verification_error": true,
+        "reference_limitation": false,
+        "construct_mismatch": true,
+        "evidence": "Проверены PR1→PR2 целиком. Claims ‘The goalkeeper was inside the penalty area’, ‘A team-mate deliberately kicked the ball to the goalkeeper’, ‘The goalkeeper did not attempt to kick the ball clear first’ получают verdict=1. Reasons ссылаются на условное правило с. 118 en; для последнего прямо ‘not attempting to kick it clear is a condition for the offense’. Условие IF не доказывает, что конкретное событие произошло: ложноположительные verdict относительно переданного rule-only context. Сами обстоятельства явно даны QUESTION, не являются галлюцинациями ответа; отсутствие QUESTION в inputs — construct_mismatch. Декомпозиция обстоятельств разумна, условия исходного эпизода не изменены."
+      },
+      "factual_correctness": {
+        "decomposition_error": false,
+        "verification_error": false,
+        "reference_limitation": true,
+        "construct_mismatch": false,
+        "evidence": "Проверены PR1→PR2 и PR3→PR4 целиком. ‘This is an offense according to Law 12’, verdict=0, reason ‘While Law 12 is not explicitly mentioned ... typically covered by Law 12’. Номер правила отсутствует в reference, хотя правило поддержано с. 118 en: reference_limitation, не ошибка verdict относительно переданного reference. PR1 выделяет clearance-attempt circumstance отдельно от вывода; читается совместно как разумное атомизирование. Хотя отдельно ‘An indirect free kick is awarded when ...’ выглядит шире без исключения, уверенного изменения смысла здесь не устанавливаю. Обратные claims о свободном сопернику, пасе ногой и неприменимости исключения корректно подтверждены."
+      }
+    }
+  ],
+  "phase_a_hashes": {
+    "review-a-1.json": "ef51c07dbe84431485401ba4f46615ea9af8e90451759df4cd0ecc9a04f02219",
+    "review-a-2.json": "cd4991dac7bc1f945fcf88c29c975a0b05ef77556736a13009530aad94a66cce",
+    "review-a-3.json": "5536447e4afa91e873226393467ee73ab64b27d771b23bd4955dab2a5de4ae07"
+  },
+  "summary": {
+    "population_count": 378,
+    "sample_size": 48,
+    "unique_scenarios": 16,
+    "phase_a_reviews": 60,
+    "phase_b_reviews": 48,
+    "common_six_agreement": {
+      "decision_correct": {
+        "unanimous": 5,
+        "total": 6,
+        "all_non_null": 6,
+        "unanimous_non_null": 5,
+        "disagreements": [
+          {
+            "audit_id": "Q017",
+            "values": [
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "required_consequences_complete": {
+        "unanimous": 4,
+        "total": 6,
+        "all_non_null": 6,
+        "unanimous_non_null": 4,
+        "disagreements": [
+          {
+            "audit_id": "Q017",
+            "values": [
+              false,
+              true,
+              false
+            ]
+          },
+          {
+            "audit_id": "Q018",
+            "values": [
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "claims_grounded": {
+        "unanimous": 5,
+        "total": 6,
+        "all_non_null": 6,
+        "unanimous_non_null": 5,
+        "disagreements": [
+          {
+            "audit_id": "Q017",
+            "values": [
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "clarification_policy_met": {
+        "unanimous": 4,
+        "total": 6,
+        "all_non_null": 4,
+        "unanimous_non_null": 4,
+        "disagreements": [
+          {
+            "audit_id": "Q001",
+            "values": [
+              null,
+              true,
+              true
+            ]
+          },
+          {
+            "audit_id": "Q002",
+            "values": [
+              null,
+              true,
+              true
+            ]
+          }
+        ]
+      },
+      "citations_support": {
+        "unanimous": 5,
+        "total": 6,
+        "all_non_null": 6,
+        "unanimous_non_null": 5,
+        "disagreements": [
+          {
+            "audit_id": "Q017",
+            "values": [
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "critical_error": {
+        "unanimous": 5,
+        "total": 6,
+        "all_non_null": 6,
+        "unanimous_non_null": 5,
+        "disagreements": [
+          {
+            "audit_id": "Q017",
+            "values": [
+              true,
+              false,
+              true
+            ]
+          }
+        ]
+      }
+    },
+    "strata": {
+      "random": {
+        "n": 24,
+        "phase_a_primary": {
+          "decision_correct": {
+            "true": 22,
+            "false": 1,
+            "none": 1
+          },
+          "required_consequences_complete": {
+            "true": 19,
+            "false": 4,
+            "none": 1
+          },
+          "claims_grounded": {
+            "true": 19,
+            "false": 4,
+            "none": 1
+          },
+          "clarification_policy_met": {
+            "none": 4,
+            "true": 12,
+            "false": 8
+          },
+          "citations_support": {
+            "true": 18,
+            "false": 5,
+            "none": 1
+          },
+          "critical_error": {
+            "false": 21,
+            "true": 3
+          }
+        },
+        "phase_b_flags": {
+          "faithfulness": {
+            "decomposition_error": 8,
+            "verification_error": 11,
+            "reference_limitation": 0,
+            "construct_mismatch": 14
+          },
+          "factual_correctness": {
+            "decomposition_error": 6,
+            "verification_error": 9,
+            "reference_limitation": 20,
+            "construct_mismatch": 5
+          }
+        },
+        "probes": {
+          "faithfulness_1": {
+            "n": 11,
+            "required_consequences_incomplete_ids": [
+              "Q008",
+              "Q019",
+              "Q031"
+            ],
+            "critical_error_ids": [
+              "Q019",
+              "Q031"
+            ]
+          },
+          "fc_ge_0_8": {
+            "n": 11,
+            "critical_error_ids": [
+              "Q031"
+            ]
+          },
+          "reference_limitation_with_fc_1_ids": [
+            "Q012"
+          ]
+        }
+      },
+      "targeted": {
+        "n": 24,
+        "phase_a_primary": {
+          "decision_correct": {
+            "true": 23,
+            "none": 1
+          },
+          "required_consequences_complete": {
+            "true": 18,
+            "false": 5,
+            "none": 1
+          },
+          "claims_grounded": {
+            "true": 20,
+            "false": 3,
+            "none": 1
+          },
+          "clarification_policy_met": {
+            "none": 9,
+            "false": 5,
+            "true": 10
+          },
+          "citations_support": {
+            "true": 20,
+            "false": 4
+          },
+          "critical_error": {
+            "false": 22,
+            "true": 2
+          }
+        },
+        "phase_b_flags": {
+          "faithfulness": {
+            "decomposition_error": 3,
+            "verification_error": 9,
+            "reference_limitation": 0,
+            "construct_mismatch": 14
+          },
+          "factual_correctness": {
+            "decomposition_error": 3,
+            "verification_error": 6,
+            "reference_limitation": 18,
+            "construct_mismatch": 5
+          }
+        },
+        "probes": {
+          "faithfulness_1": {
+            "n": 17,
+            "required_consequences_incomplete_ids": [
+              "Q005",
+              "Q013",
+              "Q014",
+              "Q046"
+            ],
+            "critical_error_ids": [
+              "Q005",
+              "Q014"
+            ]
+          },
+          "fc_ge_0_8": {
+            "n": 12,
+            "critical_error_ids": [
+              "Q005"
+            ]
+          },
+          "reference_limitation_with_fc_1_ids": [
+            "Q001",
+            "Q007",
+            "Q013"
+          ]
+        }
+      }
+    }
+  }
+}
