@@ -1,0 +1,13 @@
+{
+  "assessments": 96,
+  "cases": 48,
+  "interpretation": "Structural integrity only; not faithfulness/accuracy improvement. Original answer errors remain; defaults unchanged.",
+  "native_metrics": {
+    "corruption_rejected/mean": 1.0,
+    "envelope_integrity/mean": 1.0
+  },
+  "provider_calls": 0,
+  "run_id": "a2f68bdac7844a74a6de76ee20b6d05e",
+  "matching_smoke_run_id": "e362d5578ff840fa95e8d438104b0430",
+  "fingerprint": "5a7e850b69b65efc849b4e90f554ff68e2260ab0a9bc63d77b0340b8c4ed2e5e"
+}
