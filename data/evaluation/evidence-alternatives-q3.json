@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "status": "assistant_agreement_not_expert_reviewed",
+  "source_hashes": {
+    "data/evaluation/scenarios.jsonl": "12588edf4c1149a06e4d8adf11cd087758536d9d7df92ab07ac36fcb181fce04",
+    "data/evaluation/evidence.jsonl": "7ebb4f4031895d7a36a992aec3c75c9eec6b759fce273522db4034f0b72c7b71",
+    "data/processed/cleaned-pages.jsonl": "7cea405ef76c0939833b41566180690503d23ef71d89155b7c405893a7baa261"
+  },
+  "candidates": [
+    {
+      "scenario_id": "FR005",
+      "language": "ru",
+      "approved": true,
+      "review_status": "two_assistants_agree_expert_pending",
+      "required_evidence": [
+        {
+          "id": "q3_FR005_ru",
+          "locators": [
+            {
+              "document_id": "ifab-2026-27-ru",
+              "pdf_page": 12,
+              "printed_page": 10,
+              "char_start": 182,
+              "char_end": 291,
+              "span_sha256": "82c7b1a182ba9ecc8c7ee0539a57ab6b3e5c3ae661f5b0b50273930e3f4e2e4d"
+            }
+          ]
+        }
+      ],
+      "limitation": "Introduction does not explicitly name the corner recipient; assess ordinary inference and source authority. Scenario supplies own penalty area."
+    },
+    {
+      "scenario_id": "FR050",
+      "language": "en",
+      "approved": true,
+      "review_status": "two_assistants_agree_expert_pending",
+      "required_evidence": [
+        {
+          "id": "q3_FR050_en",
+          "locators": [
+            {
+              "document_id": "ifab-2026-27-en",
+              "pdf_page": 182,
+              "printed_page": 182,
+              "char_start": 4,
+              "char_end": 357,
+              "span_sha256": "07acad87730ab3ad71a161a5c3d78191e66490e777957e7b148415d6cb2879f9"
+            }
+          ]
+        }
+      ],
+      "limitation": "Heading must establish Law 14 rather than shoot-out Law 10. Do not generalise to deliberate second touch."
+    }
+  ],
+  "review_files": [
+    "docs/evaluation-q3-review-a.json",
+    "docs/evaluation-q3-review-b.json"
+  ]
+}

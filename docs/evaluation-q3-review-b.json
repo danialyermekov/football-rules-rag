@@ -1,0 +1,20 @@
+{
+  "reviewer": "assistant_B",
+  "expert_review": false,
+  "reviews": [
+    {
+      "scenario_id": "FR005",
+      "language": "ru",
+      "verdict": "candidate_sufficient",
+      "rationale": "Для данного сценария фрагмент достаточен: он прямо связывает удержание мяча руками именно вратарём более восьми секунд с назначением углового. Девять секунд превышают названный предел. Условия нахождения в своей штрафной и определения начала контроля с показом последних пяти секунд уже даны в вопросе, поэтому их отсутствие во фрагменте не оставляет фактического пробела для этого решения. Получатель углового буквально не назван: вывод «сопернику» является обычным выводом из санкции за нарушение вратаря, а не прямой цитатной поддержкой этого слова. Для ответа на этот конкретный вопрос такой вывод достаточен. По представленным сведениям это введение официального издания IFAB 2026/27: официальный источник прямо описывает действующую меру, хотя вводный обзор не равнозначен полному нормативному изложению Правила 12. Оснований отвечать свободным ударом за шесть секунд фрагмент не даёт.",
+      "limitations": "Оценка основана только на пакете; подлинность документа и координаты фрагмента независимо не проверялись. Введение не содержит буквального указания получателя углового, территориального условия, определений контроля или процедуры отсчёта. Достаточность относится к данным фактам и обычному выводу о сопернике; это не признание универсальной эквивалентности введения нормативному тексту и не утверждение о буквальной поддержке каждого элемента ответа."
+    },
+    {
+      "scenario_id": "FR050",
+      "language": "en",
+      "verdict": "candidate_sufficient",
+      "rationale": "The candidate identifies Law 14, The Penalty Kick, and presents amended offences-and-sanctions text from the supplied official IFAB 2026/27 document. It expressly covers the kicker's accidental contact with the non-kicking foot or leg immediately after the kick and expressly requires a retake if the ball enters the goal. Those are the actor, timing, accidental character and outcome supplied by the question; no competing offence is present. Thus it supports both the retake and the classification as an accidental immediate second contact, rather than deliberate second play. The Law 14 heading establishes the in-match penalty context rather than a Law 10 shoot-out. As official amended rule text, this is substantive authority for the stated branch, not merely an introductory summary. The retained 'before the ball is in play' lead-in is awkward beside 'immediately after the kick', but the explicit immediate-contact provision directly matches the scenario and should not be read out of the amendment.",
+      "limitations": "Authority and provenance are assessed as supplied in the packet, without independent document verification. The candidate span does not itself state the separate sanction for deliberate second play or the no-goal branch; the supplied candidate page distinguishes deliberate repeat contact, but the selected accidental-goal branch already supports this scenario without importing that separate sanction. It does not establish a universal rule for every second contact, and its sufficiency should not be extended to deliberate contact, a missed penalty, other concurrent offences or shoot-outs."
+    }
+  ]
+}
