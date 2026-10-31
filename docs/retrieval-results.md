@@ -1035,3 +1035,7 @@ Paired bootstrap 2000/seed42, scenario RU/EN вместе: 95% percentile CI CER
 ## E21 — соседи после Qwen reranker — 2026-10-28
 
 142 dev-вопроса, прежние top50 и budget2048. E15 CER RU70.42%→77.46%, EN77.46%→84.51% (+7.04 п.п. на каждом языке). RU5 исправлений без регрессий; EN6 исправлений и1 регрессия FR050. Новый ordering не требует model inference при replay; online latency не измерена. Default сохранён, кандидат передан в G12. [Полный отчёт](retrieval-e21-results.md), [протокол](retrieval-e21-protocol.md).
+
+## E22 — gold-aware budget feasibility oracle — 2026-10-31
+
+Полный offline recovery на142 dev-вопросах, прежние top50/B2048. FOUND RU61/71 (85,92%), EN67/71 (94,37%); E21 контекст RU55/71 иEN60/71. Для всех13 случаев с полным gold в пуле, потерянным при packing, найден witness из1–3 целых чанков на236–733 токенах. IMPOSSIBLE_POOL RU10/EN4, UNKNOWN0/0. Это достижимость по gold, не новая измеренная retrieval-конфигурация; default сохранён. Native142 assessments/readback проверены. Первые full runs прерваны; воспроизведено исчерпание SQLAlchemy QueuePool при параллельной записи traces. Ограничение workers1/1 позволило завершить native phase≈14s без изменения oracle/scorer; это не online latency. [Результаты и история сбоев](retrieval-e22-results.md), [протокол](retrieval-e22-protocol.md), [сводка](retrieval-e22-summary.json).

@@ -1,0 +1,177 @@
+{
+  "run_id": "d54f4c7f1fc046e58b12caa275033d17",
+  "status": "FINISHED",
+  "native_assessments": 142,
+  "mean": 0.9014084507042254,
+  "summary": {
+    "ru": {
+      "n": 71,
+      "baseline": 55,
+      "FOUND": 61,
+      "IMPOSSIBLE_POOL": 10,
+      "UNKNOWN": 0
+    },
+    "en": {
+      "n": 71,
+      "baseline": 60,
+      "FOUND": 67,
+      "IMPOSSIBLE_POOL": 4,
+      "UNKNOWN": 0
+    }
+  },
+  "improvements": [
+    {
+      "scenario_id": "FR002",
+      "language": "ru",
+      "tokens": 681,
+      "chunks": 3,
+      "checked": 7
+    },
+    {
+      "scenario_id": "FR004",
+      "language": "ru",
+      "tokens": 681,
+      "chunks": 3,
+      "checked": 7
+    },
+    {
+      "scenario_id": "FR004",
+      "language": "en",
+      "tokens": 633,
+      "chunks": 3,
+      "checked": 7
+    },
+    {
+      "scenario_id": "FR005",
+      "language": "ru",
+      "tokens": 471,
+      "chunks": 2,
+      "checked": 3
+    },
+    {
+      "scenario_id": "FR010",
+      "language": "en",
+      "tokens": 368,
+      "chunks": 2,
+      "checked": 6
+    },
+    {
+      "scenario_id": "FR035",
+      "language": "ru",
+      "tokens": 259,
+      "chunks": 1,
+      "checked": 1
+    },
+    {
+      "scenario_id": "FR035",
+      "language": "en",
+      "tokens": 258,
+      "chunks": 1,
+      "checked": 1
+    },
+    {
+      "scenario_id": "FR041",
+      "language": "ru",
+      "tokens": 461,
+      "chunks": 2,
+      "checked": 3
+    },
+    {
+      "scenario_id": "FR041",
+      "language": "en",
+      "tokens": 486,
+      "chunks": 2,
+      "checked": 3
+    },
+    {
+      "scenario_id": "FR046",
+      "language": "en",
+      "tokens": 239,
+      "chunks": 1,
+      "checked": 2
+    },
+    {
+      "scenario_id": "FR050",
+      "language": "en",
+      "tokens": 236,
+      "chunks": 1,
+      "checked": 1
+    },
+    {
+      "scenario_id": "FR068",
+      "language": "en",
+      "tokens": 633,
+      "chunks": 3,
+      "checked": 7
+    },
+    {
+      "scenario_id": "FR089",
+      "language": "ru",
+      "tokens": 733,
+      "chunks": 3,
+      "checked": 7
+    }
+  ],
+  "pool_incomplete": [
+    {
+      "scenario_id": "FR006",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR006",
+      "language": "en"
+    },
+    {
+      "scenario_id": "FR045",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR063",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR063",
+      "language": "en"
+    },
+    {
+      "scenario_id": "FR067",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR069",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR087",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR087",
+      "language": "en"
+    },
+    {
+      "scenario_id": "FR089",
+      "language": "en"
+    },
+    {
+      "scenario_id": "FR090",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR091",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR095",
+      "language": "ru"
+    },
+    {
+      "scenario_id": "FR100",
+      "language": "ru"
+    }
+  ],
+  "source_hashes_verified": 10,
+  "trace_count": 142,
+  "native_phase_seconds_approx": 14,
+  "new_provider_calls": 0
+}
