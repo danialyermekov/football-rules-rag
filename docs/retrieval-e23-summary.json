@@ -1,0 +1,244 @@
+{
+  "run_id": "005cc004be224106af364013e5dd3c64",
+  "status": "FINISHED",
+  "questions": 142,
+  "native_assessments": 710,
+  "source_hashes_verified": 10,
+  "changed_context_count": 21,
+  "changed_contexts": [
+    {
+      "scenario_id": "FR006",
+      "language": "ru",
+      "baseline_tokens": 2042,
+      "tokens": 2046,
+      "baseline_cer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "scenario_id": "FR009",
+      "language": "ru",
+      "baseline_tokens": 1961,
+      "tokens": 1954,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR009",
+      "language": "en",
+      "baseline_tokens": 2042,
+      "tokens": 2044,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR022",
+      "language": "en",
+      "baseline_tokens": 1981,
+      "tokens": 1995,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR023",
+      "language": "ru",
+      "baseline_tokens": 1998,
+      "tokens": 1960,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR026",
+      "language": "ru",
+      "baseline_tokens": 2036,
+      "tokens": 2012,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR033",
+      "language": "ru",
+      "baseline_tokens": 2014,
+      "tokens": 2004,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR039",
+      "language": "en",
+      "baseline_tokens": 2035,
+      "tokens": 2030,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR041",
+      "language": "en",
+      "baseline_tokens": 2014,
+      "tokens": 2028,
+      "baseline_cer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "scenario_id": "FR044",
+      "language": "ru",
+      "baseline_tokens": 2046,
+      "tokens": 1961,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR044",
+      "language": "en",
+      "baseline_tokens": 2006,
+      "tokens": 2035,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR050",
+      "language": "ru",
+      "baseline_tokens": 2030,
+      "tokens": 2031,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR050",
+      "language": "en",
+      "baseline_tokens": 2047,
+      "tokens": 1993,
+      "baseline_cer": 0.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR052",
+      "language": "en",
+      "baseline_tokens": 2031,
+      "tokens": 2001,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR077",
+      "language": "ru",
+      "baseline_tokens": 2026,
+      "tokens": 2002,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR079",
+      "language": "ru",
+      "baseline_tokens": 2005,
+      "tokens": 2007,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR085",
+      "language": "ru",
+      "baseline_tokens": 2029,
+      "tokens": 2027,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR087",
+      "language": "ru",
+      "baseline_tokens": 2046,
+      "tokens": 2029,
+      "baseline_cer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "scenario_id": "FR094",
+      "language": "en",
+      "baseline_tokens": 2046,
+      "tokens": 1997,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    },
+    {
+      "scenario_id": "FR095",
+      "language": "ru",
+      "baseline_tokens": 2032,
+      "tokens": 2048,
+      "baseline_cer": 0.0,
+      "cer": 0.0
+    },
+    {
+      "scenario_id": "FR099",
+      "language": "ru",
+      "baseline_tokens": 2028,
+      "tokens": 2025,
+      "baseline_cer": 1.0,
+      "cer": 1.0
+    }
+  ],
+  "summary": {
+    "by_language": {
+      "ru": {
+        "n": 71,
+        "metrics": {
+          "complete_evidence": 0.7746478873239436,
+          "strict_complete_evidence": 0.7746478873239436,
+          "evidence_recall": 0.8145539906103286,
+          "evidence_coverage": 0.8491353626678463,
+          "source_redundancy": 0.030716307210403398
+        },
+        "baseline_metrics": {
+          "complete_evidence": 0.7746478873239436,
+          "strict_complete_evidence": 0.7746478873239436,
+          "evidence_recall": 0.8145539906103286,
+          "evidence_coverage": 0.8491353626678463,
+          "source_redundancy": 0.0306998862614845
+        },
+        "complete_count": 55.0,
+        "baseline_complete_count": 55.0,
+        "improved_ids": [],
+        "regressed_ids": []
+      },
+      "en": {
+        "n": 71,
+        "metrics": {
+          "complete_evidence": 0.8591549295774648,
+          "strict_complete_evidence": 0.8591549295774648,
+          "evidence_recall": 0.8849765258215962,
+          "evidence_coverage": 0.9052997729005833,
+          "source_redundancy": 0.03253455843781257
+        },
+        "baseline_metrics": {
+          "complete_evidence": 0.8450704225352113,
+          "strict_complete_evidence": 0.8450704225352113,
+          "evidence_recall": 0.8708920187793427,
+          "evidence_coverage": 0.8912152658583297,
+          "source_redundancy": 0.03251471070539694
+        },
+        "complete_count": 61.0,
+        "baseline_complete_count": 60.0,
+        "improved_ids": [
+          "FR050"
+        ],
+        "regressed_ids": []
+      }
+    },
+    "native_metrics": {
+      "complete_evidence/mean": 0.8169014084507042,
+      "strict_complete_evidence/mean": 0.8169014084507042,
+      "evidence_recall/mean": 0.8497652582159625,
+      "evidence_coverage/mean": 0.8772175677842148,
+      "source_redundancy/mean": 0.03162543282410798
+    },
+    "mean_cer": 0.8169014084507042,
+    "baseline_mean_cer": 0.8098591549295775,
+    "future_generation_gate": true,
+    "default_changed": false,
+    "timing": {
+      "replay_seconds": 54.026917199998934,
+      "native_evaluation_seconds": 41.51662749999923,
+      "packing_seconds": 30.816922400003023,
+      "elapsed_before_artifact_export_seconds": 102.34547909999856
+    }
+  },
+  "new_provider_api_calls": 0
+}
