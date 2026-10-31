@@ -343,12 +343,10 @@ def main():
             mlflow.log_dict({"trace_id": trace_id}, "smoke-trace-id.json")
             trace_receipt = trace_readback(trace_id)
             mlflow.log_dict(trace_receipt, "trace-readback.json")
-        scorers = [
-            make_evidence_scorer(metric, pages).register(
-                name=metric, experiment_id=experiment
-            )
-            for metric in METRICS
-        ]
+        # Local MLflow blocks persisted custom scorers for security; use the
+        # same source-controlled scorer imports as E21/E22, not unsafe opt-in.
+        scorers = [make_evidence_scorer(metric, pages) for metric in METRICS]
+        mlflow.set_tag("scorer_execution", "imported_repository_code")
         evaluation_started = perf_counter()
         result = mlflow.genai.evaluate(
             data=dataset, predict_fn=predict, scorers=scorers
