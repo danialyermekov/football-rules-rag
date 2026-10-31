@@ -185,6 +185,59 @@ def prioritize_rule_neighbors(
     return ordered
 
 
+def pack_anchor_first_context(
+    documents: list[dict[str, Any]],
+    successors: dict[str, str],
+    budget: int,
+    count_tokens: Callable[[str], int],
+) -> dict[str, Any]:
+    """Admit an anchor before its neighbors; render each group in source order."""
+    if budget <= 0:
+        raise ValueError("Context token budget must be positive")
+    by_id = {document["chunk_id"]: document for document in documents}
+    if len(by_id) != len(documents):
+        raise ValueError("Anchor-first packing requires unique candidate IDs")
+    predecessors = {following: previous for previous, following in successors.items()}
+    if len(predecessors) != len(successors):
+        raise ValueError("Each chunk must have at most one predecessor")
+
+    selected: list[dict[str, Any]] = []
+    skipped = []
+    seen = set()
+    text = ""
+    token_count = 0
+    for document in documents:
+        anchor = document["chunk_id"]
+        if anchor in seen:
+            continue
+        group: list[dict[str, Any]] = []
+        for identity, before in (
+            (anchor, False),
+            (predecessors.get(anchor), True),
+            (successors.get(anchor), False),
+        ):
+            if identity not in by_id or identity in seen:
+                continue
+            seen.add(identity)
+            neighbor = by_id[identity]
+            trial = [neighbor, *group] if before else [*group, neighbor]
+            candidate_text = render_context([*selected, *trial])
+            candidate_tokens = count_tokens(candidate_text)
+            if candidate_tokens > budget:
+                skipped.append({"chunk_id": identity, "reason": "token_budget"})
+                continue
+            group = trial
+            text = candidate_text
+            token_count = candidate_tokens
+        selected.extend(group)
+    return {
+        "documents": selected,
+        "text": text,
+        "token_count": token_count,
+        "skipped": skipped,
+    }
+
+
 def pack_context(
     documents: list[dict[str, Any]],
     budget: int,
