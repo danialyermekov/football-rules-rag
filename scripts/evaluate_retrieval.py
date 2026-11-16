@@ -106,8 +106,9 @@ def main():
     parser.add_argument(
         "--embedding",
         choices=["bge-m3", "qwen3-0.6b", "multilingual-e5-large"],
-        default="bge-m3",
+        default="qwen3-0.6b",
     )
+    parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     parser.add_argument(
         "--strategy", choices=["dense", "bm25", "hybrid"], default="dense"
     )
@@ -176,27 +177,30 @@ def main():
         dataset.merge_records(records)
 
     if args.strategy in {"dense", "hybrid"}:
-        embedder = load_embedder(args.embedding)
+        embedder = load_embedder(args.embedding, device=args.device)
         retriever = DenseRetriever(args.database, args.collection, embedder)
         if args.strategy == "hybrid":
             retriever = HybridRetriever(retriever, BM25Retriever(args.chunks))
     else:
+        embedder = None
         retriever = BM25Retriever(args.chunks)
 
     from transformers import AutoTokenizer
 
-    tokenizer_metadata = Path(
-        "data/models/bge-m3/.cache/huggingface/download/tokenizer.json.metadata"
-    )
-
-    if tokenizer_metadata.read_text(encoding="utf-8").splitlines()[:1] != [
-        MODEL_REVISION
-    ]:
-        raise ValueError("Budget tokenizer differs from the pinned BGE revision")
-
-    tokenizer = AutoTokenizer.from_pretrained(
-        "data/models/bge-m3", local_files_only=True
-    )
+    bge_dir = Path("data/models/bge-m3")
+    bge_meta = bge_dir / ".cache/huggingface/download/tokenizer.json.metadata"
+    if bge_meta.is_file():
+        if bge_meta.read_text(encoding="utf-8").splitlines()[:1] != [MODEL_REVISION]:
+            raise ValueError("Budget tokenizer differs from the pinned BGE revision")
+        tokenizer = AutoTokenizer.from_pretrained(str(bge_dir), local_files_only=True)
+        budget_tokenizer_name = MODEL_ID
+    elif hasattr(embedder, "count_tokens"):
+        tokenizer = None
+        budget_tokenizer_name = str(embedder.parameters()["model"])
+    else:
+        qwen_dir = Path("data/models/qwen3-embedding-0.6b")
+        tokenizer = AutoTokenizer.from_pretrained(str(qwen_dir), local_files_only=True)
+        budget_tokenizer_name = "Qwen/Qwen3-Embedding-0.6B"
 
     if (
         retriever.manifest["chunks_sha256"]
@@ -221,7 +225,9 @@ def main():
     trace_ids = []
 
     def count_tokens(text):
-        return len(tokenizer.encode(text, add_special_tokens=False))
+        if tokenizer is not None:
+            return len(tokenizer.encode(text, add_special_tokens=False))
+        return embedder.count_tokens(text)
 
     @mlflow.trace(name=f"{args.strategy}_retrieval", span_type="CHAIN")
     def predict(query, language):
@@ -297,7 +303,7 @@ def main():
                         else "not_applicable"
                     ),
                     "budget_tokenizer": (
-                        "BAAI/bge-m3" if args.protocol == "v2" else "not_applicable"
+                        budget_tokenizer_name if args.protocol == "v2" else "not_applicable"
                     ),
                     "packing_policy": "whole_chunks_skip_oversized_exact_id_dedup_v1",
                     "historical_run_id": "bcf4cea80728477ba9ebd41093b56df5",

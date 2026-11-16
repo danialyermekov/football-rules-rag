@@ -19,6 +19,20 @@ QWEN_QUERY_PROMPT = (
 )
 
 
+def resolve_device(device: str = "auto") -> str:
+    """Resolve auto/cpu/cuda into an available PyTorch device."""
+    if device not in {"auto", "cpu", "cuda"}:
+        raise ValueError("Device must be auto, cpu, or cuda")
+    import torch
+
+    cuda_available = torch.cuda.is_available()
+    if device == "cuda" and not cuda_available:
+        raise ValueError("CUDA was requested but is unavailable; use device 'cpu' or 'auto'")
+    if device == "auto":
+        return "cuda" if cuda_available else "cpu"
+    return device
+
+
 def verify_pinned_model_files(
     model_path: Path,
     revision: str,
@@ -49,7 +63,9 @@ class Embedder(Protocol):
 class BGEEmbedder:
     dimension = 1024
 
-    def __init__(self, model_path: Path = Path("data/models/bge-m3")) -> None:
+    def __init__(
+        self, model_path: Path = Path("data/models/bge-m3"), *, device: str = "cpu"
+    ) -> None:
         if not (model_path / "config.json").is_file():
             raise ValueError(
                 "Download the pinned BGE-M3 model first; see README.md"
@@ -65,9 +81,10 @@ class BGEEmbedder:
         import torch
         from sentence_transformers import SentenceTransformer
 
+        self.device = resolve_device(device)
         torch.set_num_threads(4)
         self.model = SentenceTransformer(
-            str(model_path), device="cpu", local_files_only=True
+            str(model_path), device=self.device, local_files_only=True
         )
         limit = self.model.max_seq_length
         if limit is None:
@@ -85,7 +102,7 @@ class BGEEmbedder:
             "revision": MODEL_REVISION,
             "dimension": self.dimension,
             "normalize_embeddings": True,
-            "device": "cpu",
+            "device": self.device,
             "dtype": "float32",
             "batch_size": self.batch_size,
             "max_seq_length": self.max_tokens,
@@ -123,7 +140,10 @@ class QwenEmbedder:
     dimension = 1024
 
     def __init__(
-        self, model_path: Path = Path("data/models/qwen3-embedding-0.6b")
+        self,
+        model_path: Path = Path("data/models/qwen3-embedding-0.6b"),
+        *,
+        device: str = "auto",
     ) -> None:
         verify_pinned_model_files(
             model_path,
@@ -143,13 +163,11 @@ class QwenEmbedder:
         import torch
         from sentence_transformers import SentenceTransformer
 
-        if not torch.cuda.is_available():
-            raise ValueError("Qwen experiment requires CUDA; use uv run --extra cuda")
-
+        self.device = resolve_device(device)
         torch.set_num_threads(4)
         self.model = SentenceTransformer(
             str(model_path),
-            device="cuda",
+            device=self.device,
             local_files_only=True,
             model_kwargs={"dtype": torch.float32, "attn_implementation": "sdpa"},
         )
@@ -170,7 +188,7 @@ class QwenEmbedder:
             "revision": QWEN_MODEL_REVISION,
             "dimension": self.dimension,
             "normalize_embeddings": True,
-            "device": "cuda",
+            "device": self.device,
             "dtype": "float32",
             "batch_size": self.batch_size,
             "max_seq_length": self.max_tokens,
@@ -199,7 +217,10 @@ class E5Embedder:
     dimension = 1024
 
     def __init__(
-        self, model_path: Path = Path("data/models/multilingual-e5-large")
+        self,
+        model_path: Path = Path("data/models/multilingual-e5-large"),
+        *,
+        device: str = "auto",
     ) -> None:
         verify_pinned_model_files(
             model_path,
@@ -221,13 +242,11 @@ class E5Embedder:
         import torch
         from sentence_transformers import SentenceTransformer
 
-        if not torch.cuda.is_available():
-            raise ValueError("E5 experiment requires CUDA; use uv run --extra cuda")
-
+        self.device = resolve_device(device)
         torch.set_num_threads(4)
         self.model = SentenceTransformer(
             str(model_path),
-            device="cuda",
+            device=self.device,
             local_files_only=True,
             model_kwargs={"dtype": torch.float32, "attn_implementation": "sdpa"},
         )
@@ -246,7 +265,7 @@ class E5Embedder:
             "revision": E5_MODEL_REVISION,
             "dimension": self.dimension,
             "normalize_embeddings": True,
-            "device": "cuda",
+            "device": self.device,
             "dtype": "float32",
             "batch_size": self.batch_size,
             "max_seq_length": self.max_tokens,
@@ -299,11 +318,11 @@ def _encode_prefixed(
     return vectors
 
 
-def load_embedder(name: str) -> Embedder:
+def load_embedder(name: str, *, device: str = "auto") -> Embedder:
     if name == "bge-m3":
-        return BGEEmbedder()
+        return BGEEmbedder(device="cpu" if device == "auto" else device)
     if name == "qwen3-0.6b":
-        return QwenEmbedder()
+        return QwenEmbedder(device=device)
     if name == "multilingual-e5-large":
-        return E5Embedder()
+        return E5Embedder(device=device)
     raise ValueError(f"Unknown embedding model: {name}")

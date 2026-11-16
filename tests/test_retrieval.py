@@ -114,6 +114,29 @@ class RetrievalTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "manifest differs"):
             index_chunks(self.chunks, self.database, self.embedder)
 
+    def test_cuda_indexed_collection_can_be_queried_from_cpu(self):
+        cuda_embedder = FixtureEmbedder()
+        cuda_embedder.parameters = lambda: {
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "dimension": 2,
+            "device": "cuda",
+            "torch": "2.14.1+cu130",
+        }
+        report = index_chunks(self.chunks, self.database, cuda_embedder)
+        cpu_embedder = FixtureEmbedder()
+        cpu_embedder.parameters = lambda: {
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "dimension": 2,
+            "device": "cpu",
+            "torch": "2.14.1",
+        }
+        retriever = DenseRetriever(self.database, report["collection"], cpu_embedder)
+        try:
+            hits = retriever.search("ball", "en", 1)
+            self.assertEqual(hits[0]["chunk_id"], "a")
+        finally:
+            retriever.close()
+
     def test_invalid_chunks_and_vectors_are_rejected(self):
         for records in [
             [],

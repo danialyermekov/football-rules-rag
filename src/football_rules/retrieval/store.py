@@ -147,6 +147,20 @@ def resolve_collection(
     return matches[-1][0]
 
 
+RUNTIME_EMBEDDING_KEYS = {
+    "device",
+    "batch_size",
+    "torch",
+    "transformers",
+    "sentence_transformers",
+    "attention",
+}
+
+
+def _embedding_signature(parameters: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in parameters.items() if k not in RUNTIME_EMBEDDING_KEYS}
+
+
 class DenseRetriever:
     def __init__(
         self, database_path: Path, collection: str, embedder: Embedder
@@ -155,7 +169,9 @@ class DenseRetriever:
             (database_path / f"{collection}.json").read_text(encoding="utf-8")
         )
 
-        if self.manifest["embedding"] != embedder.parameters():
+        if _embedding_signature(self.manifest["embedding"]) != _embedding_signature(
+            embedder.parameters()
+        ):
             raise ValueError(
                 "Query embedder differs from the indexed embedding configuration"
             )

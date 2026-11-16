@@ -9,6 +9,7 @@ from football_rules.config import (
     DEFAULT_CHUNK_SIZE,
     DEFAULT_CLEANED_PAGES_PATH,
     DEFAULT_CHUNKS_PATH,
+    DEFAULT_DEVICE,
     DEFAULT_GENERATION_MODEL,
     DEFAULT_INDEX_EMBEDDING,
     DEFAULT_LANGUAGE,
@@ -55,6 +56,11 @@ def main() -> None:
         choices=["bge-m3", "qwen3-0.6b", "multilingual-e5-large"],
         default=DEFAULT_INDEX_EMBEDDING,
     )
+    indexing.add_argument(
+        "--device",
+        choices=["auto", "cpu", "cuda"],
+        default=DEFAULT_DEVICE,
+    )
 
     searching = commands.add_parser(
         "search", help="Retrieve chunks using local embeddings and Qdrant"
@@ -69,6 +75,11 @@ def main() -> None:
         choices=["bge-m3", "qwen3-0.6b", "multilingual-e5-large"],
         default=DEFAULT_INDEX_EMBEDDING,
     )
+    searching.add_argument(
+        "--device",
+        choices=["auto", "cpu", "cuda"],
+        default=DEFAULT_DEVICE,
+    )
 
     asking = commands.add_parser(
         "ask", help="Answer a question using Hybrid retrieval and Gemini"
@@ -82,6 +93,11 @@ def main() -> None:
     )
     asking.add_argument("--database", type=Path, default=DEFAULT_QDRANT_PATH)
     asking.add_argument("--collection", default=None)
+    asking.add_argument(
+        "--device",
+        choices=["auto", "cpu", "cuda"],
+        default=DEFAULT_DEVICE,
+    )
     asking.add_argument(
         "--rerank",
         action="store_true",
@@ -113,6 +129,11 @@ def main() -> None:
     chatting.add_argument("--database", type=Path, default=DEFAULT_QDRANT_PATH)
     chatting.add_argument("--collection", default=None)
     chatting.add_argument(
+        "--device",
+        choices=["auto", "cpu", "cuda"],
+        default=DEFAULT_DEVICE,
+    )
+    chatting.add_argument(
         "--rerank",
         action="store_true",
         help="Apply Qwen3 cross-encoder reranking before packing context",
@@ -143,6 +164,7 @@ def main() -> None:
             args.database,
             args.collection,
             rerank=args.rerank,
+            device=args.device,
         )
         if args.save is not None:
             save_report(report, args.save)
@@ -158,7 +180,7 @@ def main() -> None:
         from football_rules.app import AskSession, chat_loop
 
         with AskSession(
-            args.database, args.collection, rerank=args.rerank
+            args.database, args.collection, rerank=args.rerank, device=args.device
         ) as session:
             chat_loop(
                 session,
@@ -184,14 +206,18 @@ def main() -> None:
     elif args.command == "index":
         from football_rules.retrieval import index_chunks, load_embedder
 
-        report = index_chunks(args.input, args.database, load_embedder(args.embedding))
+        report = index_chunks(
+            args.input, args.database, load_embedder(args.embedding, device=args.device)
+        )
     else:
         from football_rules.evaluation import configure_tracking
         from football_rules.retrieval import DenseRetriever, load_embedder
 
         configure_tracking()
         retriever = DenseRetriever(
-            args.database, args.collection, load_embedder(args.embedding)
+            args.database,
+            args.collection,
+            load_embedder(args.embedding, device=args.device),
         )
 
         try:

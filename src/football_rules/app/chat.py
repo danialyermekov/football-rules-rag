@@ -17,6 +17,7 @@ from football_rules.config import (
     DEFAULT_BRANCH_DEPTH,
     DEFAULT_CHUNKS_PATH,
     DEFAULT_CONTEXT_BUDGET,
+    DEFAULT_DEVICE,
     DEFAULT_QDRANT_PATH,
     DEFAULT_SAVE_PATH,
     SUPPORTED_LANGUAGES,
@@ -66,6 +67,7 @@ class AskSession:
         chunks_path: Path = DEFAULT_CHUNKS_PATH,
         *,
         rerank: bool = False,
+        device: str = DEFAULT_DEVICE,
     ) -> None:
         load_dotenv(".env")
         key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
@@ -78,13 +80,15 @@ class AskSession:
         self.rerank = rerank
 
         configure_tracking()
-        self.embedder = load_embedder(DEFAULT_ASK_EMBEDDING)
+        self.embedder = load_embedder(DEFAULT_ASK_EMBEDDING, device=device)
         self.lexical = BM25Retriever(chunks_path)
         self.dense = DenseRetriever(database, self.collection, self.embedder)
         try:
             self.retriever = HybridRetriever(self.dense, self.lexical)
             self.reranker = (
-                CrossEncoderReranker(model_name="qwen3-0.6b") if rerank else None
+                CrossEncoderReranker(device=device, model_name="qwen3-0.6b")
+                if rerank
+                else None
             )
         except Exception:
             self.dense.close()
@@ -164,10 +168,13 @@ def ask_question(
     collection: str | None = None,
     *,
     rerank: bool = False,
+    device: str = DEFAULT_DEVICE,
 ) -> dict[str, Any]:
     if not query.strip() or language not in SUPPORTED_LANGUAGES:
         raise ValueError("Provide a nonempty question and language ru/en")
-    with AskSession(database=database, collection=collection, rerank=rerank) as session:
+    with AskSession(
+        database=database, collection=collection, rerank=rerank, device=device
+    ) as session:
         return session.ask(query, language, model)
 
 

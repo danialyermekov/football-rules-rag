@@ -7,7 +7,10 @@ from typing import Any
 
 import mlflow
 
-from football_rules.retrieval.embeddings import verify_pinned_model_files
+from football_rules.retrieval.embeddings import (
+    resolve_device,
+    verify_pinned_model_files,
+)
 
 MODEL_ID = "BAAI/bge-reranker-v2-m3"
 MODEL_REVISION = "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"
@@ -68,14 +71,11 @@ def fuse_retrieval_reranker(
 class CrossEncoderReranker:
     def __init__(
         self,
-        device: str = "cuda",
+        device: str = "auto",
         model_path: Path | None = None,
         *,
         model_name: str = "bge",
     ) -> None:
-        if device not in {"cpu", "cuda"}:
-            raise ValueError("Reranker device must be cpu/cuda")
-
         if model_name not in {"bge", "qwen3-0.6b"}:
             raise ValueError("Reranker model must be bge/qwen3-0.6b")
         self.model_name = model_name
@@ -115,18 +115,14 @@ class CrossEncoderReranker:
         import torch
         from sentence_transformers import CrossEncoder
 
-        if device == "cuda" and not torch.cuda.is_available():
-            raise ValueError(
-                "CUDA is unavailable; use uv run --extra cuda or device cpu"
-            )
-
+        resolved_device = resolve_device(device)
         torch.set_num_threads(4)
-        self.device = device
+        self.device = resolved_device
         self.max_tokens = 1024
         self.batch_size = 2
         self.model = CrossEncoder(
             str(model_path),
-            device=device,
+            device=resolved_device,
             max_length=self.max_tokens,
             local_files_only=True,
             model_kwargs={"dtype": torch.float32},
@@ -149,7 +145,9 @@ class CrossEncoderReranker:
             ),
             "instruction": ("none" if self.model_name == "bge" else QWEN_INSTRUCTION),
             "torch": version("torch"),
-            "cuda_runtime": str(torch.version.cuda),
+            "cuda_runtime": (
+                str(torch.version.cuda) if self.device == "cuda" else "none"
+            ),
             "gpu": torch.cuda.get_device_name(0) if self.device == "cuda" else "none",
             "sentence_transformers": version("sentence-transformers"),
         }

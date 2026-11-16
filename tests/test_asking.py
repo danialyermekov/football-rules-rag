@@ -218,7 +218,7 @@ class AskingTests(unittest.TestCase):
             ):
                 main()
 
-            self.embedder_loader.assert_called_once_with("qwen3-0.6b")
+            self.embedder_loader.assert_called_once_with("qwen3-0.6b", device="auto")
             self.bm25_cls.assert_called_once()
             self.dense_cls.assert_called_once()
             self.hybrid_cls.assert_called_once()
@@ -271,7 +271,7 @@ class AskingTests(unittest.TestCase):
         ):
             main()
 
-        self.embedder_loader.assert_called_once_with("qwen3-0.6b")
+        self.embedder_loader.assert_called_once_with("qwen3-0.6b", device="auto")
         self.dense.close.assert_called_once()
         rendered = output.getvalue()
         self.assertIn("Error: temporary API timeout", rendered)
@@ -282,7 +282,9 @@ class AskingTests(unittest.TestCase):
         result = ask_question(
             "Out?", "en", "gemini-2.5-flash-lite", Path("db"), rerank=True
         )
-        self.reranker_cls.assert_called_once_with(model_name="qwen3-0.6b")
+        self.reranker_cls.assert_called_once_with(
+            device="auto", model_name="qwen3-0.6b"
+        )
         self.reranker_cls.return_value.rerank.assert_called_once_with(
             "Out?", self.documents
         )

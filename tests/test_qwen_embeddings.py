@@ -8,6 +8,7 @@ from football_rules.retrieval.embeddings import (
     BGEEmbedder,
     QwenEmbedder,
     load_embedder,
+    resolve_device,
 )
 
 
@@ -69,10 +70,25 @@ class QwenEmbeddingTests(unittest.TestCase):
     def test_factory_keeps_bge_as_separate_implementation(self):
         with patch("football_rules.retrieval.embeddings.BGEEmbedder") as bge:
             self.assertIs(load_embedder("bge-m3"), bge.return_value)
+            bge.assert_called_once_with(device="cpu")
         with patch("football_rules.retrieval.embeddings.QwenEmbedder") as qwen:
             self.assertIs(load_embedder("qwen3-0.6b"), qwen.return_value)
+            qwen.assert_called_once_with(device="auto")
         with self.assertRaisesRegex(ValueError, "Unknown"):
             load_embedder("unknown")
+
+    def test_resolve_device_falls_back_to_cpu_when_cuda_unavailable(self):
+        with patch("torch.cuda.is_available", return_value=False):
+            self.assertEqual(resolve_device("auto"), "cpu")
+            self.assertEqual(resolve_device("cpu"), "cpu")
+            with self.assertRaisesRegex(ValueError, "CUDA was requested"):
+                resolve_device("cuda")
+        with patch("torch.cuda.is_available", return_value=True):
+            self.assertEqual(resolve_device("auto"), "cuda")
+            self.assertEqual(resolve_device("cpu"), "cpu")
+            self.assertEqual(resolve_device("cuda"), "cuda")
+        with self.assertRaisesRegex(ValueError, "auto, cpu, or cuda"):
+            resolve_device("mps")
 
     def test_bge_queries_remain_identical_to_document_encoding(self):
         bge = BGEEmbedder.__new__(BGEEmbedder)
