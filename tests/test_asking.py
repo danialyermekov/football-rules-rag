@@ -11,7 +11,7 @@ from unittest.mock import patch
 from google.genai import types
 
 from football_rules import main
-from football_rules.app.chat import ask_question
+from football_rules.app.service import ask_question
 
 
 class AskingTests(unittest.TestCase):
@@ -19,30 +19,32 @@ class AskingTests(unittest.TestCase):
         self.stack = ExitStack()
         self.addCleanup(self.stack.close)
         self.stack.enter_context(patch.dict(os.environ, {"GEMINI_API_KEY": "test"}))
-        self.stack.enter_context(patch("football_rules.app.chat.load_dotenv"))
-        self.stack.enter_context(patch("football_rules.app.chat.configure_tracking"))
+        self.stack.enter_context(patch("football_rules.app.service.load_dotenv"))
+        self.stack.enter_context(
+            patch("football_rules.app.service.configure_tracking")
+        )
         self.stack.enter_context(
             patch(
-                "football_rules.app.chat.resolve_collection",
+                "football_rules.app.service.resolve_collection",
                 side_effect=lambda _db, col, _model: col or "resolved_collection",
             )
         )
         self.embedder_loader = self.stack.enter_context(
-            patch("football_rules.app.chat.load_embedder")
+            patch("football_rules.app.service.load_embedder")
         )
         self.embedder_loader.return_value.count_tokens.return_value = 2
         self.bm25_cls = self.stack.enter_context(
-            patch("football_rules.app.chat.BM25Retriever")
+            patch("football_rules.app.service.BM25Retriever")
         )
         self.reranker_cls = self.stack.enter_context(
-            patch("football_rules.app.chat.CrossEncoderReranker")
+            patch("football_rules.app.service.CrossEncoderReranker")
         )
         self.dense_cls = self.stack.enter_context(
-            patch("football_rules.app.chat.DenseRetriever")
+            patch("football_rules.app.service.DenseRetriever")
         )
         self.dense = self.dense_cls.return_value
         self.hybrid_cls = self.stack.enter_context(
-            patch("football_rules.app.chat.HybridRetriever")
+            patch("football_rules.app.service.HybridRetriever")
         )
         self.hybrid = self.hybrid_cls.return_value
         self.documents = [
@@ -56,10 +58,10 @@ class AskingTests(unittest.TestCase):
         ]
         self.hybrid.search.return_value = self.documents
         self.client = self.stack.enter_context(
-            patch("football_rules.app.chat.genai.Client")
+            patch("football_rules.app.service.genai.Client")
         )
         self.generate = self.stack.enter_context(
-            patch("football_rules.app.chat.generate_answer")
+            patch("football_rules.app.service.generate_answer")
         )
         self.generate.side_effect = lambda *a, **kw: {
             "answer": "Yes.",

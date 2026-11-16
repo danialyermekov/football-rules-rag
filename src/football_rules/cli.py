@@ -21,11 +21,11 @@ from football_rules.config import (
     SUPPORTED_MODELS,
 )
 
+EMBEDDING_CHOICES = ["bge-m3", "qwen3-0.6b", "multilingual-e5-large"]
+DEVICE_CHOICES = ["auto", "cpu", "cuda"]
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Football Rules RAG tools")
-    commands = parser.add_subparsers(dest="command", required=True)
 
+def _add_ingestion_commands(commands: argparse._SubParsersAction) -> None:
     ingestion = commands.add_parser(
         "ingest", help="Extract the registered PDFs page by page"
     )
@@ -46,41 +46,35 @@ def main() -> None:
     chunking.add_argument("--chunk-size", type=int, default=DEFAULT_CHUNK_SIZE)
     chunking.add_argument("--chunk-overlap", type=int, default=DEFAULT_CHUNK_OVERLAP)
 
+
+def _add_retrieval_commands(commands: argparse._SubParsersAction) -> None:
     indexing = commands.add_parser(
         "index", help="Embed chunks and build a local Qdrant collection"
     )
     indexing.add_argument("--input", type=Path, default=DEFAULT_CHUNKS_PATH)
     indexing.add_argument("--database", type=Path, default=DEFAULT_QDRANT_PATH)
     indexing.add_argument(
-        "--embedding",
-        choices=["bge-m3", "qwen3-0.6b", "multilingual-e5-large"],
-        default=DEFAULT_INDEX_EMBEDDING,
+        "--embedding", choices=EMBEDDING_CHOICES, default=DEFAULT_INDEX_EMBEDDING
     )
-    indexing.add_argument(
-        "--device",
-        choices=["auto", "cpu", "cuda"],
-        default=DEFAULT_DEVICE,
-    )
+    indexing.add_argument("--device", choices=DEVICE_CHOICES, default=DEFAULT_DEVICE)
 
     searching = commands.add_parser(
         "search", help="Retrieve chunks using local embeddings and Qdrant"
     )
     searching.add_argument("query")
-    searching.add_argument("--language", choices=list(SUPPORTED_LANGUAGES), required=True)
+    searching.add_argument(
+        "--language", choices=list(SUPPORTED_LANGUAGES), required=True
+    )
     searching.add_argument("--collection", required=True)
     searching.add_argument("--database", type=Path, default=DEFAULT_QDRANT_PATH)
     searching.add_argument("--k", type=int, default=5)
     searching.add_argument(
-        "--embedding",
-        choices=["bge-m3", "qwen3-0.6b", "multilingual-e5-large"],
-        default=DEFAULT_INDEX_EMBEDDING,
+        "--embedding", choices=EMBEDDING_CHOICES, default=DEFAULT_INDEX_EMBEDDING
     )
-    searching.add_argument(
-        "--device",
-        choices=["auto", "cpu", "cuda"],
-        default=DEFAULT_DEVICE,
-    )
+    searching.add_argument("--device", choices=DEVICE_CHOICES, default=DEFAULT_DEVICE)
 
+
+def _add_qa_commands(commands: argparse._SubParsersAction) -> None:
     asking = commands.add_parser(
         "ask", help="Answer a question using Hybrid retrieval and Gemini"
     )
@@ -93,11 +87,7 @@ def main() -> None:
     )
     asking.add_argument("--database", type=Path, default=DEFAULT_QDRANT_PATH)
     asking.add_argument("--collection", default=None)
-    asking.add_argument(
-        "--device",
-        choices=["auto", "cpu", "cuda"],
-        default=DEFAULT_DEVICE,
-    )
+    asking.add_argument("--device", choices=DEVICE_CHOICES, default=DEFAULT_DEVICE)
     asking.add_argument(
         "--rerank",
         action="store_true",
@@ -117,8 +107,7 @@ def main() -> None:
     )
 
     chatting = commands.add_parser(
-        "chat",
-        help="Interactive question-answering loop that loads the index once",
+        "chat", help="Interactive question-answering loop that loads the index once"
     )
     chatting.add_argument(
         "--language", choices=list(SUPPORTED_LANGUAGES), default=DEFAULT_LANGUAGE
@@ -128,11 +117,7 @@ def main() -> None:
     )
     chatting.add_argument("--database", type=Path, default=DEFAULT_QDRANT_PATH)
     chatting.add_argument("--collection", default=None)
-    chatting.add_argument(
-        "--device",
-        choices=["auto", "cpu", "cuda"],
-        default=DEFAULT_DEVICE,
-    )
+    chatting.add_argument("--device", choices=DEVICE_CHOICES, default=DEFAULT_DEVICE)
     chatting.add_argument(
         "--rerank",
         action="store_true",
@@ -145,84 +130,114 @@ def main() -> None:
         help="JSONL file used by the /save command",
     )
 
-    args = parser.parse_args()
 
-    if args.command == "ask":
-        from football_rules.app import (
-            ask_question,
-            format_answer,
-            format_sources,
-            save_report,
-        )
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Football Rules RAG tools")
+    commands = parser.add_subparsers(dest="command", required=True)
 
-        if not args.query.strip():
-            parser.error("Question must not be empty")
-        report = ask_question(
-            args.query,
-            args.language,
-            args.model,
-            args.database,
-            args.collection,
-            rerank=args.rerank,
-            device=args.device,
-        )
-        if args.save is not None:
-            save_report(report, args.save)
-        if args.json:
-            print(json.dumps(report, ensure_ascii=False, indent=2))
-        else:
-            print(format_answer(report, args.model))
-            if args.sources:
-                print("\n" + format_sources(report))
+    _add_ingestion_commands(commands)
+    _add_retrieval_commands(commands)
+    _add_qa_commands(commands)
+
+    return parser
+
+
+def _run_ask(args: argparse.Namespace, parser: argparse.ArgumentParser) -> None:
+    from football_rules.app import (
+        ask_question,
+        format_answer,
+        format_sources,
+        save_report,
+    )
+
+    if not args.query.strip():
+        parser.error("Question must not be empty")
+
+    report = ask_question(
+        args.query,
+        args.language,
+        args.model,
+        args.database,
+        args.collection,
+        rerank=args.rerank,
+        device=args.device,
+    )
+
+    if args.save is not None:
+        save_report(report, args.save)
+
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
         return
 
-    if args.command == "chat":
-        from football_rules.app import AskSession, chat_loop
+    print(format_answer(report, args.model))
 
-        with AskSession(
-            args.database, args.collection, rerank=args.rerank, device=args.device
-        ) as session:
-            chat_loop(
-                session,
-                language=args.language,
-                model=args.model,
-                save_path=args.save_path,
-            )
-        return
+    if args.sources:
+        print("\n" + format_sources(report))
 
+
+def _run_chat(args: argparse.Namespace) -> None:
+    from football_rules.app import AskSession, chat_loop
+
+    with AskSession(
+        args.database, args.collection, rerank=args.rerank, device=args.device
+    ) as session:
+        chat_loop(
+            session,
+            language=args.language,
+            model=args.model,
+            save_path=args.save_path,
+        )
+
+
+def _run_pipeline_command(args: argparse.Namespace) -> dict[str, object]:
     if args.command == "ingest":
         from football_rules.ingestion import ingest
 
-        report = ingest(args.manifest, args.output, Path.cwd())
-    elif args.command == "clean":
+        return ingest(args.manifest, args.output, Path.cwd())
+
+    if args.command == "clean":
         from football_rules.ingestion import clean_corpus
 
-        report = clean_corpus(args.input, args.output)
-    elif args.command == "chunk":
+        return clean_corpus(args.input, args.output)
+
+    if args.command == "chunk":
         from football_rules.ingestion import ChunkConfig, chunk_corpus
 
         config = ChunkConfig(args.chunk_size, args.chunk_overlap)
-        report = chunk_corpus(args.input, args.output, config)
-    elif args.command == "index":
+        return chunk_corpus(args.input, args.output, config)
+
+    if args.command == "index":
         from football_rules.retrieval import index_chunks, load_embedder
 
-        report = index_chunks(
-            args.input, args.database, load_embedder(args.embedding, device=args.device)
-        )
-    else:
-        from football_rules.evaluation import configure_tracking
-        from football_rules.retrieval import DenseRetriever, load_embedder
+        embedder = load_embedder(args.embedding, device=args.device)
+        return index_chunks(args.input, args.database, embedder)
 
-        configure_tracking()
-        retriever = DenseRetriever(
-            args.database,
-            args.collection,
-            load_embedder(args.embedding, device=args.device),
-        )
+    from football_rules.evaluation import configure_tracking
+    from football_rules.retrieval import DenseRetriever, load_embedder
 
-        try:
-            report = {"documents": retriever.search(args.query, args.language, args.k)}
-        finally:
-            retriever.close()
+    configure_tracking()
+    embedder = load_embedder(args.embedding, device=args.device)
+    retriever = DenseRetriever(args.database, args.collection, embedder)
 
+    try:
+        return {"documents": retriever.search(args.query, args.language, args.k)}
+    finally:
+        retriever.close()
+
+
+def main() -> None:
+    """CLI entrypoint for ingestion, indexing, search, and QA."""
+    parser = _build_parser()
+    args = parser.parse_args()
+
+    if args.command == "ask":
+        _run_ask(args, parser)
+        return
+
+    if args.command == "chat":
+        _run_chat(args)
+        return
+
+    report = _run_pipeline_command(args)
     print(json.dumps(report, ensure_ascii=False, indent=2))

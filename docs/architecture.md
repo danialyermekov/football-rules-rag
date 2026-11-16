@@ -49,9 +49,9 @@ Dense: Qwen3-Embedding-0.6B -> Qdrant   Lexical: BM25 Okapi (k1=1.2, b=0.75)
 |---|---|---|
 | Конфигурация и I/O | `config.py`, `io.py`, `cli.py` | Пути, параметры по умолчанию, атомарная запись JSONL, CLI-команды |
 | Ingestion | `ingestion/pdf.py`, `cleaning.py`, `chunking.py` | Чтение PDF по манифесту, очистка страниц с сохранением координат исходного текста, чанкинг |
-| Retrieval | `retrieval/embeddings.py`, `store.py`, `bm25.py`, `hybrid.py`, `reranking.py`, `context.py` | Локальные эмбеддинги, Qdrant Local, BM25, RRF-слияние, опциональный reranker, упаковка контекста |
+| Retrieval | `retrieval/model_utils.py`, `embeddings.py`, `store.py`, `bm25.py`, `hybrid.py`, `reranking.py`, `context.py` | Выбор устройства, локальные эмбеддинги, Qdrant Local, BM25, RRF-слияние, опциональный reranker, упаковка контекста |
 | Generation | `generation/gemini.py` | Запрос к Gemini с JSON-схемой (`answered`, `insufficient_context`, `needs_clarification`), защита от пустого контекста и валидация `citations` |
-| App | `app/chat.py` | `AskSession` (единоразовая загрузка моделей/индекса), команды `ask` и интерактивный цикл `chat` (`/sources`, `/save`, `/model`, `/lang`) |
+| App | `app/service.py`, `app/formatter.py`, `app/chat.py` | Слоистый уровень приложения: `AskSession` (оркестрация RAG), форматирование/сохранение ответов и интерактивный REPL `chat` |
 | Evaluation | `evaluation/evidence.py`, `ranking.py`, `ragas_adapter.py`, `budget.py`, `tracking.py` | Подсчёт Complete Evidence Rate (CER) по координатам текста, Recall@K/MRR/NDCG, Ragas-судьи, лимит расходов API и MLflow |
 
 ## Ключевые инженерные решения

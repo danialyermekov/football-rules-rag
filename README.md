@@ -134,9 +134,9 @@ src/football_rules/
 ├── io.py                   # Атомарное чтение/запись JSONL
 ├── cli.py                  # CLI: ingest, clean, chunk, index, search, ask, chat
 ├── ingestion/              # PDF extraction (pypdf), очистка, чанкинг с provenance
-├── retrieval/              # Embeddings, Qdrant store, BM25, RRF hybrid, reranker, context packing
+├── retrieval/              # Устройства/модели, Qdrant store, BM25, RRF hybrid, reranker, context packing
 ├── generation/             # Grounded Gemini + JSON schema + валидация ссылок
-├── app/                    # AskSession и интерактивный chat loop
+├── app/                    # Слои приложения: service (AskSession), formatter, chat REPL
 └── evaluation/             # CER-метрики, Recall@K/MRR/NDCG, Ragas, API budget, MLflow
 scripts/
 ├── setup_data.py           # Скачивание PDF и pinned-моделей с проверкой SHA-256
