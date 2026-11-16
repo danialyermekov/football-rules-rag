@@ -1,8 +1,9 @@
 [project]
 name = "football-rules"
 version = "0.1.0"
-description = "Add your description here"
+description = "Bilingual (RU/EN) RAG assistant for IFAB Laws of the Game 2026/27"
 readme = "README.md"
+license = { text = "MIT" }
 authors = [
     { name = "Danial Yermekov", email = "danialrmkv@gmail.com" }
 ]

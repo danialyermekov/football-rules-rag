@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "refactor/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Set up Python and dependencies
+        run: uv sync --locked --extra cpu
+      - name: Run unit tests
+        env:
+          MLFLOW_DISABLE_TELEMETRY: "true"
+        run: uv run --no-sync python -m unittest discover -s tests -v
+      - name: Validate evaluation dataset
+        run: uv run --no-sync python scripts/validate_dataset.py
