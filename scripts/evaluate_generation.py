@@ -16,7 +16,6 @@ from ragas.metrics.collections import FactualCorrectness, Faithfulness
 from ragas.metrics.result import MetricResult
 
 from football_rules.api_budget import ApiBudget
-from football_rules.context_controls import citation_integrity
 from football_rules.generation import (
     FOCUSED_PROMPT,
     MODEL,
@@ -292,7 +291,14 @@ def main():
 
     @scorer
     def citations_within_context(outputs):
-        return citation_integrity(outputs)
+        citations = outputs["citations"]
+        allowed = {
+            f"{document['document_id']}:{document['pdf_page']}"
+            for document in outputs["documents"]
+        }
+        return len(citations) == len(set(citations)) and set(citations).issubset(
+            allowed
+        )
 
     @scorer
     def cited_context_faithfulness(inputs, outputs):

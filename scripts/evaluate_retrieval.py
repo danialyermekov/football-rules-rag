@@ -15,21 +15,10 @@ from mlflow.genai.scorers import scorer
 
 from football_rules.bm25 import BM25Retriever
 from football_rules.embeddings import MODEL_ID, MODEL_REVISION, load_embedder
-from football_rules.evidence_evaluation import (
-    chunk_successors,
-    evidence_metrics,
-    pack_context,
-    prioritize_successors,
-)
-from football_rules.hybrid import HybridRetriever, reciprocal_rank_fusion
-from football_rules.query_rewriting import (
-    EXTRACTIVE_PROMPT,
-    REWRITE_PROMPT,
-    rewrite_query,
-)
+from football_rules.evidence_evaluation import evidence_metrics, pack_context
+from football_rules.hybrid import HybridRetriever
 from football_rules.retrieval import DenseRetriever, read_chunks
 from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
-from football_rules.sparse_retrieval import BGESparseRetriever
 from football_rules.tracking import configure_tracking
 
 
@@ -122,10 +111,6 @@ def main():
         "--strategy", choices=["dense", "bm25", "hybrid"], default="dense"
     )
     parser.add_argument("--database", type=Path, default=Path("data/qdrant"))
-    parser.add_argument("--lexical", choices=["bm25", "bge-m3-sparse"], default="bm25")
-    parser.add_argument("--bm25-stemming", action="store_true")
-    parser.add_argument("--query-rewrite", action="store_true")
-    parser.add_argument("--extractive-query", action="store_true")
     parser.add_argument(
         "--chunks", type=Path, default=Path("data/processed/chunks.jsonl")
     )
@@ -136,36 +121,7 @@ def main():
     parser.add_argument("--verify-trace", action="store_true")
     parser.add_argument("--protocol", choices=["v1", "v2"], default="v2")
     parser.add_argument("--context-budget", type=int, default=2048)
-    parser.add_argument(
-        "--context-policy",
-        choices=["rank_order", "successor_first", "page_continuation"],
-        default="rank_order",
-    )
     args = parser.parse_args()
-    if args.query_rewrite and args.extractive_query:
-        parser.error("Choose only one query transformation")
-    args.query_rewrite = args.query_rewrite or args.extractive_query
-    if args.query_rewrite and (
-        args.strategy != "hybrid"
-        or args.protocol != "v2"
-        or args.lexical != "bm25"
-        or args.bm25_stemming
-        or args.context_policy != "rank_order"
-        or not args.run_name
-    ):
-        parser.error(
-            "Query expansion requires plain v2 Hybrid, rank_order and --run-name"
-        )
-    if args.bm25_stemming and (
-        args.strategy not in {"bm25", "hybrid"}
-        or args.lexical != "bm25"
-        or not args.run_name
-    ):
-        parser.error(
-            "BM25 stemming requires BM25/hybrid, --lexical bm25 and --run-name"
-        )
-    if args.lexical != "bm25" and (args.strategy != "hybrid" or not args.run_name):
-        parser.error("Alternative lexical retrieval requires hybrid and --run-name")
 
     if args.strategy in {"dense", "hybrid"} and not args.collection:
         parser.error("--collection is required for dense/hybrid retrieval")
@@ -178,9 +134,6 @@ def main():
 
     if args.context_budget <= 0:
         parser.error("--context-budget must be positive")
-
-    if args.context_policy != "rank_order" and args.protocol != "v2":
-        parser.error("Context ordering experiments require protocol v2")
 
     os.environ["MLFLOW_GENAI_EVAL_MAX_WORKERS"] = "1"
     experiment_id = configure_tracking()
@@ -222,19 +175,12 @@ def main():
         dataset.merge_records(records)
 
     if args.strategy in {"dense", "hybrid"}:
-        lexical = None
-        if args.strategy == "hybrid":
-            lexical = (
-                BGESparseRetriever(args.chunks)
-                if args.lexical == "bge-m3-sparse"
-                else BM25Retriever(args.chunks, stemming=args.bm25_stemming)
-            )
         embedder = load_embedder(args.embedding)
         retriever = DenseRetriever(args.database, args.collection, embedder)
         if args.strategy == "hybrid":
-            retriever = HybridRetriever(retriever, lexical)
+            retriever = HybridRetriever(retriever, BM25Retriever(args.chunks))
     else:
-        retriever = BM25Retriever(args.chunks, stemming=args.bm25_stemming)
+        retriever = BM25Retriever(args.chunks)
 
     from transformers import AutoTokenizer
 
@@ -271,16 +217,7 @@ def main():
         else [make_scorer(metric) for metric in ("recall", "precision", "mrr", "ndcg")]
     )
     observations = {}
-    rewrites = {}
     trace_ids = []
-    successors = (
-        chunk_successors(
-            read_chunks(args.chunks),
-            cross_page_only=args.context_policy == "page_continuation",
-        )
-        if args.context_policy != "rank_order"
-        else {}
-    )
 
     def count_tokens(text):
         return len(tokenizer.encode(text, add_special_tokens=False))
@@ -294,26 +231,6 @@ def main():
         retrieval_seconds = perf_counter() - started
         output = {"documents": documents, "retrieval_seconds": retrieval_seconds}
 
-        if args.query_rewrite:
-            rewrite = rewrites[query, language]
-            alternative_started = perf_counter()
-            alternative = (
-                retriever.search(rewrite["rewritten_query"], language, 50)
-                if rewrite["rewritten_query"] != query
-                else documents
-            )
-            output["original_results"] = documents
-            output["rewritten_results"] = alternative
-            output["query_rewrite"] = rewrite
-            documents = reciprocal_rank_fusion(
-                documents[:50],
-                alternative[:50],
-                dense_name="original",
-                lexical_name="rewritten",
-            )
-            retrieval_seconds += perf_counter() - alternative_started
-            output["retrieval_seconds"] = retrieval_seconds
-
         if args.strategy == "hybrid":
             output["fusion_candidates"] = documents
             documents = documents[:50]
@@ -321,26 +238,15 @@ def main():
 
         if args.protocol == "v2":
             packing_started = perf_counter()
-            context_candidates = (
-                prioritize_successors(documents, successors)
-                if args.context_policy != "rank_order"
-                else documents
-            )
-            if args.context_policy != "rank_order":
-                output["context_candidates"] = context_candidates
-
             with mlflow.start_span(name="context_packing", span_type="CHAIN") as span:
                 span.set_inputs(
                     {
-                        "candidate_ids": [
-                            item["chunk_id"] for item in context_candidates
-                        ],
+                        "candidate_ids": [item["chunk_id"] for item in documents],
                         "budget": args.context_budget,
-                        "context_policy": args.context_policy,
                     }
                 )
                 output["context"] = pack_context(
-                    context_candidates, args.context_budget, count_tokens
+                    documents, args.context_budget, count_tokens
                 )
                 span.set_outputs(output["context"])
 
@@ -373,130 +279,7 @@ def main():
             + ("-dry-run" if args.limit else "")
         ) as run:
             mlflow.set_tag("run_kind", "smoke" if args.limit else "full")
-            if args.query_rewrite:
-                from dotenv import load_dotenv
-                from google import genai
-                from google.genai import types
-
-                from football_rules.generation import MODEL
-
-                load_dotenv(".env")
-                key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-                if not key:
-                    raise ValueError("Configure GEMINI_API_KEY in .env")
-                rewriter = genai.Client(
-                    api_key=key,
-                    http_options=types.HttpOptions(
-                        timeout=60000, retry_options=types.HttpRetryOptions(attempts=1)
-                    ),
-                )
-                mlflow.log_params(
-                    {
-                        "query_expansion": (
-                            "original_plus_one_extractive_query"
-                            if args.extractive_query
-                            else "original_plus_one_same_language_rewrite"
-                        ),
-                        "rewrite_model": MODEL,
-                        "rewrite_temperature": 0,
-                        "rewrite_max_output_tokens": 512,
-                        "query_fusion": "RRF60_equal_top50_per_query",
-                        "latency_scope": "frozen_queries_search_fusion_packing_excludes_rewrite_api",
-                    }
-                )
-                mlflow.log_text(
-                    EXTRACTIVE_PROMPT if args.extractive_query else REWRITE_PROMPT,
-                    "query-rewrite-prompt.txt",
-                )
-                for record in records:
-                    query, language = (
-                        record["inputs"]["query"],
-                        record["inputs"]["language"],
-                    )
-                    rewrite = rewrite_query(
-                        rewriter, query, language, extractive=args.extractive_query
-                    )
-                    rewrites[query, language] = rewrite
-                    mlflow.log_dict(
-                        {"inputs": record["inputs"], "rewrite": rewrite},
-                        f"rewrites/{record['expectations']['scenario_id']}-{language}.json",
-                    )
-                mlflow.log_dict(
-                    {
-                        "records": [
-                            {"query": query, "language": language, **rewrite}
-                            for (query, language), rewrite in rewrites.items()
-                        ]
-                    },
-                    "query-rewrites.json",
-                )
-                fresh = [row for row in rewrites.values() if row["api_called"]]
-                rewriter.close()
-                rewrite_input = sum(
-                    r["usage"].get("prompt_token_count", 0) for r in fresh
-                )
-                rewrite_output = sum(
-                    r["usage"].get("candidates_token_count", 0)
-                    + r["usage"].get("thoughts_token_count", 0)
-                    for r in fresh
-                )
-                rewrite_durations = [r["generation_seconds"] for r in rewrites.values()]
-                duration_percentiles = (
-                    quantiles(rewrite_durations, n=100, method="inclusive")
-                    if len(rewrite_durations) > 1
-                    else rewrite_durations * 99
-                )
-                mlflow.log_params(
-                    {
-                        "rewrite_estimate_input_usd_per_million": 0.10,
-                        "rewrite_estimate_output_usd_per_million": 0.40,
-                    }
-                )
-                mlflow.log_metrics(
-                    {
-                        "rewrite_api_calls_new": len(fresh),
-                        "rewrite_cache_hits": len(rewrites) - len(fresh),
-                        "rewrite_rejected_phrases": sum(
-                            len(row.get("rejected_phrases", []))
-                            for row in rewrites.values()
-                        ),
-                        "rewrite_fallbacks_to_original": sum(
-                            row.get("fallback_to_original", False)
-                            for row in rewrites.values()
-                        ),
-                        "rewrite_new_cost_usd_estimate": (
-                            rewrite_input * 0.1 + rewrite_output * 0.4
-                        )
-                        / 1_000_000,
-                        "rewrite_original_api_seconds_p50": duration_percentiles[49],
-                        "rewrite_original_api_seconds_p95": duration_percentiles[94],
-                        "rewrite_new_input_tokens": sum(
-                            r["usage"].get("prompt_token_count", 0) for r in fresh
-                        ),
-                        "rewrite_new_output_tokens": sum(
-                            r["usage"].get("candidates_token_count", 0)
-                            + r["usage"].get("thoughts_token_count", 0)
-                            for r in fresh
-                        ),
-                    }
-                )
             mlflow.log_dict(retriever.manifest, "index-manifest.json")
-            if args.context_policy != "rank_order":
-                mlflow.log_dict(
-                    {
-                        "version": args.context_policy + "_v1",
-                        "boundary": (
-                            "consecutive_page_bullet"
-                            if args.context_policy == "page_continuation"
-                            else "same_page_or_consecutive_page_bullet"
-                        ),
-                        "candidate_expansion": False,
-                        "max_successors_per_anchor": 1,
-                        "recursive": False,
-                        "successors": successors,
-                    },
-                    "context-ordering.json",
-                )
             mlflow.log_params(
                 {
                     "strategy": args.strategy,
@@ -516,7 +299,6 @@ def main():
                         "BAAI/bge-m3" if args.protocol == "v2" else "not_applicable"
                     ),
                     "packing_policy": "whole_chunks_skip_oversized_exact_id_dedup_v1",
-                    "context_policy": args.context_policy,
                     "historical_run_id": "bcf4cea80728477ba9ebd41093b56df5",
                     "control_run_id": "7c739293e3284f39833421cc9b8f400a",
                 }
@@ -610,8 +392,6 @@ def main():
                 "cleaning",
                 "bm25",
                 "hybrid",
-                "query_rewriting",
-                "sparse_retrieval",
                 "retrieval",
                 "retrieval_metrics",
                 "evidence_evaluation",
@@ -619,10 +399,6 @@ def main():
                 mlflow.log_artifact(
                     f"src/football_rules/{name}.py", artifact_path="code"
                 )
-            if args.lexical == "bge-m3-sparse":
-                import torch
-
-                torch.cuda.reset_peak_memory_stats()
             result = mlflow.genai.evaluate(
                 data=dataset, predict_fn=predict, scorers=scorers
             )
@@ -747,13 +523,6 @@ def main():
 
                 summary.update(values)
 
-            if args.lexical == "bge-m3-sparse":
-                summary["gpu_peak_allocated_mib"] = (
-                    torch.cuda.max_memory_allocated() / 2**20
-                )
-                summary["gpu_peak_reserved_mib"] = (
-                    torch.cuda.max_memory_reserved() / 2**20
-                )
             mlflow.log_metrics(summary)
             mlflow.log_dict({"records": rows}, "per-question-results.json")
             mlflow.log_dict(

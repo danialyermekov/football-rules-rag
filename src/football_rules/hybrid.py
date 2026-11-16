@@ -6,7 +6,6 @@ import mlflow
 
 from football_rules.bm25 import BM25Retriever
 from football_rules.retrieval import DenseRetriever
-from football_rules.sparse_retrieval import BGESparseRetriever
 
 
 def reciprocal_rank_fusion(
@@ -16,12 +15,8 @@ def reciprocal_rank_fusion(
     lexical_name: str = "bm25",
     dense_name: str = "dense",
 ) -> list[dict[str, Any]]:
-    if (dense_name, lexical_name) not in {
-        ("dense", "bm25"),
-        ("dense", "bge_m3_sparse"),
-        ("original", "rewritten"),
-    }:
-        raise ValueError("Unknown lexical branch")
+    if not dense_name or not lexical_name or dense_name == lexical_name:
+        raise ValueError("RRF branches require distinct nonempty names")
     combined: dict[str, dict[str, Any]] = {}
 
     for name, documents in ((dense_name, dense), (lexical_name, bm25)):
@@ -54,9 +49,7 @@ def reciprocal_rank_fusion(
 class HybridRetriever:
     """Own the dense client and return the complete fused union for diagnostics."""
 
-    def __init__(
-        self, dense: DenseRetriever, bm25: BM25Retriever | BGESparseRetriever
-    ) -> None:
+    def __init__(self, dense: DenseRetriever, bm25: BM25Retriever) -> None:
         if dense.manifest["chunks_sha256"] != bm25.manifest["chunks_sha256"]:
             dense.close()
             raise ValueError("Hybrid branches must use the same chunk corpus")
