@@ -12,8 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
+      - name: Check lockfile consistency
+        run: uv lock --check
       - name: Set up Python and dependencies
         run: uv sync --locked --extra cpu
+      - name: Lint with ruff
+        run: uvx ruff check src scripts tests
       - name: Run unit tests
         env:
           MLFLOW_DISABLE_TELEMETRY: "true"

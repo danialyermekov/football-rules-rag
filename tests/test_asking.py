@@ -2,12 +2,11 @@ import io
 import json
 import os
 import sys
-from tempfile import TemporaryDirectory
 import unittest
 from contextlib import ExitStack, redirect_stdout
 from pathlib import Path
-from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from google.genai import types
 

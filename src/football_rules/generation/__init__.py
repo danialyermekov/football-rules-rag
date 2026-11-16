@@ -11,9 +11,9 @@ from football_rules.generation.gemini import (
 )
 
 __all__ = [
-    "Answer",
     "MODEL",
     "SYSTEM_PROMPT",
+    "Answer",
     "cited_documents",
     "generate_answer",
     "metric_value",

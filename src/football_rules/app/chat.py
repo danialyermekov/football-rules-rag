@@ -1,12 +1,12 @@
 """Interactive and single-question CLI over Hybrid retrieval and grounded Gemini."""
 
-from collections.abc import Callable
-from datetime import UTC, datetime
 import json
 import os
-from pathlib import Path
 import sys
-from typing import Any, TextIO
+from collections.abc import Callable
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, Self, TextIO
 
 from dotenv import load_dotenv
 from google import genai
@@ -95,7 +95,7 @@ class AskSession:
             raise
         self._closed = False
 
-    def __enter__(self) -> "AskSession":
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *_: object) -> None:
@@ -300,13 +300,8 @@ def chat_loop(
                 print(format_sources(last_report), file=stream)
             continue
 
-        if (
-            lower == "/save"
-            or lower.startswith("/save ")
-            or lower == ":save"
-            or lower.startswith(":save ")
-            or lower == "/сохранить"
-            or lower.startswith("/сохранить ")
+        if lower in {"/save", ":save", "/сохранить"} or lower.startswith(
+            ("/save ", ":save ", "/сохранить ")
         ):
             if last_report is None:
                 print("No answer to save yet. Ask a question first.", file=stream)
@@ -334,11 +329,8 @@ def chat_loop(
                 )
             continue
 
-        if (
-            lower == "/lang"
-            or lower.startswith("/lang ")
-            or lower == "/language"
-            or lower.startswith("/language ")
+        if lower in {"/lang", "/language"} or lower.startswith(
+            ("/lang ", "/language ")
         ):
             parts = line.split(maxsplit=1)
             if len(parts) == 1:
@@ -365,7 +357,7 @@ def chat_loop(
 
         try:
             last_report = session.ask(line, language, model)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - keep interactive chat alive on transient errors
             print(f"Error: {exc}", file=stream)
             continue
 

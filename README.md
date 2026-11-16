@@ -49,24 +49,15 @@ Copy-Item .env.example .env
 # Укажите GEMINI_API_KEY=... в файле .env
 ```
 
-### 2. Подготовка исходных PDF и локальных моделей
+### 2. Скачивание PDF и моделей
 
-Исходные PDF и веса моделей не хранятся в Git (см. [docs/ifab-sources.md](docs/ifab-sources.md)).
-
-1. Скачайте два PDF (2026/27 EN и RU) по ссылкам и путям из [docs/source-manifest.json](docs/source-manifest.json):
-   - `data/raw/ifab-laws-2026-27-en.pdf`
-   - `data/raw/rfs-laws-2026-27-ru.pdf`
-2. Скачайте pinned-ревизию основной embedding-модели для `ask`/`chat` (`Qwen/Qwen3-Embedding-0.6B`):
+Исходные PDF и веса моделей не хранятся в Git (см. [docs/ifab-sources.md](docs/ifab-sources.md)). Скачать их с проверкой SHA-256 и pinned-ревизий можно одной командой:
 
 ```powershell
-uv run --no-sync hf download Qwen/Qwen3-Embedding-0.6B `
-  config.json model.safetensors tokenizer.json tokenizer_config.json `
-  config_sentence_transformers.json modules.json 1_Pooling/config.json `
-  --revision 97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3 `
-  --local-dir data/models/qwen3-embedding-0.6b
+uv run --no-sync python scripts/setup_data.py
+# Опционально добавить reranker (Qwen3-Reranker-0.6B):
+uv run --no-sync python scripts/setup_data.py --reranker
 ```
-
-*(Опционально для режима `--rerank` скачайте `Qwen/Qwen3-Reranker-0.6B` ревизии `e61197ed45024b0ed8a2d74b80b4d909f1255473` в `data/models/qwen3-reranker-0.6b`.)*
 
 ### 3. Сборка корпуса и индекса
 
@@ -74,8 +65,10 @@ uv run --no-sync hf download Qwen/Qwen3-Embedding-0.6B `
 uv run --no-sync football-rules ingest
 uv run --no-sync football-rules clean
 uv run --no-sync football-rules chunk
-uv run --no-sync football-rules index --embedding qwen3-0.6b
+uv run --no-sync football-rules index
 ```
+
+По умолчанию используется `qwen3-0.6b` и `--device auto` (CUDA при наличии GPU, иначе автоматический fallback на CPU).
 
 ## Использование CLI
 
@@ -87,6 +80,7 @@ uv run --no-sync football-rules index --embedding qwen3-0.6b
 uv run --no-sync football-rules chat
 uv run --no-sync football-rules chat --language en --model gemini-3.8-flash
 uv run --no-sync football-rules chat --rerank
+uv run --no-sync football-rules chat --device cpu
 ```
 
 Команды внутри чата:
@@ -108,6 +102,16 @@ uv run --no-sync football-rules ask "Can a player be offside directly from a thr
 - `answered` — ответ подтверждён фрагментами контекста со ссылками `document_id:pdf_page`;
 - `needs_clarification` — правило найдено, но в описании эпизода не хватает фактов;
 - `insufficient_context` — в контексте нет достаточных оснований (пустой контекст отсекается локально до вызова API).
+
+## Запуск в Docker (CPU)
+
+Образ не включает защищённые авторским правом PDF и тяжёлые веса моделей — они монтируются из локального каталога `data/`:
+
+```powershell
+docker build -t football-rules-rag .
+docker run --rm -it --env-file .env -v "${PWD}/data:/app/data" football-rules-rag chat
+docker run --rm --env-file .env -v "${PWD}/data:/app/data" football-rules-rag ask "Можно ли забить гол непосредственно с вбрасывания?"
+```
 
 ## Ключевые результаты экспериментов
 
@@ -135,6 +139,7 @@ src/football_rules/
 ├── app/                    # AskSession и интерактивный chat loop
 └── evaluation/             # CER-метрики, Recall@K/MRR/NDCG, Ragas, API budget, MLflow
 scripts/
+├── setup_data.py           # Скачивание PDF и pinned-моделей с проверкой SHA-256
 ├── validate_dataset.py     # Проверка консистентности 100 сценариев и 83 evidence
 ├── evaluate_retrieval.py   # Оценка стратегий поиска в MLflow
 └── evaluate_generation.py  # Оценка генерации и Ragas-метрик в MLflow
@@ -143,15 +148,17 @@ docs/                       # Архитектура, сводка экспер�
 tests/                      # Unit-тесты (работают без PDF, весов моделей и API-ключей)
 ```
 
-## Тесты и проверка датасета
+## Тесты и проверки
 
 ```powershell
 $env:MLFLOW_DISABLE_TELEMETRY='true'
+uv lock --check
+uvx ruff check src scripts tests
 uv run --no-sync python -m unittest discover -s tests -v
 uv run --no-sync python scripts/validate_dataset.py
 ```
 
-Для оценки retrieval/generation в MLflow используются скрипты в `scripts/`:
+Для оценки retrieval/generation в MLflow:
 
 ```powershell
 uv run --no-sync python scripts/evaluate_retrieval.py --strategy hybrid --embedding qwen3-0.6b --collection <имя_коллекции> --limit 3
