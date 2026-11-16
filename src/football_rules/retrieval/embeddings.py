@@ -19,6 +19,23 @@ QWEN_QUERY_PROMPT = (
 )
 
 
+def verify_pinned_model_files(
+    model_path: Path,
+    revision: str,
+    filenames: tuple[str, ...] | list[str],
+    error_message: str,
+) -> None:
+    """Verify local Hugging Face weights/configs match the pinned commit revision."""
+    for filename in filenames:
+        metadata = model_path / ".cache/huggingface/download" / f"{filename}.metadata"
+        if (
+            not (model_path / filename).is_file()
+            or not metadata.is_file()
+            or metadata.read_text(encoding="utf-8").splitlines()[:1] != [revision]
+        ):
+            raise ValueError(error_message)
+
+
 class Embedder(Protocol):
     dimension: int
 
@@ -35,23 +52,15 @@ class BGEEmbedder:
     def __init__(self, model_path: Path = Path("data/models/bge-m3")) -> None:
         if not (model_path / "config.json").is_file():
             raise ValueError(
-                "Download the pinned BGE-M3 model first; see docs/retrieval.md"
+                "Download the pinned BGE-M3 model first; see README.md"
             )
 
-        for filename in ("pytorch_model.bin", "config.json", "tokenizer.json"):
-            metadata = (
-                model_path / ".cache/huggingface/download" / f"{filename}.metadata"
-            )
-
-            if (
-                not (model_path / filename).is_file()
-                or not metadata.exists()
-                or metadata.read_text(encoding="utf-8").splitlines()[:1]
-                != [MODEL_REVISION]
-            ):
-                raise ValueError(
-                    "Model files must be downloaded from the pinned revision"
-                )
+        verify_pinned_model_files(
+            model_path,
+            MODEL_REVISION,
+            ("pytorch_model.bin", "config.json", "tokenizer.json"),
+            "Model files must be downloaded from the pinned revision",
+        )
 
         import torch
         from sentence_transformers import SentenceTransformer
@@ -61,12 +70,14 @@ class BGEEmbedder:
             str(model_path), device="cpu", local_files_only=True
         )
         limit = self.model.max_seq_length
-
         if limit is None:
             raise ValueError("Embedding model must declare its token limit")
 
         self.max_tokens = limit
         self.batch_size = 4
+
+    def count_tokens(self, text: str) -> int:
+        return len(self.model.tokenizer.encode(text, add_special_tokens=False))
 
     def parameters(self) -> dict[str, object]:
         return {
@@ -89,7 +100,6 @@ class BGEEmbedder:
         tokens = self.model.tokenizer(texts, padding=False, truncation=False)[
             "input_ids"
         ]
-
         if any(len(row) > self.max_tokens for row in tokens):
             raise ValueError("Embedding input exceeds model token limit")
 
@@ -115,26 +125,20 @@ class QwenEmbedder:
     def __init__(
         self, model_path: Path = Path("data/models/qwen3-embedding-0.6b")
     ) -> None:
-        for filename in (
-            "model.safetensors",
-            "config.json",
-            "tokenizer.json",
-            "tokenizer_config.json",
-            "config_sentence_transformers.json",
-            "modules.json",
-            "1_Pooling/config.json",
-        ):
-            metadata = (
-                model_path / ".cache/huggingface/download" / f"{filename}.metadata"
-            )
-
-            if (
-                not (model_path / filename).is_file()
-                or not metadata.is_file()
-                or metadata.read_text(encoding="utf-8").splitlines()[:1]
-                != [QWEN_MODEL_REVISION]
-            ):
-                raise ValueError("Download Qwen model files from the pinned revision")
+        verify_pinned_model_files(
+            model_path,
+            QWEN_MODEL_REVISION,
+            (
+                "model.safetensors",
+                "config.json",
+                "tokenizer.json",
+                "tokenizer_config.json",
+                "config_sentence_transformers.json",
+                "modules.json",
+                "1_Pooling/config.json",
+            ),
+            "Download Qwen model files from the pinned revision",
+        )
 
         import torch
         from sentence_transformers import SentenceTransformer
@@ -151,12 +155,14 @@ class QwenEmbedder:
         )
         self.model.tokenizer.padding_side = "left"
         limit = self.model.max_seq_length
-
         if limit is None:
             raise ValueError("Embedding model must declare its token limit")
 
         self.max_tokens = limit
         self.batch_size = 2
+
+    def count_tokens(self, text: str) -> int:
+        return len(self.model.tokenizer.encode(text, add_special_tokens=False))
 
     def parameters(self) -> dict[str, object]:
         return {
@@ -195,28 +201,22 @@ class E5Embedder:
     def __init__(
         self, model_path: Path = Path("data/models/multilingual-e5-large")
     ) -> None:
-        for filename in (
-            "model.safetensors",
-            "config.json",
-            "tokenizer.json",
-            "tokenizer_config.json",
-            "special_tokens_map.json",
-            "sentencepiece.bpe.model",
-            "sentence_bert_config.json",
-            "modules.json",
-            "1_Pooling/config.json",
-        ):
-            metadata = (
-                model_path / ".cache/huggingface/download" / f"{filename}.metadata"
-            )
-
-            if (
-                not (model_path / filename).is_file()
-                or not metadata.is_file()
-                or metadata.read_text(encoding="utf-8").splitlines()[:1]
-                != [E5_MODEL_REVISION]
-            ):
-                raise ValueError("Download E5 model files from the pinned revision")
+        verify_pinned_model_files(
+            model_path,
+            E5_MODEL_REVISION,
+            (
+                "model.safetensors",
+                "config.json",
+                "tokenizer.json",
+                "tokenizer_config.json",
+                "special_tokens_map.json",
+                "sentencepiece.bpe.model",
+                "sentence_bert_config.json",
+                "modules.json",
+                "1_Pooling/config.json",
+            ),
+            "Download E5 model files from the pinned revision",
+        )
 
         import torch
         from sentence_transformers import SentenceTransformer
@@ -236,6 +236,9 @@ class E5Embedder:
 
         self.max_tokens = 512
         self.batch_size = 2
+
+    def count_tokens(self, text: str) -> int:
+        return len(self.model.tokenizer.encode(text, add_special_tokens=False))
 
     def parameters(self) -> dict[str, object]:
         return {

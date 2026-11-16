@@ -13,7 +13,6 @@ from google.genai import types
 
 from football_rules import main
 from football_rules.app.chat import ask_question
-from football_rules.retrieval.embeddings import MODEL_REVISION
 
 
 class AskingTests(unittest.TestCase):
@@ -23,28 +22,21 @@ class AskingTests(unittest.TestCase):
         self.stack.enter_context(patch.dict(os.environ, {"GEMINI_API_KEY": "test"}))
         self.stack.enter_context(patch("football_rules.app.chat.load_dotenv"))
         self.stack.enter_context(patch("football_rules.app.chat.configure_tracking"))
+        self.stack.enter_context(
+            patch(
+                "football_rules.app.chat.resolve_collection",
+                side_effect=lambda _db, col, _model: col or "resolved_collection",
+            )
+        )
         self.embedder_loader = self.stack.enter_context(
             patch("football_rules.app.chat.load_embedder")
         )
+        self.embedder_loader.return_value.count_tokens.return_value = 2
         self.bm25_cls = self.stack.enter_context(
             patch("football_rules.app.chat.BM25Retriever")
         )
-        self.stack.enter_context(
-            patch.object(Path, "read_text", return_value=MODEL_REVISION)
-        )
-        self.tokenizer = Mock()
-        self.tokenizer.encode.return_value = [1, 2]
-        self.stack.enter_context(
-            patch.dict(
-                sys.modules,
-                {
-                    "transformers": SimpleNamespace(
-                        AutoTokenizer=Mock(
-                            from_pretrained=Mock(return_value=self.tokenizer)
-                        )
-                    )
-                },
-            )
+        self.reranker_cls = self.stack.enter_context(
+            patch("football_rules.app.chat.CrossEncoderReranker")
         )
         self.dense_cls = self.stack.enter_context(
             patch("football_rules.app.chat.DenseRetriever")
@@ -284,3 +276,16 @@ class AskingTests(unittest.TestCase):
         rendered = output.getvalue()
         self.assertIn("Error: temporary API timeout", rendered)
         self.assertIn("Recovered.", rendered)
+
+    def test_rerank_flag_reranks_candidates_before_packing(self):
+        self.reranker_cls.return_value.rerank.return_value = self.documents
+        result = ask_question(
+            "Out?", "en", "gemini-2.5-flash-lite", Path("db"), rerank=True
+        )
+        self.reranker_cls.assert_called_once_with(model_name="qwen3-0.6b")
+        self.reranker_cls.return_value.rerank.assert_called_once_with(
+            "Out?", self.documents
+        )
+        self.assertEqual(result["settings"]["collection"], "resolved_collection")
+        self.assertEqual(result["settings"]["strategy"], "hybrid+rerank")
+        self.assertTrue(result["settings"]["rerank"])

@@ -8,7 +8,6 @@ from football_rules.config import (
     DEFAULT_CHUNK_OVERLAP,
     DEFAULT_CHUNK_SIZE,
     DEFAULT_CLEANED_PAGES_PATH,
-    DEFAULT_COLLECTION,
     DEFAULT_CHUNKS_PATH,
     DEFAULT_GENERATION_MODEL,
     DEFAULT_INDEX_EMBEDDING,
@@ -82,7 +81,12 @@ def main() -> None:
         "--model", choices=list(SUPPORTED_MODELS), default=DEFAULT_GENERATION_MODEL
     )
     asking.add_argument("--database", type=Path, default=DEFAULT_QDRANT_PATH)
-    asking.add_argument("--collection", default=DEFAULT_COLLECTION)
+    asking.add_argument("--collection", default=None)
+    asking.add_argument(
+        "--rerank",
+        action="store_true",
+        help="Apply Qwen3 cross-encoder reranking before packing context",
+    )
     asking.add_argument(
         "--json", action="store_true", help="Include sources and token usage"
     )
@@ -107,7 +111,12 @@ def main() -> None:
         "--model", choices=list(SUPPORTED_MODELS), default=DEFAULT_GENERATION_MODEL
     )
     chatting.add_argument("--database", type=Path, default=DEFAULT_QDRANT_PATH)
-    chatting.add_argument("--collection", default=DEFAULT_COLLECTION)
+    chatting.add_argument("--collection", default=None)
+    chatting.add_argument(
+        "--rerank",
+        action="store_true",
+        help="Apply Qwen3 cross-encoder reranking before packing context",
+    )
     chatting.add_argument(
         "--save-path",
         type=Path,
@@ -128,7 +137,12 @@ def main() -> None:
         if not args.query.strip():
             parser.error("Question must not be empty")
         report = ask_question(
-            args.query, args.language, args.model, args.database, args.collection
+            args.query,
+            args.language,
+            args.model,
+            args.database,
+            args.collection,
+            rerank=args.rerank,
         )
         if args.save is not None:
             save_report(report, args.save)
@@ -143,7 +157,9 @@ def main() -> None:
     if args.command == "chat":
         from football_rules.app import AskSession, chat_loop
 
-        with AskSession(args.database, args.collection) as session:
+        with AskSession(
+            args.database, args.collection, rerank=args.rerank
+        ) as session:
             chat_loop(
                 session,
                 language=args.language,

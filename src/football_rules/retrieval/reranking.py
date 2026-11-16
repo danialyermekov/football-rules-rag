@@ -7,6 +7,8 @@ from typing import Any
 
 import mlflow
 
+from football_rules.retrieval.embeddings import verify_pinned_model_files
+
 MODEL_ID = "BAAI/bge-reranker-v2-m3"
 MODEL_REVISION = "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"
 QWEN_MODEL_ID = "Qwen/Qwen3-Reranker-0.6B"
@@ -103,15 +105,12 @@ class CrossEncoderReranker:
                     "1_LogitScore/config.json",
                 ]
             )
-        for name in files:
-            metadata = model_path / ".cache/huggingface/download" / f"{name}.metadata"
-            if (
-                not (model_path / name).is_file()
-                or not metadata.is_file()
-                or metadata.read_text(encoding="utf-8").splitlines()[:1]
-                != [self.revision]
-            ):
-                raise ValueError("Download the pinned reranker revision; see README")
+        verify_pinned_model_files(
+            model_path,
+            self.revision,
+            files,
+            "Download the pinned reranker revision; see README.md",
+        )
 
         import torch
         from sentence_transformers import CrossEncoder

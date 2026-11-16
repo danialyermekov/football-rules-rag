@@ -117,6 +117,36 @@ def index_chunks(
         client.close()
 
 
+def resolve_collection(
+    database_path: Path,
+    collection: str | None = None,
+    embedding_model_id: str | None = None,
+) -> str:
+    """Resolve an explicit collection name or discover a compatible manifest on disk."""
+    if collection is not None:
+        return collection
+
+    if not database_path.is_dir():
+        raise ValueError(
+            f"Qdrant database directory not found at {database_path}. Run `football-rules index` first."
+        )
+
+    matches: list[tuple[str, str]] = []
+    for manifest_path in sorted(database_path.glob("football_*.json")):
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        model = manifest.get("embedding", {}).get("model")
+        name = manifest.get("collection") or manifest_path.stem
+        if embedding_model_id is None or model == embedding_model_id:
+            matches.append((name, str(model or "")))
+
+    if not matches:
+        hint = f" for embedding '{embedding_model_id}'" if embedding_model_id else ""
+        raise ValueError(
+            f"No Qdrant collection manifest found in {database_path}{hint}. Run `football-rules index` first."
+        )
+    return matches[-1][0]
+
+
 class DenseRetriever:
     def __init__(
         self, database_path: Path, collection: str, embedder: Embedder

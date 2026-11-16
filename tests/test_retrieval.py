@@ -12,6 +12,7 @@ from football_rules.retrieval.store import (
     DenseRetriever,
     index_chunks,
     read_chunks,
+    resolve_collection,
     validate_vectors,
 )
 
@@ -212,6 +213,25 @@ class RankingMetricTests(unittest.TestCase):
         locators[0]["char_end"] = 5
         with self.assertRaisesRegex(ValueError, "no retained"):
             relevant_chunks(chunks, locators, pages)
+
+    def test_resolve_collection_discovers_matching_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            db = Path(directory)
+            (db / "football_bge.json").write_text(
+                '{"collection": "football_bge", "embedding": {"model": "BAAI/bge-m3"}}',
+                encoding="utf-8",
+            )
+            (db / "football_qwen.json").write_text(
+                '{"collection": "football_qwen", "embedding": {"model": "Qwen/Qwen3-Embedding-0.6B"}}',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                resolve_collection(db, None, "Qwen/Qwen3-Embedding-0.6B"),
+                "football_qwen",
+            )
+            self.assertEqual(resolve_collection(db, "explicit"), "explicit")
+            with self.assertRaisesRegex(ValueError, "No Qdrant collection manifest"):
+                resolve_collection(db, None, "unknown/model")
 
 
 if __name__ == "__main__":

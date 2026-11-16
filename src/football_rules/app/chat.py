@@ -1,4 +1,4 @@
-"""Interactive and single-question CLI over E10 retrieval and grounded Gemini."""
+"""Interactive and single-question CLI over Hybrid retrieval and grounded Gemini."""
 
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -13,7 +13,11 @@ from google import genai
 from google.genai import types
 
 from football_rules.config import (
-    DEFAULT_COLLECTION,
+    DEFAULT_ASK_EMBEDDING,
+    DEFAULT_BRANCH_DEPTH,
+    DEFAULT_CHUNKS_PATH,
+    DEFAULT_CONTEXT_BUDGET,
+    DEFAULT_QDRANT_PATH,
     DEFAULT_SAVE_PATH,
     SUPPORTED_LANGUAGES,
     SUPPORTED_MODELS,
@@ -22,9 +26,10 @@ from football_rules.evaluation.tracking import configure_tracking
 from football_rules.generation.gemini import generate_answer, valid_citations
 from football_rules.retrieval.bm25 import BM25Retriever
 from football_rules.retrieval.context import pack_context
-from football_rules.retrieval.embeddings import MODEL_REVISION, load_embedder
+from football_rules.retrieval.embeddings import QWEN_MODEL_ID, load_embedder
 from football_rules.retrieval.hybrid import HybridRetriever
-from football_rules.retrieval.store import DenseRetriever
+from football_rules.retrieval.reranking import CrossEncoderReranker
+from football_rules.retrieval.store import DenseRetriever, resolve_collection
 
 
 def generation_options(model: str) -> dict[str, Any]:
@@ -52,13 +57,15 @@ def _serialize_options(options: dict[str, Any]) -> dict[str, Any]:
 
 
 class AskSession:
-    """Reusable E10 retrieval + Gemini generation session that loads models once."""
+    """Reusable Hybrid retrieval + Gemini generation session that loads models once."""
 
     def __init__(
         self,
-        database: Path = Path("data/qdrant"),
-        collection: str = DEFAULT_COLLECTION,
-        chunks_path: Path = Path("data/processed/chunks.jsonl"),
+        database: Path = DEFAULT_QDRANT_PATH,
+        collection: str | None = None,
+        chunks_path: Path = DEFAULT_CHUNKS_PATH,
+        *,
+        rerank: bool = False,
     ) -> None:
         load_dotenv(".env")
         key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
@@ -66,24 +73,19 @@ class AskSession:
             raise ValueError("Configure GEMINI_API_KEY in environment or .env")
         self._api_key = key
         self.database = database
-        self.collection = collection
+        self.collection = resolve_collection(database, collection, QWEN_MODEL_ID)
         self.chunks_path = chunks_path
+        self.rerank = rerank
 
-        from transformers import AutoTokenizer
-
-        metadata = Path(
-            "data/models/bge-m3/.cache/huggingface/download/tokenizer.json.metadata"
-        )
-        if metadata.read_text(encoding="utf-8").splitlines()[:1] != [MODEL_REVISION]:
-            raise ValueError("Budget tokenizer differs from the pinned BGE revision")
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            "data/models/bge-m3", revision=MODEL_REVISION, local_files_only=True
-        )
         configure_tracking()
+        self.embedder = load_embedder(DEFAULT_ASK_EMBEDDING)
         self.lexical = BM25Retriever(chunks_path)
-        self.dense = DenseRetriever(database, collection, load_embedder("qwen3-0.6b"))
+        self.dense = DenseRetriever(database, self.collection, self.embedder)
         try:
             self.retriever = HybridRetriever(self.dense, self.lexical)
+            self.reranker = (
+                CrossEncoderReranker(model_name="qwen3-0.6b") if rerank else None
+            )
         except Exception:
             self.dense.close()
             raise
@@ -100,6 +102,12 @@ class AskSession:
             self._closed = True
             self.dense.close()
 
+    def _count_tokens(self, text: str) -> int:
+        counter = getattr(self.embedder, "count_tokens", None)
+        if callable(counter):
+            return int(counter(text))
+        return len(text.split())
+
     def ask(
         self,
         query: str,
@@ -109,11 +117,13 @@ class AskSession:
         if not query.strip() or language not in SUPPORTED_LANGUAGES:
             raise ValueError("Provide a nonempty question and language ru/en")
         options = generation_options(model)
-        documents = self.retriever.search(query, language, 50)
+        documents = self.retriever.search(query, language, DEFAULT_BRANCH_DEPTH)[:DEFAULT_BRANCH_DEPTH]
+        if self.reranker is not None:
+            documents = self.reranker.rerank(query, documents)
         context = pack_context(
             documents,
-            2048,
-            lambda text: len(self.tokenizer.encode(text, add_special_tokens=False)),
+            DEFAULT_CONTEXT_BUDGET,
+            self._count_tokens,
         )
         with genai.Client(
             api_key=self._api_key,
@@ -135,10 +145,11 @@ class AskSession:
             "database": str(self.database),
             "collection": self.collection,
             "chunks_path": str(self.chunks_path),
-            "embedding": "qwen3-0.6b",
-            "strategy": "hybrid",
-            "candidate_depth": 50,
-            "token_budget": 2048,
+            "embedding": DEFAULT_ASK_EMBEDDING,
+            "strategy": "hybrid+rerank" if self.rerank else "hybrid",
+            "rerank": self.rerank,
+            "candidate_depth": DEFAULT_BRANCH_DEPTH,
+            "token_budget": DEFAULT_CONTEXT_BUDGET,
             "generation_options": _serialize_options(options),
         }
         output["citations_valid"] = valid_citations(output)
@@ -146,11 +157,17 @@ class AskSession:
 
 
 def ask_question(
-    query: str, language: str, model: str, database: Path, collection: str
+    query: str,
+    language: str,
+    model: str,
+    database: Path,
+    collection: str | None = None,
+    *,
+    rerank: bool = False,
 ) -> dict[str, Any]:
     if not query.strip() or language not in SUPPORTED_LANGUAGES:
         raise ValueError("Provide a nonempty question and language ru/en")
-    with AskSession(database=database, collection=collection) as session:
+    with AskSession(database=database, collection=collection, rerank=rerank) as session:
         return session.ask(query, language, model)
 
 

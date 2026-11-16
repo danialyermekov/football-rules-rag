@@ -15,7 +15,12 @@ from football_rules.retrieval.reranking import (
     fuse_retrieval_reranker,
     rank_documents,
 )
-from football_rules.retrieval.store import DenseRetriever, index_chunks, read_chunks
+from football_rules.retrieval.store import (
+    DenseRetriever,
+    index_chunks,
+    read_chunks,
+    resolve_collection,
+)
 
 __all__ = [
     "BGEEmbedder",
@@ -34,5 +39,6 @@ __all__ = [
     "read_chunks",
     "reciprocal_rank_fusion",
     "render_context",
+    "resolve_collection",
     "tokenize",
 ]
