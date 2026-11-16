@@ -7,7 +7,7 @@ from typing import Any
 
 import mlflow
 
-from football_rules.retrieval.embeddings import (
+from football_rules.retrieval.model_utils import (
     resolve_device,
     verify_pinned_model_files,
 )

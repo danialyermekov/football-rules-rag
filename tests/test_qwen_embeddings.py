@@ -8,8 +8,8 @@ from football_rules.retrieval.embeddings import (
     BGEEmbedder,
     QwenEmbedder,
     load_embedder,
-    resolve_device,
 )
+from football_rules.retrieval.model_utils import resolve_device
 
 
 class QwenEmbeddingTests(unittest.TestCase):

@@ -4,50 +4,26 @@ from importlib.metadata import version
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
+from football_rules.retrieval.model_utils import (
+    resolve_device,
+    verify_pinned_model_files,
+)
+
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
 
 MODEL_ID = "BAAI/bge-m3"
 MODEL_REVISION = "5617a9f61b028005a4858fdac845db406aefb181"
+
 QWEN_MODEL_ID = "Qwen/Qwen3-Embedding-0.6B"
 QWEN_MODEL_REVISION = "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3"
-E5_MODEL_ID = "intfloat/multilingual-e5-large"
-E5_MODEL_REVISION = "3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3"
 QWEN_QUERY_PROMPT = (
     "Instruct: Given a web search query, retrieve relevant passages that answer the query"
     "\nQuery:"
 )
 
-
-def resolve_device(device: str = "auto") -> str:
-    """Resolve auto/cpu/cuda into an available PyTorch device."""
-    if device not in {"auto", "cpu", "cuda"}:
-        raise ValueError("Device must be auto, cpu, or cuda")
-    import torch
-
-    cuda_available = torch.cuda.is_available()
-    if device == "cuda" and not cuda_available:
-        raise ValueError("CUDA was requested but is unavailable; use device 'cpu' or 'auto'")
-    if device == "auto":
-        return "cuda" if cuda_available else "cpu"
-    return device
-
-
-def verify_pinned_model_files(
-    model_path: Path,
-    revision: str,
-    filenames: tuple[str, ...] | list[str],
-    error_message: str,
-) -> None:
-    """Verify local Hugging Face weights/configs match the pinned commit revision."""
-    for filename in filenames:
-        metadata = model_path / ".cache/huggingface/download" / f"{filename}.metadata"
-        if (
-            not (model_path / filename).is_file()
-            or not metadata.is_file()
-            or metadata.read_text(encoding="utf-8").splitlines()[:1] != [revision]
-        ):
-            raise ValueError(error_message)
+E5_MODEL_ID = "intfloat/multilingual-e5-large"
+E5_MODEL_REVISION = "3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3"
 
 
 class Embedder(Protocol):
@@ -60,16 +36,29 @@ class Embedder(Protocol):
     def parameters(self) -> dict[str, object]: ...
 
 
-class BGEEmbedder:
+class _BaseSentenceEmbedder:
+    """Shared tokenization and validation helpers for local SentenceTransformer models."""
+
     dimension = 1024
+    model: "SentenceTransformer"
+    max_tokens: int
+    batch_size: int
+
+    def count_tokens(self, text: str) -> int:
+        return len(self.model.tokenizer.encode(text, add_special_tokens=False))
+
+
+class BGEEmbedder(_BaseSentenceEmbedder):
+    """BGE-M3 dense embedder (identical query and passage formatting)."""
 
     def __init__(
-        self, model_path: Path = Path("data/models/bge-m3"), *, device: str = "cpu"
+        self,
+        model_path: Path = Path("data/models/bge-m3"),
+        *,
+        device: str = "cpu",
     ) -> None:
         if not (model_path / "config.json").is_file():
-            raise ValueError(
-                "Download the pinned BGE-M3 model first; see README.md"
-            )
+            raise ValueError("Download the pinned BGE-M3 model first; see README.md")
 
         verify_pinned_model_files(
             model_path,
@@ -83,18 +72,16 @@ class BGEEmbedder:
 
         self.device = resolve_device(device)
         torch.set_num_threads(4)
+
         self.model = SentenceTransformer(
             str(model_path), device=self.device, local_files_only=True
         )
-        limit = self.model.max_seq_length
-        if limit is None:
+
+        if self.model.max_seq_length is None:
             raise ValueError("Embedding model must declare its token limit")
 
-        self.max_tokens = limit
+        self.max_tokens = self.model.max_seq_length
         self.batch_size = 4
-
-    def count_tokens(self, text: str) -> int:
-        return len(self.model.tokenizer.encode(text, add_special_tokens=False))
 
     def parameters(self) -> dict[str, object]:
         return {
@@ -134,10 +121,8 @@ class BGEEmbedder:
         return self.encode(texts)
 
 
-class QwenEmbedder:
-    """Use Qwen's published retrieval instruction only for queries."""
-
-    dimension = 1024
+class QwenEmbedder(_BaseSentenceEmbedder):
+    """Qwen3-Embedding-0.6B with instruction prefix applied only to queries."""
 
     def __init__(
         self,
@@ -165,6 +150,7 @@ class QwenEmbedder:
 
         self.device = resolve_device(device)
         torch.set_num_threads(4)
+
         self.model = SentenceTransformer(
             str(model_path),
             device=self.device,
@@ -172,15 +158,12 @@ class QwenEmbedder:
             model_kwargs={"dtype": torch.float32, "attn_implementation": "sdpa"},
         )
         self.model.tokenizer.padding_side = "left"
-        limit = self.model.max_seq_length
-        if limit is None:
+
+        if self.model.max_seq_length is None:
             raise ValueError("Embedding model must declare its token limit")
 
-        self.max_tokens = limit
+        self.max_tokens = self.model.max_seq_length
         self.batch_size = 2
-
-    def count_tokens(self, text: str) -> int:
-        return len(self.model.tokenizer.encode(text, add_special_tokens=False))
 
     def parameters(self) -> dict[str, object]:
         return {
@@ -211,10 +194,8 @@ class QwenEmbedder:
         )
 
 
-class E5Embedder:
-    """Use the published multilingual E5 query/passage prefixes."""
-
-    dimension = 1024
+class E5Embedder(_BaseSentenceEmbedder):
+    """Multilingual-E5-Large using published 'query: ' and 'passage: ' prefixes."""
 
     def __init__(
         self,
@@ -244,20 +225,19 @@ class E5Embedder:
 
         self.device = resolve_device(device)
         torch.set_num_threads(4)
+
         self.model = SentenceTransformer(
             str(model_path),
             device=self.device,
             local_files_only=True,
             model_kwargs={"dtype": torch.float32, "attn_implementation": "sdpa"},
         )
+
         if self.model.max_seq_length != 512:
             raise ValueError("Expected the pinned E5 token limit of 512")
 
         self.max_tokens = 512
         self.batch_size = 2
-
-    def count_tokens(self, text: str) -> int:
-        return len(self.model.tokenizer.encode(text, add_special_tokens=False))
 
     def parameters(self) -> dict[str, object]:
         return {
@@ -319,10 +299,14 @@ def _encode_prefixed(
 
 
 def load_embedder(name: str, *, device: str = "auto") -> Embedder:
+    """Instantiate one of the supported pinned local embedding models."""
     if name == "bge-m3":
         return BGEEmbedder(device="cpu" if device == "auto" else device)
+
     if name == "qwen3-0.6b":
         return QwenEmbedder(device=device)
+
     if name == "multilingual-e5-large":
         return E5Embedder(device=device)
+
     raise ValueError(f"Unknown embedding model: {name}")
