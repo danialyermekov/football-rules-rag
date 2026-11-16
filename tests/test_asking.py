@@ -12,8 +12,8 @@ from unittest.mock import Mock, patch
 from google.genai import types
 
 from football_rules import main
-from football_rules.asking import ask_question
-from football_rules.embeddings import MODEL_REVISION
+from football_rules.app.chat import ask_question
+from football_rules.retrieval.embeddings import MODEL_REVISION
 
 
 class AskingTests(unittest.TestCase):
@@ -21,13 +21,13 @@ class AskingTests(unittest.TestCase):
         self.stack = ExitStack()
         self.addCleanup(self.stack.close)
         self.stack.enter_context(patch.dict(os.environ, {"GEMINI_API_KEY": "test"}))
-        self.stack.enter_context(patch("football_rules.asking.load_dotenv"))
-        self.stack.enter_context(patch("football_rules.asking.configure_tracking"))
+        self.stack.enter_context(patch("football_rules.app.chat.load_dotenv"))
+        self.stack.enter_context(patch("football_rules.app.chat.configure_tracking"))
         self.embedder_loader = self.stack.enter_context(
-            patch("football_rules.asking.load_embedder")
+            patch("football_rules.app.chat.load_embedder")
         )
         self.bm25_cls = self.stack.enter_context(
-            patch("football_rules.asking.BM25Retriever")
+            patch("football_rules.app.chat.BM25Retriever")
         )
         self.stack.enter_context(
             patch.object(Path, "read_text", return_value=MODEL_REVISION)
@@ -47,11 +47,11 @@ class AskingTests(unittest.TestCase):
             )
         )
         self.dense_cls = self.stack.enter_context(
-            patch("football_rules.asking.DenseRetriever")
+            patch("football_rules.app.chat.DenseRetriever")
         )
         self.dense = self.dense_cls.return_value
         self.hybrid_cls = self.stack.enter_context(
-            patch("football_rules.asking.HybridRetriever")
+            patch("football_rules.app.chat.HybridRetriever")
         )
         self.hybrid = self.hybrid_cls.return_value
         self.documents = [
@@ -65,10 +65,10 @@ class AskingTests(unittest.TestCase):
         ]
         self.hybrid.search.return_value = self.documents
         self.client = self.stack.enter_context(
-            patch("football_rules.asking.genai.Client")
+            patch("football_rules.app.chat.genai.Client")
         )
         self.generate = self.stack.enter_context(
-            patch("football_rules.asking.generate_answer")
+            patch("football_rules.app.chat.generate_answer")
         )
         self.generate.side_effect = lambda *a, **kw: {
             "answer": "Yes.",

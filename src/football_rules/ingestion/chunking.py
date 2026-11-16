@@ -10,8 +10,8 @@ from typing import TypedDict
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from football_rules.cleaning import CleanedPage, SourceSpan
-from football_rules.jsonl import write_jsonl
+from football_rules.ingestion.cleaning import CleanedPage, SourceSpan
+from football_rules.io import write_jsonl
 
 SEPARATORS = ["\n\n", "\n", ". ", "! ", "? ", " ", ""]
 

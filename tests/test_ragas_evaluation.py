@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from football_rules.ragas_evaluation import (
+from football_rules.evaluation.ragas_adapter import (
     LocalMetricEmbeddings,
     checked_score,
     metric_applicability,

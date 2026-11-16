@@ -10,14 +10,14 @@ from unittest.mock import patch
 from langchain_core.documents import Document
 from test_cleaning import page_record
 
-from football_rules.chunking import (
+from football_rules.ingestion.chunking import (
     ChunkConfig,
     chunk_corpus,
     chunk_page,
     source_positions,
 )
-from football_rules.cleaning import clean_page
-from football_rules.jsonl import write_jsonl
+from football_rules.ingestion.cleaning import clean_page
+from football_rules.io import write_jsonl
 
 
 def nonwhitespace(text):
@@ -148,7 +148,7 @@ class ChunkingTests(ProvenanceAssertions, unittest.TestCase):
             with (
                 self.subTest(document=document),
                 patch(
-                    "football_rules.chunking.RecursiveCharacterTextSplitter.create_documents",
+                    "football_rules.ingestion.chunking.RecursiveCharacterTextSplitter.create_documents",
                     return_value=[document],
                 ),
                 self.assertRaises(ValueError),

@@ -1,4 +1,4 @@
-"""Atomic writes for local pipeline artifacts."""
+"""Atomic JSONL I/O helpers for pipeline artifacts."""
 
 import hashlib
 import json
@@ -6,6 +6,12 @@ import os
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Any
+
+
+def read_jsonl(path: Path) -> list[dict[str, Any]]:
+    """Read UTF-8 JSONL lines into a list of dictionaries."""
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
 def write_jsonl(path: Path, records: Iterable[Mapping[str, object]]) -> str:

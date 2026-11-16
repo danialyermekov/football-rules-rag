@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from football_rules.embeddings import E5Embedder, load_embedder
+from football_rules.retrieval.embeddings import E5Embedder, load_embedder
 
 
 class E5EmbeddingTests(unittest.TestCase):
@@ -59,5 +59,5 @@ class E5EmbeddingTests(unittest.TestCase):
             E5Embedder(Path(directory))
 
     def test_factory_selects_e5_without_loading_other_models(self):
-        with patch("football_rules.embeddings.E5Embedder") as model:
+        with patch("football_rules.retrieval.embeddings.E5Embedder") as model:
             self.assertIs(load_embedder("multilingual-e5-large"), model.return_value)

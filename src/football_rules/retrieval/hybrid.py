@@ -4,8 +4,8 @@ from typing import Any
 
 import mlflow
 
-from football_rules.bm25 import BM25Retriever
-from football_rules.retrieval import DenseRetriever
+from football_rules.retrieval.bm25 import BM25Retriever
+from football_rules.retrieval.store import DenseRetriever
 
 
 def reciprocal_rank_fusion(

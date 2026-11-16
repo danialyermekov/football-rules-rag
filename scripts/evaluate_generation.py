@@ -15,19 +15,17 @@ from mlflow.genai.scorers import scorer
 from ragas.metrics.collections import FactualCorrectness, Faithfulness
 from ragas.metrics.result import MetricResult
 
-from football_rules.api_budget import ApiBudget
-from football_rules.generation import (
-    FOCUSED_PROMPT,
+from football_rules.evaluation.budget import ApiBudget
+from football_rules.evaluation.ragas_adapter import evaluate_ragas_metric
+from football_rules.evaluation.tracking import configure_tracking
+from football_rules.generation.gemini import (
     MODEL,
-    SOURCE_ID_PROMPT,
     SYSTEM_PROMPT,
     cited_documents,
     generate_answer,
     metric_value,
     valid_citations,
 )
-from football_rules.ragas_evaluation import evaluate_ragas_metric
-from football_rules.tracking import configure_tracking
 
 CONTROL = "b50e71e2d39d4145ae2f7e08fd49416e"
 PILOT = ["FR001", "FR005", "FR009", "FR055", "FR085", "FR094"]
@@ -42,12 +40,8 @@ def main():
     parser.add_argument("--scenario-ids", nargs="+", default=PILOT)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--verify-trace", action="store_true")
-    parser.add_argument(
-        "--citation-mode", choices=["legacy", "source_ids"], default="legacy"
-    )
     parser.add_argument("--generate-only", action="store_true")
     parser.add_argument("--run-name")
-    parser.add_argument("--policy", choices=["baseline", "focused"], default="baseline")
     parser.add_argument("--irrelevant-context", action="store_true")
     parser.add_argument("--max-new-generation-usd", type=float)
     parser.add_argument("--budget-ledger", type=Path)
@@ -65,23 +59,19 @@ def main():
     )
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be positive")
-    if args.policy == "focused" and args.citation_mode != "legacy":
-        parser.error("Focused prompt comparison uses legacy citations")
     if args.irrelevant_context and not args.generate_only:
         parser.error(
             "Irrelevant contexts use --generate-only and separate refusal checks"
         )
-    if (args.policy == "focused" or args.irrelevant_context) and not args.run_name:
-        parser.error("Experimental policies require an explicit --run-name")
+    if args.irrelevant_context and not args.run_name:
+        parser.error("Experimental controls require an explicit --run-name")
 
     load_dotenv(".env")
     key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     if not key:
         raise ValueError("Configure GEMINI_API_KEY in .env; never paste it into logs")
 
-    prompt = SOURCE_ID_PROMPT if args.citation_mode == "source_ids" else SYSTEM_PROMPT
-    if args.policy == "focused":
-        prompt = FOCUSED_PROMPT
+    prompt = SYSTEM_PROMPT
     experiment_id = configure_tracking()
     tracker = mlflow.MlflowClient()
     source_run = tracker.get_run(args.retrieval_run)
@@ -103,7 +93,6 @@ def main():
     destination = (
         Path("tmp/generation")
         / args.retrieval_run
-        / args.policy
         / ("irrelevant" if args.irrelevant_context else "original")
     )
     destination.mkdir(parents=True, exist_ok=True)
@@ -218,7 +207,6 @@ def main():
             span.set_inputs(
                 {
                     "retrieval_run_id": args.retrieval_run,
-                    "citation_mode": args.citation_mode,
                     "generate_only": args.generate_only,
                     "query": query,
                     "condition": condition,
@@ -235,10 +223,7 @@ def main():
             language,
             context["text"],
             model=args.model,
-            system_prompt=FOCUSED_PROMPT if args.policy == "focused" else SYSTEM_PROMPT,
-            citation_documents=(
-                context["documents"] if args.citation_mode == "source_ids" else None
-            ),
+            system_prompt=SYSTEM_PROMPT,
         )
         if budget is not None and reservation is not None:
             budget.settle(reservation, output["usage"])
@@ -321,14 +306,7 @@ def main():
     with (
         client,
         mlflow.start_run(
-            run_name=(
-                args.run_name
-                or (
-                    "G4-source-ids-e10-pilot"
-                    if args.citation_mode == "source_ids"
-                    else "G0-gemini-e10-pilot"
-                )
-            )
+            run_name=(args.run_name or "G0-gemini-e10-pilot")
             + ("-dry-run" if args.limit else "")
         ) as run,
     ):
@@ -338,11 +316,9 @@ def main():
         mlflow.log_params(
             {
                 "retrieval_run_id": args.retrieval_run,
-                "policy": args.policy,
                 "negative_control_run_id": (
                     NEGATIVE_CONTROL_RUN if args.irrelevant_context else "none"
                 ),
-                "citation_mode": args.citation_mode,
                 "generate_only": args.generate_only,
                 "retrieval_mode": (
                     "frozen_irrelevant_context_intervention"
@@ -365,7 +341,7 @@ def main():
         )
         for path in [
             __file__,
-            "src/football_rules/generation.py",
+            "src/football_rules/generation/gemini.py",
             "pyproject.toml",
             "uv.lock",
         ]:

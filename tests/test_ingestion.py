@@ -8,7 +8,7 @@ from pathlib import Path
 from pypdf import PdfWriter
 from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 
-from football_rules.ingestion import (
+from football_rules.ingestion.pdf import (
     SourceDocument,
     extract_document,
     ingest,

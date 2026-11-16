@@ -11,7 +11,7 @@ from uuid import NAMESPACE_URL, uuid5
 import mlflow
 from qdrant_client import QdrantClient, models
 
-from football_rules.embeddings import Embedder
+from football_rules.retrieval.embeddings import Embedder
 
 
 def read_chunks(path: Path) -> list[dict[str, Any]]:

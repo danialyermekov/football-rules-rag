@@ -8,8 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TypedDict
 
-from football_rules.ingestion import PageRecord
-from football_rules.jsonl import write_jsonl
+from football_rules.ingestion.pdf import PageRecord
+from football_rules.io import write_jsonl
 
 RUNNING_HEADER = re.compile(
     r"^(?:\d+\s*)?(?:L\s*aws of the Game|Правила игры)\s+"

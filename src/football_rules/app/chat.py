@@ -12,22 +12,19 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from football_rules.bm25 import BM25Retriever
-from football_rules.embeddings import MODEL_REVISION, load_embedder
-from football_rules.evidence_evaluation import pack_context
-from football_rules.generation import generate_answer, valid_citations
-from football_rules.hybrid import HybridRetriever
-from football_rules.retrieval import DenseRetriever
-from football_rules.tracking import configure_tracking
-
-DEFAULT_COLLECTION = "football_44d75390ffa00dde1b74f0e6"
-DEFAULT_SAVE_PATH = Path("tmp/saved-questions.jsonl")
-SUPPORTED_LANGUAGES = ("ru", "en")
-SUPPORTED_MODELS = (
-    "gemini-2.5-flash-lite",
-    "gemini-3.8-flash",
-    "gemini-4-argon",
+from football_rules.config import (
+    DEFAULT_COLLECTION,
+    DEFAULT_SAVE_PATH,
+    SUPPORTED_LANGUAGES,
+    SUPPORTED_MODELS,
 )
+from football_rules.evaluation.tracking import configure_tracking
+from football_rules.generation.gemini import generate_answer, valid_citations
+from football_rules.retrieval.bm25 import BM25Retriever
+from football_rules.retrieval.context import pack_context
+from football_rules.retrieval.embeddings import MODEL_REVISION, load_embedder
+from football_rules.retrieval.hybrid import HybridRetriever
+from football_rules.retrieval.store import DenseRetriever
 
 
 def generation_options(model: str) -> dict[str, Any]:

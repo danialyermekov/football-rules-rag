@@ -5,15 +5,15 @@ from unittest.mock import MagicMock
 
 import mlflow
 
-from football_rules.embeddings import BGEEmbedder
-from football_rules.jsonl import write_jsonl
-from football_rules.retrieval import (
+from football_rules.evaluation.ranking import ranking_metrics, relevant_chunks
+from football_rules.io import write_jsonl
+from football_rules.retrieval.embeddings import BGEEmbedder
+from football_rules.retrieval.store import (
     DenseRetriever,
     index_chunks,
     read_chunks,
     validate_vectors,
 )
-from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
 
 
 class FixtureEmbedder:

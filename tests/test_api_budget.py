@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from football_rules.api_budget import ApiBudget
+from football_rules.evaluation.budget import ApiBudget
 
 
 class ApiBudgetTests(unittest.TestCase):

@@ -13,7 +13,7 @@ from typing import TypedDict
 from pypdf import PageObject, PdfReader, mult
 from pypdf.generic import DictionaryObject
 
-from football_rules.jsonl import write_jsonl
+from football_rules.io import write_jsonl
 
 
 @dataclass(frozen=True)

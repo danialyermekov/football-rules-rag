@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from football_rules.embeddings import (
+from football_rules.retrieval.embeddings import (
     QWEN_QUERY_PROMPT,
     BGEEmbedder,
     QwenEmbedder,
@@ -67,9 +67,9 @@ class QwenEmbeddingTests(unittest.TestCase):
             QwenEmbedder(Path(directory))
 
     def test_factory_keeps_bge_as_separate_implementation(self):
-        with patch("football_rules.embeddings.BGEEmbedder") as bge:
+        with patch("football_rules.retrieval.embeddings.BGEEmbedder") as bge:
             self.assertIs(load_embedder("bge-m3"), bge.return_value)
-        with patch("football_rules.embeddings.QwenEmbedder") as qwen:
+        with patch("football_rules.retrieval.embeddings.QwenEmbedder") as qwen:
             self.assertIs(load_embedder("qwen3-0.6b"), qwen.return_value)
         with self.assertRaisesRegex(ValueError, "Unknown"):
             load_embedder("unknown")

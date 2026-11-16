@@ -1,4 +1,3 @@
-import json
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -6,17 +5,12 @@ from unittest.mock import Mock
 from google.genai import types
 from pydantic import ValidationError
 
-from football_rules.generation import (
-    EVIDENCE_CHECK_PROMPT,
-    FOCUSED_PROMPT,
-    GROUNDED_PROMPT,
+from football_rules.generation.gemini import (
     Answer,
-    EvidenceCheckedAnswer,
     cited_documents,
     generate_answer,
     metric_value,
     valid_citations,
-    valid_evidence_quotes,
 )
 
 
@@ -65,60 +59,6 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(config.max_output_tokens, 32768)
         with self.assertRaises(ValueError):
             generate_answer(client, "Question?", "en", "rule", max_output_tokens=0)
-
-    def test_evidence_check_is_opt_in_and_preserves_the_observable_checks(self):
-        client = Mock()
-        payload = {
-            "checks": [
-                {
-                    "rule_quote": "Required rule",
-                    "citation": "en:10",
-                    "incident_fact": "Known fact",
-                    "consequence": "Required decision",
-                }
-            ],
-            "missing_facts": [],
-            "missing_rules": [],
-            "status": "answered",
-            "answer": "Decision.",
-            "citations": ["en:10"],
-        }
-        usage = Mock()
-        usage.model_dump.return_value = {"prompt_token_count": 100}
-        client.models.generate_content.return_value = SimpleNamespace(
-            text=json.dumps(payload), model_version="test", usage_metadata=usage
-        )
-        result = generate_answer(
-            client, "Known fact", "en", "Required rule", check_evidence=True
-        )
-        config = client.models.generate_content.call_args.kwargs["config"]
-        self.assertIs(config.response_schema, EvidenceCheckedAnswer)
-        self.assertEqual(config.system_instruction, EVIDENCE_CHECK_PROMPT)
-        self.assertEqual(config.max_output_tokens, 1024)
-        self.assertEqual(result["checks"], payload["checks"])
-        self.assertEqual(result["citations"], ["en:10"])
-        for options in [{"system_prompt": FOCUSED_PROMPT}, {"citation_documents": []}]:
-            with self.subTest(options=options), self.assertRaises(ValueError):
-                generate_answer(
-                    client, "Known fact", "en", "rule", check_evidence=True, **options
-                )
-
-    def test_quote_provenance_rejects_invented_text_and_wrong_page(self):
-        output = {
-            "documents": [
-                {"document_id": "en", "pdf_page": 10, "text": "Required\n rule"}
-            ],
-            "checks": [],
-        }
-        for quote, citation, expected in [
-            ("Required rule", "en:10", True),
-            ("Invented rule", "en:10", False),
-            ("Required rule", "en:11", False),
-            ("  ", "en:10", False),
-        ]:
-            with self.subTest(quote=quote, citation=citation):
-                output["checks"] = [{"rule_quote": quote, "citation": citation}]
-                self.assertEqual(valid_evidence_quotes(output), expected)
 
     def test_citations_resolve_only_to_supplied_pages(self):
         documents = [
@@ -170,14 +110,6 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(result["citations"], ["en:10"])
         self.assertEqual(result["model_version"], "pinned-response-version")
         self.assertEqual(result["usage"]["prompt_token_count"], 100)
-        for prompt in (GROUNDED_PROMPT, FOCUSED_PROMPT):
-            generate_answer(client, "Question?", "en", "context", system_prompt=prompt)
-            self.assertEqual(
-                client.models.generate_content.call_args.kwargs[
-                    "config"
-                ].system_instruction,
-                prompt,
-            )
 
     def test_empty_context_returns_localized_abstention_without_api(self):
         for language, prefix in [("ru", "Недостаточно"), ("en", "There are")]:
@@ -203,51 +135,3 @@ class GenerationTests(unittest.TestCase):
         client.models.generate_content.return_value = SimpleNamespace(text=None)
         with self.assertRaisesRegex(ValueError, "no answer"):
             generate_answer(client, "Question?", "en", "context")
-
-    def test_source_ids_map_to_pdf_pages_and_keep_same_page_chunks_together(self):
-        client = Mock()
-        usage = Mock()
-        usage.model_dump.return_value = {"prompt_token_count": 100}
-        client.models.generate_content.return_value = SimpleNamespace(
-            text='{"status":"answered","answer":"No.","citations":["S2"]}',
-            model_version="test",
-            usage_metadata=usage,
-        )
-        documents = [
-            {"document_id": "ru", "pdf_page": 151, "printed_page": 149},
-            {"document_id": "ru", "pdf_page": 151, "printed_page": 149},
-            {"document_id": "en", "pdf_page": 145, "printed_page": 145},
-        ]
-        result = generate_answer(
-            client, "Question?", "en", "context", citation_documents=documents
-        )
-        self.assertEqual(result["citations"], ["en:145"])
-        self.assertEqual(
-            result["citation_source_map"], {"S1": "ru:151", "S2": "en:145"}
-        )
-        self.assertEqual(result["citation_source_ids"], ["S2"])
-        request = client.models.generate_content.call_args.kwargs
-        self.assertEqual(
-            request["config"].response_schema["properties"]["citations"]["items"][
-                "enum"
-            ],
-            ["S1", "S2"],
-        )
-        self.assertIn("S1 = ru:151", request["contents"])
-
-    def test_source_ids_reject_unknown_and_duplicate_values(self):
-        for citations in ['["S9"]', '["S1","S1"]']:
-            client = Mock()
-            client.models.generate_content.return_value = SimpleNamespace(
-                text='{"status":"answered","answer":"No.","citations":'
-                + citations
-                + "}"
-            )
-            with self.subTest(citations=citations), self.assertRaises(ValueError):
-                generate_answer(
-                    client,
-                    "Question?",
-                    "en",
-                    "context",
-                    citation_documents=[{"document_id": "en", "pdf_page": 145}],
-                )

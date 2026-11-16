@@ -5,10 +5,10 @@ from unittest.mock import Mock
 
 import mlflow
 
-from football_rules.bm25 import BM25Retriever
-from football_rules.hybrid import HybridRetriever, reciprocal_rank_fusion
-from football_rules.jsonl import write_jsonl
-from football_rules.retrieval import DenseRetriever, index_chunks
+from football_rules.io import write_jsonl
+from football_rules.retrieval.bm25 import BM25Retriever
+from football_rules.retrieval.hybrid import HybridRetriever, reciprocal_rank_fusion
+from football_rules.retrieval.store import DenseRetriever, index_chunks
 
 
 def hit(identity, score=1.0):

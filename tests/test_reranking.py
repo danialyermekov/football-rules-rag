@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import mlflow
 
-from football_rules.reranking import (
+from football_rules.retrieval.reranking import (
     QWEN_INSTRUCTION,
     CrossEncoderReranker,
     fuse_retrieval_reranker,

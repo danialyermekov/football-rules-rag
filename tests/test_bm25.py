@@ -5,8 +5,8 @@ from pathlib import Path
 
 import mlflow
 
-from football_rules.bm25 import BM25Retriever, tokenize
-from football_rules.jsonl import write_jsonl
+from football_rules.io import write_jsonl
+from football_rules.retrieval.bm25 import BM25Retriever, tokenize
 
 
 class BM25Tests(unittest.TestCase):

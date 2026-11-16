@@ -6,7 +6,7 @@ from pathlib import Path
 from threading import Lock
 from typing import Any
 
-from football_rules.jsonl import write_jsonl
+from football_rules.io import write_jsonl
 
 
 class ApiBudget:

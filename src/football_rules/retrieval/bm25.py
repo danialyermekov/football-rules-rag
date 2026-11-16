@@ -11,7 +11,7 @@ from typing import Any
 
 import mlflow
 
-from football_rules.retrieval import read_chunks
+from football_rules.retrieval.store import read_chunks
 
 
 def tokenize(text: str) -> list[str]:

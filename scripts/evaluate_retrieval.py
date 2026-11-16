@@ -13,13 +13,14 @@ from mlflow.entities import Feedback
 from mlflow.genai.datasets import create_dataset, get_dataset
 from mlflow.genai.scorers import scorer
 
-from football_rules.bm25 import BM25Retriever
-from football_rules.embeddings import MODEL_ID, MODEL_REVISION, load_embedder
-from football_rules.evidence_evaluation import evidence_metrics, pack_context
-from football_rules.hybrid import HybridRetriever
-from football_rules.retrieval import DenseRetriever, read_chunks
-from football_rules.retrieval_metrics import ranking_metrics, relevant_chunks
-from football_rules.tracking import configure_tracking
+from football_rules.evaluation.evidence import evidence_metrics
+from football_rules.evaluation.ranking import ranking_metrics, relevant_chunks
+from football_rules.evaluation.tracking import configure_tracking
+from football_rules.retrieval.bm25 import BM25Retriever
+from football_rules.retrieval.context import pack_context
+from football_rules.retrieval.embeddings import MODEL_ID, MODEL_REVISION, load_embedder
+from football_rules.retrieval.hybrid import HybridRetriever
+from football_rules.retrieval.store import DenseRetriever, read_chunks
 
 
 def read_jsonl(path):
@@ -387,18 +388,17 @@ def main():
             mlflow.log_artifact(__file__, artifact_path="code")
 
             for name in (
-                "embeddings",
-                "chunking",
-                "cleaning",
-                "bm25",
-                "hybrid",
-                "retrieval",
-                "retrieval_metrics",
-                "evidence_evaluation",
+                "ingestion/cleaning.py",
+                "ingestion/chunking.py",
+                "retrieval/embeddings.py",
+                "retrieval/bm25.py",
+                "retrieval/hybrid.py",
+                "retrieval/store.py",
+                "retrieval/context.py",
+                "evaluation/ranking.py",
+                "evaluation/evidence.py",
             ):
-                mlflow.log_artifact(
-                    f"src/football_rules/{name}.py", artifact_path="code"
-                )
+                mlflow.log_artifact(f"src/football_rules/{name}", artifact_path="code")
             result = mlflow.genai.evaluate(
                 data=dataset, predict_fn=predict, scorers=scorers
             )

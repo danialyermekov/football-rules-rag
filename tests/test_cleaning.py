@@ -5,9 +5,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from football_rules.cleaning import clean_corpus, clean_page
-from football_rules.ingestion import PageRecord
-from football_rules.jsonl import write_jsonl
+from football_rules.ingestion.cleaning import clean_corpus, clean_page
+from football_rules.ingestion.pdf import PageRecord
+from football_rules.io import write_jsonl
 
 
 def page_record(raw_text: str, printed_page: int | None = 98) -> PageRecord:
@@ -190,7 +190,7 @@ class CleaningArtifactTests(unittest.TestCase):
         self.output.write_bytes(b"existing output")
         with (
             patch(
-                "football_rules.jsonl.os.replace",
+                "football_rules.io.os.replace",
                 side_effect=OSError("fixture failure"),
             ),
             self.assertRaisesRegex(OSError, "fixture failure"),

@@ -2,11 +2,8 @@ import runpy
 import unittest
 from pathlib import Path
 
-from football_rules.evidence_evaluation import (
-    evidence_metrics,
-    pack_context,
-    render_context,
-)
+from football_rules.evaluation.evidence import evidence_metrics
+from football_rules.retrieval.context import pack_context, render_context
 
 
 def document(identity, start, end, page=1, source="doc", text=None):

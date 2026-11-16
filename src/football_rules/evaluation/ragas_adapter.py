@@ -11,7 +11,7 @@ from google.genai import types
 from ragas.embeddings.base import BaseRagasEmbedding
 from ragas.llms import InstructorLLM
 
-from football_rules.embeddings import Embedder
+from football_rules.retrieval.embeddings import Embedder
 
 
 class LocalMetricEmbeddings(BaseRagasEmbedding):
