@@ -379,7 +379,6 @@ def main():
                     },
                     "evaluation-protocol.json",
                 )
-                mlflow.log_artifact("docs/evidence-audit-e0.md")
 
             mlflow.log_artifact("docs/source-manifest.json")
             mlflow.log_artifact(str(args.chunks), artifact_path="corpus")
